@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { AuthProvider } from '@/components/providers/AuthProvider';
+import { LayoutWrapper } from '@/components/layout/LayoutWrapper';
 
 export const metadata: Metadata = {
     title: {
@@ -51,12 +50,10 @@ export default function RootLayout({
 }) {
     return (
         <html lang="uz">
-            <body className="min-h-screen flex flex-col">
+            <body className="min-h-screen">
                 <ThemeProvider>
                     <AuthProvider>
-                        <Header />
-                        <main className="flex-grow">{children}</main>
-                        <Footer />
+                        <LayoutWrapper>{children}</LayoutWrapper>
                     </AuthProvider>
                 </ThemeProvider>
             </body>

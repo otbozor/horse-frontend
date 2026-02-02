@@ -14,9 +14,18 @@ export default function AdminListingsPage() {
     const loadListings = async () => {
         try {
             setIsLoading(true);
-            const data = await getPendingListings();
-            setListings(Array.isArray(data) ? data : []);
+            const response = await getPendingListings();
+            console.log('API response:', response);
+
+            // Response structure: { success: true, data: { data: [...], pagination: {...} } }
+            if (response.success && response.data) {
+                const listingsData = response.data.data || response.data;
+                setListings(Array.isArray(listingsData) ? listingsData : []);
+            } else {
+                setListings([]);
+            }
         } catch (err: any) {
+            console.error('Error loading listings:', err);
             setError(err.message || 'Ma\'lumotlarni yuklashda xatolik');
         } finally {
             setIsLoading(false);
@@ -96,20 +105,22 @@ export default function AdminListingsPage() {
                                     <p className="text-xs text-slate-500">{item.date || new Date(item.createdAt).toLocaleDateString('uz-UZ')}</p>
                                 </td>
                                 <td className="px-6 py-4 text-sm text-slate-600">
-                                    {item.user?.displayName || item.user || '-'}
+                                    {typeof item.user === 'string' ? item.user : item.user?.displayName || '-'}
                                 </td>
                                 <td className="px-6 py-4 font-medium text-slate-900">
-                                    {item.price || `${item.priceAmount} ${item.priceCurrency}`}
+                                    {typeof item.price === 'string'
+                                        ? item.price
+                                        : `${item.priceAmount?.toLocaleString() || 0} ${item.priceCurrency || 'UZS'}`
+                                    }
                                 </td>
                                 <td className="px-6 py-4 text-sm text-slate-600">
-                                    {item.region || item.district?.region?.nameUz || '-'}
+                                    {item.region?.nameUz || item.district?.region?.nameUz || '-'}
                                 </td>
                                 <td className="px-6 py-4 text-right space-x-2">
                                     <Link
-                                        href={`/ot/${item.id}`}
+                                        href={`/admin/listings/${item.id}/preview`}
                                         className="inline-flex p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                                         title="Ko'rish"
-                                        target="_blank"
                                     >
                                         <Eye className="w-5 h-5" />
                                     </Link>

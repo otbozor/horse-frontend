@@ -39,8 +39,8 @@ export function AdminSidebar() {
                             key={item.name}
                             href={item.href}
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                                    ? 'bg-primary-600 text-white'
-                                    : 'hover:bg-slate-800 hover:text-white'
+                                ? 'bg-primary-600 text-white'
+                                : 'hover:bg-slate-800 hover:text-white'
                                 }`}
                         >
                             <item.icon className="w-5 h-5" />
@@ -65,11 +65,13 @@ export function AdminSidebar() {
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="min-h-screen bg-slate-100 pl-64">
+        <div className="min-h-screen bg-slate-100">
             <AdminSidebar />
-            <main className="p-8">
-                {children}
-            </main>
+            <div className="pl-64">
+                <main className="p-8 min-h-screen">
+                    {children}
+                </main>
+            </div>
         </div>
     );
 }

@@ -11,10 +11,12 @@ export async function getAdminStats(): Promise<AuthResponse<{
 }
 
 // Pending Listings
-export async function getPendingListings(page = 1, limit = 20): Promise<AuthResponse<any>> {
-    return apiFetch('/api/admin/listings/pending', {
+export async function getPendingListings(page = 1, limit = 20): Promise<any> {
+    const response = await apiFetch('/api/admin/listings/pending', {
         params: { page, limit },
     });
+    console.log('getPendingListings response:', response);
+    return response;
 }
 
 // Approve Listing

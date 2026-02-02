@@ -19,20 +19,25 @@ export function FileUpload({
     onFilesChange,
     initialFiles = []
 }: FileUploadProps) {
-    const [files, setFiles] = useState<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number; file?: File }[]>(initialFiles);
+    const [files, setFiles] = useState<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number; file?: File }[]>(() => {
+        // Filter out any blob URLs from initialFiles on mount
+        const validInitialFiles = initialFiles.filter(f => !f.url.startsWith('blob:'));
+        console.log('FileUpload initialized with files:', validInitialFiles);
+        return validInitialFiles;
+    });
     const [isUploading, setIsUploading] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+    const blobUrlsRef = useRef<Set<string>>(new Set());
 
-    // Cleanup blob URLs on unmount to prevent memory leak
+    // Cleanup all blob URLs on unmount
     useEffect(() => {
         return () => {
-            files.forEach(file => {
-                if (file.url.startsWith('blob:')) {
-                    URL.revokeObjectURL(file.url);
-                }
+            blobUrlsRef.current.forEach(url => {
+                URL.revokeObjectURL(url);
             });
+            blobUrlsRef.current.clear();
         };
-    }, [files]);
+    }, []);
 
     const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFiles = Array.from(e.target.files || []);
@@ -46,32 +51,30 @@ export function FileUpload({
         setIsUploading(true);
 
         try {
-            const newFiles = await Promise.all(selectedFiles.map(async (file, idx) => {
+            const newFiles = selectedFiles.map((file, idx) => {
                 const type: 'IMAGE' | 'VIDEO' = file.type.startsWith('video/') ? 'VIDEO' : 'IMAGE';
-
-                // 1. Get signed URL
-                const { uploadUrl, fileUrl } = await getSignedUploadUrl('listing', file.type);
-
-                // 2. Upload to S3 (Mocking fetch for now as placeholder endpoint doesn't actually work)
-                // await fetch(uploadUrl, { method: 'PUT', body: file });
-
-                // For current mock setup, we just return a blob URL or placeholder
                 const objectUrl = URL.createObjectURL(file);
 
+                // Track blob URL for cleanup
+                blobUrlsRef.current.add(objectUrl);
+
+                console.log('Created blob URL:', objectUrl, 'for file:', file.name);
+
                 return {
-                    url: objectUrl, // In real app: fileUrl
+                    url: objectUrl,
                     type,
                     sortOrder: files.length + idx,
                     file
                 };
-            }));
+            });
 
             const updatedFiles = [...files, ...newFiles];
+            console.log('Updated files:', updatedFiles.map(f => ({ url: f.url, type: f.type })));
             setFiles(updatedFiles);
             onFilesChange(updatedFiles);
         } catch (error) {
             console.error('Upload failed', error);
-            alert('Yuklashda xatolik yuz berdi');
+            alert('Rasmlarni yuklashda xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.');
         } finally {
             setIsUploading(false);
             // Reset input
@@ -85,6 +88,7 @@ export function FileUpload({
         // Revoke blob URL before removing
         if (fileToRemove.url.startsWith('blob:')) {
             URL.revokeObjectURL(fileToRemove.url);
+            blobUrlsRef.current.delete(fileToRemove.url);
         }
 
         const updatedFiles = files.filter((_, i) => i !== index)
@@ -102,9 +106,25 @@ export function FileUpload({
                 {files.map((file, index) => (
                     <div key={index} className="relative aspect-square bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden group border border-slate-200 dark:border-slate-600">
                         {file.type === 'VIDEO' ? (
-                            <video src={file.url} className="w-full h-full object-cover" aria-label={`Yuklangan video ${index + 1}`} />
+                            <video
+                                src={file.url}
+                                className="w-full h-full object-cover"
+                                aria-label={`Yuklangan video ${index + 1}`}
+                                onError={(e) => {
+                                    console.warn('Video load error:', file.url);
+                                    e.currentTarget.style.display = 'none';
+                                }}
+                            />
                         ) : (
-                            <img src={file.url} alt={`Yuklangan rasm ${index + 1}`} className="w-full h-full object-cover" />
+                            <img
+                                src={file.url}
+                                alt={`Yuklangan rasm ${index + 1}`}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    console.warn('Image load error:', file.url);
+                                    e.currentTarget.style.display = 'none';
+                                }}
+                            />
                         )}
 
                         <button

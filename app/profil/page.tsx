@@ -73,7 +73,7 @@ export default function ProfilPage() {
                     {/* Quick Links */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <Link
-                            href="/profil/e'lonlarim"
+                            href="/profil/elonlarim"
                             className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-6 hover:border-primary-500 transition-colors group"
                         >
                             <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">

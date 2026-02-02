@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronRight, ChevronLeft, Save, Loader2 } from 'lucide-react';
+import { useAuth } from '@/components/providers/AuthProvider';
+import { ChevronRight, ChevronLeft, Save, Loader2, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { FileUpload } from '@/components/ui/FileUpload';
@@ -18,8 +19,10 @@ const steps = [
 
 export default function CreateListingPage() {
     const router = useRouter();
+    const { user, isLoading } = useAuth();
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string>('');
     const [regions, setRegions] = useState<Region[]>([]);
     const [districts, setDistricts] = useState<District[]>([]);
     const [breeds, setBreeds] = useState<Breed[]>([]);
@@ -43,6 +46,20 @@ export default function CreateListingPage() {
     });
 
     const [draftId, setDraftId] = useState<string | null>(null);
+
+    // Clean up any blob URLs on mount (in case of page refresh)
+    useEffect(() => {
+        setFormData(prev => ({
+            ...prev,
+            media: prev.media.filter(m => !m.url.startsWith('blob:'))
+        }));
+    }, []);
+
+    useEffect(() => {
+        if (!isLoading && !user) {
+            router.push('/login');
+        }
+    }, [user, isLoading, router]);
 
     useEffect(() => {
         async function loadData() {
@@ -78,10 +95,29 @@ export default function CreateListingPage() {
     const saveDraft = async () => {
         setIsSubmitting(true);
         try {
+            // Validate required fields
+            if (!formData.title || !formData.regionId || !formData.priceAmount) {
+                setError('Iltimos barcha majburiy maydonlarni to\'ldiring');
+                return false;
+            }
+
+            // Prepare data - remove media field and empty values
+            const { media, ...dataWithoutMedia } = formData;
+
             const data = {
-                ...formData,
-                ageYears: formData.ageYears ? Number(formData.ageYears) : undefined,
-                priceAmount: Number(formData.priceAmount),
+                title: dataWithoutMedia.title,
+                description: dataWithoutMedia.description || undefined,
+                purpose: dataWithoutMedia.purpose || undefined,
+                breedId: dataWithoutMedia.breedId || undefined,
+                gender: dataWithoutMedia.gender || undefined,
+                ageYears: dataWithoutMedia.ageYears ? Number(dataWithoutMedia.ageYears) : undefined,
+                color: dataWithoutMedia.color || undefined,
+                regionId: dataWithoutMedia.regionId,
+                districtId: dataWithoutMedia.districtId || undefined,
+                priceAmount: Number(dataWithoutMedia.priceAmount),
+                priceCurrency: dataWithoutMedia.priceCurrency,
+                hasPassport: dataWithoutMedia.hasPassport,
+                hasVaccine: dataWithoutMedia.hasVaccine,
             };
 
             if (!draftId) {
@@ -91,9 +127,11 @@ export default function CreateListingPage() {
                 // Update mock - in real app would verify logic
                 // await updateListingDraft(draftId, data);
             }
+            setError('');
             return true;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to save draft', error);
+            setError(error.message || 'E\'lon saqlanmadi. Iltimos qayta urinib ko\'ring.');
             return false;
         } finally {
             setIsSubmitting(false);
@@ -118,7 +156,7 @@ export default function CreateListingPage() {
                 await submitListingForReview(draftId);
             }
 
-            router.push('/profil/elonnar?success=true');
+            router.push('/profil/elonlarim?success=true');
         } catch (error) {
             console.error('Failed to submit', error);
             alert('Xatolik yuz berdi');
@@ -133,6 +171,23 @@ export default function CreateListingPage() {
                 <h1 className="text-2xl font-bold text-slate-900 mb-2">E'lon joylash</h1>
                 <p className="text-slate-500">Otingizni sotish uchun ma'lumotlarni to'ldiring</p>
             </div>
+
+            {/* Error Alert */}
+            {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                        <h3 className="font-medium text-red-900 mb-1">Xatolik</h3>
+                        <p className="text-sm text-red-700">{error}</p>
+                    </div>
+                    <button
+                        onClick={() => setError('')}
+                        className="text-red-400 hover:text-red-600"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
 
             {/* Progress Steps */}
             <div className="flex items-center justify-between mb-8 relative">
@@ -291,7 +346,7 @@ export default function CreateListingPage() {
                         <div className="space-y-3">
                             <label className="label">Qo'shimcha ma'lumotlar</label>
 
-                            <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+                            <label className="flex items-center gap-3 p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 hover:border-primary-300 transition-all">
                                 <input
                                     type="checkbox"
                                     name="hasPassport"
@@ -299,10 +354,10 @@ export default function CreateListingPage() {
                                     onChange={handleChange}
                                     className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500"
                                 />
-                                <span>Hujjati (pasporti) bor</span>
+                                <span className="text-slate-900 font-medium text-base">Hujjati (pasporti) bor</span>
                             </label>
 
-                            <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+                            <label className="flex items-center gap-3 p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 hover:border-primary-300 transition-all">
                                 <input
                                     type="checkbox"
                                     name="hasVaccine"
@@ -310,7 +365,7 @@ export default function CreateListingPage() {
                                     onChange={handleChange}
                                     className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500"
                                 />
-                                <span>Emlangan (vaktsina qilingan)</span>
+                                <span className="text-slate-900 font-medium text-base">Emlangan (vaktsina qilingan)</span>
                             </label>
                         </div>
                     </div>
@@ -320,8 +375,10 @@ export default function CreateListingPage() {
                 {currentStep === 4 && (
                     <div className="space-y-6 animate-fade-in">
                         <FileUpload
+                            key="listing-media-upload"
                             onFilesChange={(files) => setFormData(prev => ({ ...prev, media: files }))}
                             maxFiles={8}
+                            initialFiles={formData.media.filter(m => !m.url.startsWith('blob:'))}
                         />
                     </div>
                 )}
@@ -379,14 +436,40 @@ export default function CreateListingPage() {
 
                     {currentStep < 5 ? (
                         <button
-                            onClick={() => {
-                                saveDraft();
+                            onClick={async () => {
+                                // Validate current step before moving forward
+                                if (currentStep === 1 && !formData.title) {
+                                    setError('Iltimos sarlavha kiriting');
+                                    return;
+                                }
+                                if (currentStep === 2 && !formData.regionId) {
+                                    setError('Iltimos viloyatni tanlang');
+                                    return;
+                                }
+                                if (currentStep === 3 && !formData.priceAmount) {
+                                    setError('Iltimos narx kiriting');
+                                    return;
+                                }
+
+                                // Save draft before moving to next step
+                                if (currentStep === 3) {
+                                    const saved = await saveDraft();
+                                    if (!saved) return;
+                                }
+
                                 nextStep();
                             }}
                             className="btn btn-primary"
+                            disabled={isSubmitting}
                         >
-                            Keyingi
-                            <ChevronRight className="w-4 h-4" />
+                            {isSubmitting ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                                <>
+                                    Keyingi
+                                    <ChevronRight className="w-4 h-4" />
+                                </>
+                            )}
                         </button>
                     ) : (
                         <button

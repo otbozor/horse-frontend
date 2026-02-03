@@ -61,3 +61,11 @@ export async function getAuditLogs(page = 1, limit = 50): Promise<AuthResponse<a
         params: { page, limit },
     });
 }
+
+// Change Admin Password
+export async function changeAdminPassword(currentPassword: string, newPassword: string): Promise<AuthResponse<any>> {
+    return apiFetch('/api/admin/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ currentPassword, newPassword }),
+    });
+}

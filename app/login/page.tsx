@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { MessageCircle, ArrowLeft, Loader2 } from 'lucide-react';
 import { startTelegramAuth, verifyCode } from '@/lib/api';
 
-export default function LoginPage() {
+function LoginContent() {
     const [loading, setLoading] = useState(false);
     const [code, setCode] = useState('');
     const [step, setStep] = useState<'start' | 'verify'>('start');
@@ -221,5 +221,17 @@ export default function LoginPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-slate-50">
+                <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+            </div>
+        }>
+            <LoginContent />
+        </Suspense>
     );
 }

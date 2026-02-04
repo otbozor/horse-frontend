@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { getListings, ListingsFilter } from '@/lib/api';
 import { ListingCard } from '@/components/listing/ListingCard';
 import { ListingFilters } from '@/components/listing/ListingFilters';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 
 export const metadata = {
     title: 'Ot bozori - Barcha e\'lonlar',
@@ -24,7 +24,18 @@ export default async function BozorPage({
 
                 {/* Left Sidebar Filters */}
                 <aside className="lg:w-1/4">
-                    <ListingFilters />
+                    <Suspense fallback={
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                            <div className="animate-pulse space-y-4">
+                                <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+                                <div className="h-10 bg-slate-200 rounded"></div>
+                                <div className="h-10 bg-slate-200 rounded"></div>
+                                <div className="h-10 bg-slate-200 rounded"></div>
+                            </div>
+                        </div>
+                    }>
+                        <ListingFilters />
+                    </Suspense>
                 </aside>
 
                 {/* Main Content */}
@@ -71,8 +82,8 @@ export default async function BozorPage({
                                 <button
                                     key={i}
                                     className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors ${pagination.page === i + 1
-                                            ? 'bg-primary-600 text-white'
-                                            : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                                        ? 'bg-primary-600 text-white'
+                                        : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
                                         }`}
                                 >
                                     {i + 1}

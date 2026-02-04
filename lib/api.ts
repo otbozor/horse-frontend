@@ -121,8 +121,9 @@ export async function getListings(filter: ListingsFilter = {}): Promise<Listings
     return { data: [], pagination: { page: 1, limit: 20, total: 0, totalPages: 0 } };
 }
 
-export async function getListing(id: string): Promise<Listing> {
-    const response = await apiFetch<AuthResponse<Listing>>(`/api/listings/${id}`);
+export async function getListing(idOrSlug: string): Promise<Listing> {
+    // Try to fetch by ID or slug
+    const response = await apiFetch<AuthResponse<Listing>>(`/api/listings/${idOrSlug}`);
     if (response.success && response.data) {
         return response.data;
     }

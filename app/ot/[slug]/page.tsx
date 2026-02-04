@@ -7,7 +7,19 @@ import { notFound } from 'next/navigation';
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
     try {
-        const id = params.slug.split('-')[0];
+        // Extract ID from slug
+        // Supports both formats: "id-slug" and "slug"
+        let id = params.slug;
+
+        // Check if slug contains UUID (format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+        const match = params.slug.match(uuidRegex);
+
+        if (match) {
+            // If UUID found at start, use it as ID
+            id = match[0];
+        }
+
         const listing = await getListing(id);
         return {
             title: `${listing.title} - ${formatPrice(listing.priceAmount, listing.priceCurrency)} | Otbozor`,
@@ -22,7 +34,19 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function ListingDetailPage({ params }: { params: { slug: string } }) {
-    const id = params.slug.split('-')[0];
+    // Extract ID from slug
+    // Supports both formats: "id-slug" and "slug"
+    let id = params.slug;
+
+    // Check if slug contains UUID (format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+    const match = params.slug.match(uuidRegex);
+
+    if (match) {
+        // If UUID found at start, use it as ID
+        id = match[0];
+    }
+
     let listing;
     let similarListings = [];
 
@@ -136,7 +160,11 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
                                 </div>
                                 <div>
                                     <p className="font-semibold text-slate-900">{listing.user.displayName}</p>
-                                    <p className="text-xs text-slate-500">Otbozor'da 2024 yildan</p>
+                                    {listing.publishedAt && (
+                                        <p className="text-xs text-slate-500">
+                                            Otbozor'da {new Date(listing.publishedAt).getFullYear()} yildan
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 

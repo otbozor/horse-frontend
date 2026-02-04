@@ -19,11 +19,16 @@ export async function generateSitemap() {
     }));
 
     // Dynamic Listings
-    const { data: listings } = await getListings({ limit: 100 });
-    const listingRoutes = listings.map((listing) => ({
-        url: `${BASE_URL}/ot/${listing.id}-${listing.slug}`,
-        lastModified: listing.publishedAt || new Date().toISOString(),
-    }));
+    let listingRoutes: any[] = [];
+    try {
+        const { data: listings } = await getListings({ limit: 100 });
+        listingRoutes = listings.map((listing) => ({
+            url: `${BASE_URL}/ot/${listing.id}-${listing.slug}`,
+            lastModified: listing.publishedAt || new Date().toISOString(),
+        }));
+    } catch (error) {
+        console.warn('Failed to fetch listings for sitemap, skipping dynamic routes');
+    }
 
     // Viloyatlar (SEO pages)
     const regions = [

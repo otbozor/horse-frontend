@@ -386,37 +386,55 @@ export default function CreateListingPage() {
                 {/* Step 5: Preview */}
                 {currentStep === 5 && (
                     <div className="space-y-6 animate-fade-in">
-                        <div className="bg-slate-50 p-4 rounded-xl space-y-4 text-sm">
-                            <h3 className="font-bold text-lg text-slate-900">{formData.title}</h3>
+                        {/* Media Preview */}
+                        {formData.media.length > 0 && (
+                            <div className="mb-6">
+                                <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Yuklangan rasmlar ({formData.media.length})</h3>
+                                <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+                                    {formData.media.slice(0, 8).map((media, idx) => (
+                                        <div key={idx} className="aspect-square bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-600">
+                                            {media.type === 'VIDEO' ? (
+                                                <video src={media.url} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <img src={media.url} alt={`Rasm ${idx + 1}`} className="w-full h-full object-cover" />
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl space-y-4">
+                            <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100 mb-4">{formData.title}</h3>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <span className="block text-slate-500">Narx</span>
-                                    <span className="font-medium text-primary-600">{formData.priceAmount} {formData.priceCurrency}</span>
+                                    <span className="block text-slate-500 dark:text-slate-400 text-sm mb-1">Narx</span>
+                                    <span className="font-semibold text-primary-600 dark:text-primary-400 text-lg">{formData.priceAmount} {formData.priceCurrency}</span>
                                 </div>
                                 <div>
-                                    <span className="block text-slate-500">Joylashuv</span>
-                                    <span className="font-medium">
+                                    <span className="block text-slate-500 dark:text-slate-400 text-sm mb-1">Joylashuv</span>
+                                    <span className="font-medium text-slate-900 dark:text-slate-100">
                                         {regions.find(r => r.id === formData.regionId)?.nameUz}
                                     </span>
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <span className="block text-slate-500">Zoti</span>
-                                    <span className="font-medium">
+                                    <span className="block text-slate-500 dark:text-slate-400 text-sm mb-1">Zoti</span>
+                                    <span className="font-medium text-slate-900 dark:text-slate-100">
                                         {breeds.find(b => b.id === formData.breedId)?.name || '-'}
                                     </span>
                                 </div>
                                 <div>
-                                    <span className="block text-slate-500">Rasmlar</span>
-                                    <span className="font-medium flex items-center gap-1">
+                                    <span className="block text-slate-500 dark:text-slate-400 text-sm mb-1">Rasmlar</span>
+                                    <span className="font-medium text-slate-900 dark:text-slate-100 flex items-center gap-1">
                                         {formData.media.length} ta fayl
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        <p className="text-sm text-slate-500 text-center">
+                        <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
                             E'lonni chop etish orqali siz foydalanish shartlariga rozilik bildirasiz.
                             Moderatorlar e'lonni tekshirib chiqqandan so'ng u saytda ko'rinadi.
                         </p>
@@ -424,13 +442,13 @@ export default function CreateListingPage() {
                 )}
 
                 {/* Actions */}
-                <div className="mt-8 pt-6 border-t border-slate-100 flex justify-between">
+                <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 flex justify-between">
                     <button
                         onClick={prevStep}
                         disabled={currentStep === 1}
-                        className={`btn btn-ghost ${currentStep === 1 ? 'invisible' : ''}`}
+                        className={`btn btn-outline ${currentStep === 1 ? 'invisible' : ''}`}
                     >
-                        <ChevronLeft className="w-4 h-4" />
+                        <ChevronLeft className="w-5 h-5" />
                         Ortga
                     </button>
 

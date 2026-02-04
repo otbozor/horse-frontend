@@ -22,7 +22,6 @@ export function FileUpload({
     const [files, setFiles] = useState<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number; file?: File }[]>(() => {
         // Filter out any blob URLs from initialFiles on mount
         const validInitialFiles = initialFiles.filter(f => !f.url.startsWith('blob:'));
-        console.log('FileUpload initialized with files:', validInitialFiles);
         return validInitialFiles;
     });
     const [isUploading, setIsUploading] = useState(false);
@@ -58,8 +57,6 @@ export function FileUpload({
                 // Track blob URL for cleanup
                 blobUrlsRef.current.add(objectUrl);
 
-                console.log('Created blob URL:', objectUrl, 'for file:', file.name);
-
                 return {
                     url: objectUrl,
                     type,
@@ -69,7 +66,6 @@ export function FileUpload({
             });
 
             const updatedFiles = [...files, ...newFiles];
-            console.log('Updated files:', updatedFiles.map(f => ({ url: f.url, type: f.type })));
             setFiles(updatedFiles);
             onFilesChange(updatedFiles);
         } catch (error) {

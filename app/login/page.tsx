@@ -48,7 +48,9 @@ function LoginContent() {
         setError('');
 
         try {
+            console.log('🔐 Verifying code:', code);
             const response = await verifyCode(code);
+            console.log('📡 Verify response:', response);
 
             if (!response.success) {
                 throw new Error(response.message || 'Code noto\'g\'ri yoki muddati o\'tgan');
@@ -56,13 +58,20 @@ function LoginContent() {
 
             // Save tokens to localStorage
             if (response.data?.tokens) {
+                console.log('💾 Saving tokens to localStorage...');
                 localStorage.setItem('accessToken', response.data.tokens.accessToken);
                 localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
+                console.log('✅ Tokens saved:', {
+                    accessToken: response.data.tokens.accessToken.substring(0, 20) + '...',
+                    refreshToken: response.data.tokens.refreshToken.substring(0, 20) + '...',
+                });
             }
 
+            console.log('🔄 Redirecting to:', returnUrl);
             // Muvaffaqiyatli login - force reload to refresh AuthProvider
             window.location.href = returnUrl;
         } catch (err: any) {
+            console.error('❌ Verify error:', err);
             setError(err.message || 'Tasdiqlashda xatolik');
         } finally {
             setLoading(false);

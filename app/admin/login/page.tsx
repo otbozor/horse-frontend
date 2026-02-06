@@ -24,7 +24,9 @@ export default function AdminLoginPage() {
                 throw new Error('Username va parol talab qilinadi');
             }
 
+            console.log('🔐 Admin login attempt:', username);
             const response = await adminLogin(username, password);
+            console.log('📡 Admin login response:', response);
 
             if (!response.success) {
                 throw new Error(response.message || 'Login muvaffaqiyatsiz');
@@ -32,13 +34,17 @@ export default function AdminLoginPage() {
 
             // Save tokens to localStorage
             if (response.data?.tokens) {
+                console.log('💾 Saving admin tokens to localStorage...');
                 localStorage.setItem('accessToken', response.data.tokens.accessToken);
                 localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
+                console.log('✅ Admin tokens saved');
             }
 
+            console.log('🔄 Redirecting to admin dashboard...');
             // Muvaffaqiyatli login - force reload to refresh AuthProvider
             window.location.href = '/admin/dashboard';
         } catch (err: any) {
+            console.error('❌ Admin login error:', err);
             setError(err.message || 'Xatolik yuz berdi');
         } finally {
             setLoading(false);

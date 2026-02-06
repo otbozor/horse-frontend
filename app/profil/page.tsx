@@ -4,10 +4,20 @@ import { useAuth } from '@/components/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
 import { User, LogOut, FileText, Heart } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect } from 'react';
 
 export default function ProfilPage() {
     const { user, isLoading, logout } = useAuth();
     const router = useRouter();
+
+    useEffect(() => {
+        console.log('👤 ProfilPage - Auth State:', { user, isLoading });
+
+        if (!isLoading && !user) {
+            console.log('❌ No user, redirecting to login...');
+            router.push('/login?returnUrl=/profil');
+        }
+    }, [user, isLoading, router]);
 
     if (isLoading) {
         return (
@@ -21,8 +31,7 @@ export default function ProfilPage() {
     }
 
     if (!user) {
-        router.push('/login');
-        return null;
+        return null; // Will redirect via useEffect
     }
 
     return (

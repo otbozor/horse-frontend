@@ -4,7 +4,7 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { MessageCircle, ArrowLeft, Loader2 } from 'lucide-react';
-import { startTelegramAuth, verifyCode } from '@/lib/api';
+import { startTelegramAuth, verifyCode, getCurrentUser } from '@/lib/api';
 
 function LoginContent() {
     const [loading, setLoading] = useState(false);
@@ -68,8 +68,17 @@ function LoginContent() {
             }
 
             console.log('🔄 Redirecting to:', returnUrl);
-            // Muvaffaqiyatli login - force reload to refresh AuthProvider
-            window.location.href = returnUrl;
+
+            // Check if user is admin and redirect accordingly
+            // We need to fetch user info to check if admin
+            const userResponse = await getCurrentUser();
+            if (userResponse.success && userResponse.data?.isAdmin) {
+                console.log('👑 Admin user detected, redirecting to admin dashboard');
+                window.location.href = '/admin/dashboard';
+            } else {
+                console.log('👤 Regular user, redirecting to:', returnUrl);
+                window.location.href = returnUrl;
+            }
         } catch (err: any) {
             console.error('❌ Verify error:', err);
             setError(err.message || 'Tasdiqlashda xatolik');

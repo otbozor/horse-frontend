@@ -11,7 +11,14 @@ export default function ProfilPage() {
     const router = useRouter();
 
     useEffect(() => {
-        console.log('👤 ProfilPage - Auth State:', { user: !!user, isLoading });
+        console.log('👤 ProfilPage - Auth State:', { user: !!user, isAdmin: user?.isAdmin, isLoading });
+
+        // If user is admin, redirect to admin dashboard
+        if (!isLoading && user && user.isAdmin) {
+            console.log('👑 Admin user detected, redirecting to admin dashboard...');
+            router.push('/admin/dashboard');
+            return;
+        }
 
         if (!isLoading && !user) {
             console.log('❌ No user, redirecting to login...');

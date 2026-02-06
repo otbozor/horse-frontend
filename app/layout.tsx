@@ -5,6 +5,7 @@ import { AuthProvider } from '@/components/providers/AuthProvider';
 import { LayoutWrapper } from '@/components/layout/LayoutWrapper';
 
 export const metadata: Metadata = {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
     title: {
         default: "Otbozor - O'zbekiston Ot Savdo Platformasi",
         template: '%s | Otbozor',
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
     openGraph: {
         type: 'website',
         locale: 'uz_UZ',
-        url: 'https://otbozor.uz',
+        url: '/',
         siteName: 'Otbozor',
         title: "Otbozor - O'zbekiston Ot Savdo Platformasi",
         description:

@@ -145,7 +145,9 @@ export async function getListing(idOrSlug: string): Promise<Listing> {
 }
 
 export async function getFeaturedListings(limit = 12): Promise<Listing[]> {
-    const response = await apiFetch<AuthResponse<Listing[]>>('/api/listings/featured', { params: { limit } });
+    // Ensure limit doesn't exceed 50
+    const safeLimit = Math.min(limit, 50);
+    const response = await apiFetch<AuthResponse<Listing[]>>('/api/listings/featured', { params: { limit: safeLimit } });
     if (response.success && response.data) {
         return response.data;
     }
@@ -226,7 +228,9 @@ export interface KopkariEvent {
 }
 
 export async function getUpcomingEvents(limit = 6): Promise<KopkariEvent[]> {
-    const response = await apiFetch<AuthResponse<KopkariEvent[]>>('/api/events/upcoming', { params: { limit } });
+    // Ensure limit doesn't exceed 50
+    const safeLimit = Math.min(limit, 50);
+    const response = await apiFetch<AuthResponse<KopkariEvent[]>>('/api/events/upcoming', { params: { limit: safeLimit } });
     if (response.success && response.data) {
         return response.data;
     }

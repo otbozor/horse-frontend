@@ -355,10 +355,20 @@ export interface UserMeResponse {
 }
 
 export async function adminLogin(username: string, password: string): Promise<AuthResponse<AdminLoginResponse>> {
-    return apiFetch('/api/auth/admin/login', {
+    const response = await apiFetch<AuthResponse<AdminLoginResponse>>('/api/auth/admin/login', {
         method: 'POST',
         body: JSON.stringify({ username, password }),
     });
+
+    // Save tokens to localStorage for production (cookie fallback)
+    if (response.success && response.data?.tokens) {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', response.data.tokens.accessToken);
+            localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
+        }
+    }
+
+    return response;
 }
 
 export async function startTelegramAuth(returnUrl?: string): Promise<AuthResponse<{ sessionId: string; botDeepLink: string; expiresIn: number }>> {
@@ -369,16 +379,36 @@ export async function startTelegramAuth(returnUrl?: string): Promise<AuthRespons
 }
 
 export async function verifyCode(code: string): Promise<AuthResponse<{ tokens: { accessToken: string; refreshToken: string; expiresIn: string } }>> {
-    return apiFetch('/api/auth/verify', {
+    const response = await apiFetch<AuthResponse<{ tokens: { accessToken: string; refreshToken: string; expiresIn: string } }>>('/api/auth/verify', {
         method: 'POST',
         body: JSON.stringify({ code }),
     });
+
+    // Save tokens to localStorage for production (cookie fallback)
+    if (response.success && response.data?.tokens) {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', response.data.tokens.accessToken);
+            localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
+        }
+    }
+
+    return response;
 }
 
 export async function refreshTokens(): Promise<AuthResponse<{ tokens: { accessToken: string; refreshToken: string; expiresIn: string } }>> {
-    return apiFetch('/api/auth/refresh', {
+    const response = await apiFetch<AuthResponse<{ tokens: { accessToken: string; refreshToken: string; expiresIn: string } }>>('/api/auth/refresh', {
         method: 'POST',
     });
+
+    // Save tokens to localStorage for production (cookie fallback)
+    if (response.success && response.data?.tokens) {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', response.data.tokens.accessToken);
+            localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
+        }
+    }
+
+    return response;
 }
 
 export async function getCurrentUser(): Promise<AuthResponse<UserMeResponse>> {

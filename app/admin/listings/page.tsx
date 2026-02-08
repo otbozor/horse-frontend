@@ -1,16 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { getPendingListings, approveListing, rejectListing } from '@/lib/admin-api';
 import { Check, X, Eye, Loader2, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import { AdminPagination } from '@/components/listing/AdminPagination';
 
-export default function AdminListingsPage() {
+function AdminListingsContent() {
     const searchParams = useSearchParams();
-    const router = useRouter();
     const currentPage = Number(searchParams.get('page')) || 1;
 
     const [listings, setListings] = useState<any[]>([]);
@@ -218,5 +217,19 @@ export default function AdminListingsPage() {
                 )}
             </div>
         </AdminLayout>
+    );
+}
+
+export default function AdminListingsPage() {
+    return (
+        <Suspense fallback={
+            <AdminLayout>
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+                </div>
+            </AdminLayout>
+        }>
+            <AdminListingsContent />
+        </Suspense>
     );
 }

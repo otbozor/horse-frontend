@@ -1,28 +1,39 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { getPendingListings, approveListing, rejectListing } from '@/lib/admin-api';
 import { Check, X, Eye, Loader2, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
+import { AdminPagination } from '@/components/listing/AdminPagination';
 
 export default function AdminListingsPage() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const currentPage = Number(searchParams.get('page')) || 1;
+
     const [listings, setListings] = useState<any[]>([]);
+    const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 0 });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const loadListings = async () => {
         try {
             setIsLoading(true);
-            const response = await getPendingListings();
+            const response = await getPendingListings(currentPage, 20);
             console.log('API response:', response);
 
             // Response structure: { success: true, data: { data: [...], pagination: {...} } }
             if (response.success && response.data) {
                 const listingsData = response.data.data || response.data;
+                const paginationData = response.data.pagination || { page: currentPage, limit: 20, total: 0, totalPages: 0 };
+
                 setListings(Array.isArray(listingsData) ? listingsData : []);
+                setPagination(paginationData);
             } else {
                 setListings([]);
+                setPagination({ page: currentPage, limit: 20, total: 0, totalPages: 0 });
             }
         } catch (err: any) {
             console.error('Error loading listings:', err);
@@ -34,7 +45,7 @@ export default function AdminListingsPage() {
 
     useEffect(() => {
         loadListings();
-    }, []);
+    }, [currentPage]);
 
     const handleApprove = async (id: string) => {
         if (!confirm('E\'lonni tasdiqlaysizmi?')) return;
@@ -82,7 +93,9 @@ export default function AdminListingsPage() {
             <div className="mb-6 flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900">Moderatsiya</h1>
-                    <p className="text-slate-500 text-sm">Tasdiqlash kutilayotgan e'lonlarni ko'rib chiqing</p>
+                    <p className="text-slate-500 text-sm">
+                        Tasdiqlash kutilayotgan e'lonlar ({pagination.total})
+                    </p>
                 </div>
             </div>
 
@@ -191,6 +204,18 @@ export default function AdminListingsPage() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                {pagination.totalPages > 1 && (
+                    <div className="px-6 py-4 border-t border-slate-200">
+                        <AdminPagination
+                            currentPage={pagination.page}
+                            totalPages={pagination.totalPages}
+                            searchParams={Object.fromEntries(searchParams.entries())}
+                            basePath="/admin/listings"
+                        />
+                    </div>
+                )}
             </div>
         </AdminLayout>
     );

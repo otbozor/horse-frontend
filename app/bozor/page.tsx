@@ -2,7 +2,8 @@ import { Suspense } from 'react';
 import { getListings, ListingsFilter } from '@/lib/api';
 import { ListingCard } from '@/components/listing/ListingCard';
 import { ListingFilters } from '@/components/listing/ListingFilters';
-import { Search, Loader2 } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { Pagination } from '../../components/listing/Pagination';
 
 export const metadata = {
     title: 'Ot bozori - Barcha e\'lonlar',
@@ -75,21 +76,13 @@ export default async function BozorPage({
                         </div>
                     )}
 
-                    {/* Pagination (Simple version for MVP) */}
+                    {/* Pagination */}
                     {pagination.totalPages > 1 && (
-                        <div className="mt-12 flex justify-center gap-2">
-                            {Array.from({ length: Math.min(pagination.totalPages, 5) }).map((_, i) => (
-                                <button
-                                    key={i}
-                                    className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors ${pagination.page === i + 1
-                                        ? 'bg-primary-600 text-white'
-                                        : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-                                        }`}
-                                >
-                                    {i + 1}
-                                </button>
-                            ))}
-                        </div>
+                        <Pagination
+                            currentPage={pagination.page}
+                            totalPages={pagination.totalPages}
+                            searchParams={searchParams}
+                        />
                     )}
                 </div>
             </div>

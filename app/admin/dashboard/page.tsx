@@ -5,6 +5,8 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { getAdminStats } from '@/lib/admin-api';
 import { Users, FileCheck, Eye, Activity, Loader2 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function AdminDashboardPage() {
     const [stats, setStats] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);

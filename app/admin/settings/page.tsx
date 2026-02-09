@@ -5,6 +5,8 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Shield, Loader2, Eye, EyeOff } from 'lucide-react';
 import { changeAdminPassword } from '@/lib/admin-api';
 
+export const dynamic = 'force-dynamic';
+
 export default function AdminSettingsPage() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');

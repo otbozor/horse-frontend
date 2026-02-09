@@ -6,6 +6,8 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { ArrowLeft, Loader2, Save, Upload, X, FileText, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function NewBlogPostPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);

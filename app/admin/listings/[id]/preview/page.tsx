@@ -8,6 +8,8 @@ import { approveListing, rejectListing } from '@/lib/admin-api';
 import { MapPin, Calendar, Check, X, Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function AdminListingPreviewPage() {
     const params = useParams();
     const router = useRouter();

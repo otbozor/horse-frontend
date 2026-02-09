@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Users, Ban, CheckCircle, Search, Shield, Loader2 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 interface User {
     id: string;
     displayName: string;

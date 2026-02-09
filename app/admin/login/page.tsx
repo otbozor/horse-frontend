@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import { adminLogin } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 export default function AdminLoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');

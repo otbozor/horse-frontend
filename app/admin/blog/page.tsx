@@ -5,6 +5,8 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Plus, Edit, Trash2, Eye, Loader2, FileText, CheckCircle, ExternalLink, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function AdminBlogPage() {
     const [posts, setPosts] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);

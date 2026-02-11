@@ -31,7 +31,11 @@ export default function AdminLoginPage() {
             console.log('📡 Admin login response:', response);
 
             if (!response.success) {
-                throw new Error(response.message || 'Login muvaffaqiyatsiz');
+                const msg = response.message;
+                if (msg === 'Unauthorized' || msg?.toLowerCase().includes('unauthorized')) {
+                    throw new Error("Login yoki parol noto'g'ri");
+                }
+                throw new Error(msg || 'Login muvaffaqiyatsiz');
             }
 
             // Save tokens to localStorage

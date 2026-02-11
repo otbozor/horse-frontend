@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import Link from 'next/link';
+import { GiHorseHead } from 'react-icons/gi';
 import { Heart, MapPin } from 'lucide-react';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 
@@ -32,12 +33,19 @@ function FavoritesPageContent() {
 
     const fetchFavorites = async () => {
         try {
+            const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/my/listings/favorites`,
-                { credentials: 'include' }
+                {
+                    credentials: 'include',
+                    headers: {
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    },
+                }
             );
             const data = await res.json();
-            setFavorites(data || []);
+            const favorites = Array.isArray(data) ? data : (data?.data ?? []);
+            setFavorites(favorites);
         } catch (error) {
             console.error('Failed to fetch favorites:', error);
         } finally {
@@ -47,11 +55,15 @@ function FavoritesPageContent() {
 
     const handleRemoveFavorite = async (listingId: string) => {
         try {
+            const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
             await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/listings/${listingId}/favorite`,
                 {
                     method: 'DELETE',
                     credentials: 'include',
+                    headers: {
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    },
                 }
             );
             setFavorites(favorites.filter(f => f.id !== listingId));
@@ -92,8 +104,8 @@ function FavoritesPageContent() {
                                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                             />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-6xl">
-                                                🐴
+                                            <div className="w-full h-full flex items-center justify-center text-slate-300">
+                                                <GiHorseHead className="w-16 h-16" />
                                             </div>
                                         )}
                                     </div>

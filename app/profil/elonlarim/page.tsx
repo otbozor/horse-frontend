@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import Link from 'next/link';
+import { GiHorseHead } from 'react-icons/gi';
 import { Plus, Edit, Eye } from 'lucide-react';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 
@@ -32,12 +33,19 @@ function MyListingsPageContent() {
 
     const fetchListings = async () => {
         try {
+            const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/my/listings`,
-                { credentials: 'include' }
+                {
+                    credentials: 'include',
+                    headers: {
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    },
+                }
             );
             const data = await res.json();
-            setListings(data || []);
+            const listings = Array.isArray(data) ? data : (data?.data ?? []);
+            setListings(listings);
         } catch (error) {
             console.error('Failed to fetch listings:', error);
         } finally {
@@ -104,8 +112,8 @@ function MyListingsPageContent() {
                                             className="w-full h-full object-cover"
                                         />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-6xl">
-                                            🐴
+                                        <div className="w-full h-full flex items-center justify-center text-slate-300">
+                                            <GiHorseHead className="w-16 h-16" />
                                         </div>
                                     )}
                                     <div className="absolute top-3 right-3">

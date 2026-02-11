@@ -67,12 +67,12 @@ export function ListingFilters() {
         router.push('/bozor');
     };
 
-    if (isLoading) return <div className="p-4"><div className="animate-pulse h-64 bg-slate-100 rounded-xl"></div></div>;
+    if (isLoading) return <div className="p-4"><div className="animate-pulse h-64 bg-slate-100 dark:bg-slate-700 rounded-xl"></div></div>;
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 lg:p-6 space-y-6">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 lg:p-6 space-y-6">
             <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-lg text-slate-900">Filtrlar</h3>
+                <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-100">Filtrlar</h3>
                 <button onClick={clearFilters} className="text-sm text-primary-600 hover:text-primary-700 font-medium">
                     Tozalash
                 </button>
@@ -163,8 +163,8 @@ export function ListingFilters() {
                         <label key={g} className={`
                 flex-1 text-center py-2 px-1 rounded-lg border text-sm cursor-pointer transition-colors
                 ${filters.gender === g
-                                ? 'bg-primary-50 border-primary-500 text-primary-700 font-medium'
-                                : 'border-slate-200 text-slate-600 hover:bg-slate-50'}
+                                ? 'bg-primary-50 dark:bg-primary-900/30 border-primary-500 text-primary-700 dark:text-primary-400 font-medium'
+                                : 'border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'}
              `}>
                             <input
                                 type="radio"

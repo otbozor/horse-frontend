@@ -4,16 +4,40 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { MessageCircle, ArrowLeft, Loader2 } from 'lucide-react';
-import { startTelegramAuth, verifyCode, getCurrentUser } from '@/lib/api';
+import { startTelegramAuth, verifyCode, getCurrentUser, apiFetch } from '@/lib/api';
+
+const IS_DEV = process.env.NODE_ENV === 'development' || (typeof window !== 'undefined' && window.location.hostname === 'localhost');
 
 function LoginContent() {
     const [loading, setLoading] = useState(false);
     const [code, setCode] = useState('');
     const [step, setStep] = useState<'start' | 'verify'>('start');
     const [error, setError] = useState('');
+    const [devPhone, setDevPhone] = useState('+998901234567');
+    const [devLoading, setDevLoading] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
     const returnUrl = searchParams.get('returnUrl') || '/profil';
+
+    const handleDevLogin = async () => {
+        setDevLoading(true);
+        setError('');
+        try {
+            const response = await apiFetch<{ success: boolean; data?: { tokens: { accessToken: string; refreshToken: string } } }>('/api/auth/dev-login', {
+                method: 'POST',
+                body: JSON.stringify({ phone: devPhone, displayName: 'Test Foydalanuvchi' }),
+            });
+            if (response.data?.tokens) {
+                localStorage.setItem('accessToken', response.data.tokens.accessToken);
+                localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
+            }
+            window.location.href = returnUrl;
+        } catch (err: any) {
+            setError(err.message || 'Dev login xatolik');
+        } finally {
+            setDevLoading(false);
+        }
+    };
 
     const startLogin = async () => {
         setLoading(true);
@@ -158,6 +182,8 @@ function LoginContent() {
                                     </li>
                                 </ul>
                             </div>
+
+
                         </div>
                     ) : (
                         <div className="p-8">

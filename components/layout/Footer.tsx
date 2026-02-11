@@ -9,9 +9,7 @@ export function Footer() {
                     {/* Brand */}
                     <div>
                         <Link href="/" className="flex items-center gap-2 mb-3">
-                            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
-                                <span className="text-white font-bold text-lg">🐴</span>
-                            </div>
+                            <img src="/logo.png" alt="Otbozor" className="w-8 h-8 object-contain" />
                             <span className="text-lg font-bold text-white">
                                 Ot<span className="text-primary-400">bozor</span>
                             </span>
@@ -36,8 +34,23 @@ export function Footer() {
                                 </Link>
                             </li>
                             <li>
+                                <Link href="/mahsulotlar" className="hover:text-primary-400 transition-colors">
+                                    Mahsulotlar
+                                </Link>
+                            </li>
+                            <li>
                                 <Link href="/blog" className="hover:text-primary-400 transition-colors">
                                     Blog
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/aloqa" className="hover:text-primary-400 transition-colors">
+                                    Aloqa
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/elon/yaratish" className="hover:text-primary-400 transition-colors">
+                                    E'lon joylash
                                 </Link>
                             </li>
                         </ul>

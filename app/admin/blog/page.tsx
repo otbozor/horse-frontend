@@ -109,9 +109,9 @@ export default function AdminBlogPage() {
                 </Link>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                 {posts.length === 0 ? (
-                    <div className="p-12 text-center text-slate-500">
+                    <div className="p-12 text-center text-slate-500 dark:text-slate-400">
                         <FileText className="w-12 h-12 mx-auto mb-4 text-slate-300" />
                         <p>Hozircha maqolalar topilmadi</p>
                         <Link href="/admin/blog/new" className="text-primary-600 hover:underline mt-2 inline-block">
@@ -122,18 +122,18 @@ export default function AdminBlogPage() {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-slate-50 border-b border-slate-200">
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Rasm</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Sarlavha</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Holat</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Statistika</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Sana</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider text-right">Amallar</th>
+                                <tr className="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Rasm</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Sarlavha</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Holat</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Statistika</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Sana</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-right">Amallar</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                                 {posts.map((post) => (
-                                    <tr key={post.id} className="hover:bg-slate-50 transition-colors">
+                                    <tr key={post.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                                         <td className="px-6 py-4">
                                             {post.coverImage ? (
                                                 <div className="w-12 h-12 rounded-lg overflow-hidden border border-slate-200 bg-slate-50">

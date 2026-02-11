@@ -72,7 +72,7 @@ export function Pagination({ currentPage, totalPages, searchParams }: Pagination
     return (
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
             {/* Page info */}
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
                 Sahifa <span className="font-medium">{currentPage}</span> / <span className="font-medium">{totalPages}</span>
             </p>
 
@@ -82,14 +82,14 @@ export function Pagination({ currentPage, totalPages, searchParams }: Pagination
                 {currentPage > 1 ? (
                     <Link
                         href={buildUrl(currentPage - 1)}
-                        className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+                        className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600"
                     >
                         <ChevronLeft className="w-5 h-5" />
                     </Link>
                 ) : (
                     <button
                         disabled
-                        className="w-10 h-10 rounded-lg flex items-center justify-center font-medium bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
+                        className="w-10 h-10 rounded-lg flex items-center justify-center font-medium bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-600 cursor-not-allowed"
                     >
                         <ChevronLeft className="w-5 h-5" />
                     </button>
@@ -117,7 +117,7 @@ export function Pagination({ currentPage, totalPages, searchParams }: Pagination
                             href={buildUrl(pageNum)}
                             className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors ${isActive
                                     ? 'bg-primary-600 text-white'
-                                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600'
                                 }`}
                         >
                             {pageNum}
@@ -129,14 +129,14 @@ export function Pagination({ currentPage, totalPages, searchParams }: Pagination
                 {currentPage < totalPages ? (
                     <Link
                         href={buildUrl(currentPage + 1)}
-                        className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+                        className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600"
                     >
                         <ChevronRight className="w-5 h-5" />
                     </Link>
                 ) : (
                     <button
                         disabled
-                        className="w-10 h-10 rounded-lg flex items-center justify-center font-medium bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
+                        className="w-10 h-10 rounded-lg flex items-center justify-center font-medium bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-600 cursor-not-allowed"
                     >
                         <ChevronRight className="w-5 h-5" />
                     </button>

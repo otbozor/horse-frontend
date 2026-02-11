@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { getEvent } from '@/lib/api';
 import { formatDate, formatPrice } from '@/lib/utils';
 import { MapPin, Calendar, Trophy, User, Phone, Share2, Navigation } from 'lucide-react';
+import { GiHorseshoe } from 'react-icons/gi';
 
 export default async function EventDetailPage({ params }: { params: { slug: string } }) {
     let event;
@@ -14,17 +15,11 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700">
                 {/* Header */}
-                <div className="relative h-48 md:h-64 bg-slate-900 flex items-end">
-                    <div className="absolute inset-0 opacity-40">
-                        <img
-                            src="https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1200"
-                            className="w-full h-full object-cover"
-                            alt={event.title}
-                        />
-                    </div>
-                    <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 to-transparent" />
+                <div className="relative h-48 md:h-64 bg-gradient-to-br from-amber-700 via-orange-700 to-red-800 flex items-end overflow-hidden">
+                    <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none"><GiHorseshoe className="w-64 h-64 text-white" /></div>
+                    <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/70 to-transparent" />
 
                     <div className="relative z-10 p-6 md:p-8 w-full">
                         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">{event.title}</h1>
@@ -35,7 +30,7 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
                             </span>
                             <span className="flex items-center gap-1.5">
                                 <MapPin className="w-5 h-5 text-amber-400" />
-                                {event.region.nameUz}
+                                {event.region.nameUz}{event.district?.nameUz ? `, ${event.district.nameUz}` : ''}
                             </span>
                         </div>
                     </div>
@@ -44,42 +39,44 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6 md:p-8">
                     <div className="lg:col-span-2 space-y-8">
                         <div>
-                            <h2 className="text-xl font-bold text-slate-900 mb-3">Tadbir haqida</h2>
-                            <p className="text-slate-600 whitespace-pre-line leading-relaxed">
-                                {event.description}
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3">Tadbir haqida</h2>
+                            <p className="text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">
+                                {event.description || 'Tavsif mavjud emas'}
                             </p>
                         </div>
 
                         {event.rules && (
                             <div>
-                                <h2 className="text-xl font-bold text-slate-900 mb-3">Qoidalar</h2>
-                                <div className="bg-amber-50 border border-amber-100 p-4 rounded-xl text-amber-900">
+                                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3">Qoidalar</h2>
+                                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 p-4 rounded-xl text-amber-900 dark:text-amber-200">
                                     {event.rules}
                                 </div>
                             </div>
                         )}
 
                         <div>
-                            <h2 className="text-xl font-bold text-slate-900 mb-3">Xarita</h2>
-                            {event.mapUrl ? (
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3">Xarita</h2>
+                            {event.mapUrl && event.mapUrl.includes('/maps/embed') ? (
                                 <>
-                                    <div className="aspect-video rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                                    <div className="aspect-video rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
                                         <iframe
                                             src={event.mapUrl}
                                             width="100%"
                                             height="100%"
-                                            frameBorder="0"
+                                            style={{ border: 0 }}
                                             allowFullScreen
+                                            loading="lazy"
+                                            referrerPolicy="no-referrer-when-downgrade"
                                         />
                                     </div>
-                                    <p className="text-sm text-slate-500 mt-2 flex items-start gap-2">
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 flex items-start gap-2">
                                         <Navigation className="w-4 h-4 flex-shrink-0 mt-0.5" />
                                         {event.addressText || `${event.region.nameUz}, ${event.district?.nameUz}`}
                                     </p>
                                 </>
                             ) : (
-                                <div className="aspect-video rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center">
-                                    <p className="text-slate-500">Xarita mavjud emas</p>
+                                <div className="aspect-video rounded-xl bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center">
+                                    <p className="text-slate-500 dark:text-slate-400">Xarita mavjud emas</p>
                                 </div>
                             )}
                         </div>
@@ -98,16 +95,16 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
                             </div>
                         )}
 
-                        <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-                            <h3 className="font-bold text-slate-900 mb-4">Tashkilotchi</h3>
+                        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-6 border border-slate-200 dark:border-slate-600">
+                            <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-4">Tashkilotchi</h3>
 
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-slate-200">
-                                    <User className="w-5 h-5 text-slate-400" />
+                                <div className="w-10 h-10 bg-white dark:bg-slate-600 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-500">
+                                    <User className="w-5 h-5 text-slate-400 dark:text-slate-300" />
                                 </div>
                                 <div>
-                                    <p className="font-medium text-slate-900">{event.organizerName}</p>
-                                    <p className="text-xs text-slate-500">Rasmiy tashkilotchi</p>
+                                    <p className="font-medium text-slate-900 dark:text-slate-100">{event.organizerName}</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">Rasmiy tashkilotchi</p>
                                 </div>
                             </div>
 
@@ -123,7 +120,7 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
                                 </a>
                             )}
 
-                            <button className="btn btn-outline w-full justify-center bg-white">
+                            <button className="btn btn-outline w-full justify-center bg-white dark:bg-slate-700 dark:text-slate-200 dark:border-slate-500">
                                 <Share2 className="w-4 h-4" />
                                 Ulashish
                             </button>

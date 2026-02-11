@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Search, Plus, Shield, MessageCircle, Eye, Star, MapPin, ChevronRight } from 'lucide-react';
+import { Search, Plus, Shield, MessageCircle, Eye, Star, MapPin, ChevronRight, Video } from 'lucide-react';
+import { GiHorseHead } from 'react-icons/gi';
 import { getFeaturedListings, getUpcomingEvents } from '@/lib/api';
 import { formatPrice } from '@/lib/utils';
 
@@ -94,13 +95,13 @@ export default async function HomePage() {
                                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                             />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-slate-400">
-                                                <span className="text-6xl">🐴</span>
+                                            <div className="w-full h-full flex items-center justify-center text-slate-300">
+                                                <GiHorseHead className="w-20 h-20" />
                                             </div>
                                         )}
                                         {listing.hasVideo && (
-                                            <span className="absolute top-3 left-3 badge bg-black/60 text-white">
-                                                📹 Video
+                                            <span className="absolute top-3 left-3 badge bg-black/60 text-white flex items-center gap-1">
+                                                <Video className="w-3 h-3" /> Video
                                             </span>
                                         )}
                                         {listing.user.isVerified && (
@@ -252,33 +253,6 @@ export default async function HomePage() {
                                 G'irrom e'lon ko'rsangiz, shikoyat qiling. Tez javob kafolatlanadi.
                             </p>
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* CTA Section */}
-            <section className="py-16 md:py-20 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                        Otingizni soting yoki yangi ot toping
-                    </h2>
-                    <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
-                        3 daqiqada e'lon joylang va minglab xaridorlarga yeting
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Link
-                            href="/elon/yaratish"
-                            className="btn btn-lg bg-white text-primary-700 hover:bg-primary-50 shadow-xl"
-                        >
-                            <Plus className="w-5 h-5" />
-                            Bepul e'lon joylash
-                        </Link>
-                        <Link
-                            href="/bozor"
-                            className="btn btn-lg border-2 border-white/30 text-white hover:bg-white/10"
-                        >
-                            Bozorga o'tish
-                        </Link>
                     </div>
                 </div>
             </section>

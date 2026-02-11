@@ -48,13 +48,14 @@ function CreateListingPageContent() {
 
     const [draftId, setDraftId] = useState<string | null>(null);
 
-    // Clean up any blob URLs on mount (in case of page refresh)
+    // Clean up blob URLs when component unmounts
     useEffect(() => {
-        // Clear media on mount to avoid blob URL errors after page refresh
-        setFormData(prev => ({
-            ...prev,
-            media: []
-        }));
+        return () => {
+            formData.media.forEach(m => {
+                if (m.url.startsWith('blob:')) URL.revokeObjectURL(m.url);
+            });
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {

@@ -36,6 +36,7 @@ export async function apiFetch<T>(
 
     const response = await fetch(url, {
         ...init,
+        cache: init.cache ?? 'no-store', // Disable Next.js caching by default
         credentials: 'include', // Still send cookies
         headers: {
             'Content-Type': 'application/json',
@@ -51,22 +52,23 @@ export async function apiFetch<T>(
     });
 
     if (!response.ok) {
-        // 401 Unauthorized - user not logged in, return empty response
         if (response.status === 401) {
-            // Clear token on 401
-            if (typeof window !== 'undefined') {
-                console.log('🔒 401 Unauthorized - clearing tokens');
+            // Read the actual error message from server response
+            const errorBody = await response.json().catch(() => ({}));
+            const errorMessage = errorBody.message || 'Unauthorized';
+
+            // Only clear tokens for non-login endpoints
+            const isLoginEndpoint = endpoint.includes('/auth/') && (endpoint.includes('/login') || endpoint.includes('/verify'));
+            if (!isLoginEndpoint && typeof window !== 'undefined') {
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
             }
-            // Don't log 401 errors to console - they're expected when not logged in
-            return { success: false, message: 'Unauthorized' } as T;
+
+            return { success: false, message: errorMessage } as T;
         }
 
         const error = await response.json().catch(() => ({}));
         const errorMessage = error.message || `HTTP ${response.status}`;
-
-        // Only log non-401 errors
         console.error(`API Error [${response.status}]:`, errorMessage);
         throw new Error(errorMessage);
     }
@@ -244,6 +246,14 @@ export async function getUpcomingEvents(limit = 6): Promise<KopkariEvent[]> {
     // Ensure limit doesn't exceed 50
     const safeLimit = Math.min(limit, 50);
     const response = await apiFetch<AuthResponse<KopkariEvent[]>>('/api/events/upcoming', { params: { limit: safeLimit } });
+    if (response.success && response.data) {
+        return response.data;
+    }
+    return [];
+}
+
+export async function getAllPublicEvents(): Promise<KopkariEvent[]> {
+    const response = await apiFetch<AuthResponse<KopkariEvent[]>>('/api/events');
     if (response.success && response.data) {
         return response.data;
     }

@@ -2,13 +2,13 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Upload, X } from 'lucide-react';
-import { getSignedUploadUrl } from '@/lib/api';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 interface FileUploadProps {
     label?: string;
     maxFiles?: number;
     accept?: string;
-    onFilesChange: (files: Array<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number; file?: File }>) => void;
+    onFilesChange: (files: Array<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number }>) => void;
     initialFiles?: Array<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number }>;
 }
 
@@ -19,10 +19,10 @@ export function FileUpload({
     onFilesChange,
     initialFiles = []
 }: FileUploadProps) {
-    const [files, setFiles] = useState<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number; file?: File }[]>([]);
+    const { isAuthenticated } = useAuth();
+    const [files, setFiles] = useState<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number }[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
-    const blobUrlsRef = useRef<Set<string>>(new Set());
 
     // Initialize with valid files only (no blob URLs)
     useEffect(() => {
@@ -30,16 +30,6 @@ export function FileUpload({
         if (validInitialFiles.length > 0) {
             setFiles(validInitialFiles);
         }
-    }, []);
-
-    // Cleanup all blob URLs on unmount
-    useEffect(() => {
-        return () => {
-            blobUrlsRef.current.forEach(url => {
-                URL.revokeObjectURL(url);
-            });
-            blobUrlsRef.current.clear();
-        };
     }, []);
 
     const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,27 +44,49 @@ export function FileUpload({
         setIsUploading(true);
 
         try {
-            const newFiles = selectedFiles.map((file, idx) => {
-                const type: 'IMAGE' | 'VIDEO' = file.type.startsWith('video/') ? 'VIDEO' : 'IMAGE';
-                const objectUrl = URL.createObjectURL(file);
+            // Get token from localStorage
+            const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
-                // Track blob URL for cleanup
-                blobUrlsRef.current.add(objectUrl);
+            if (!token || !isAuthenticated) {
+                throw new Error('Tizimga kiring');
+            }
+
+            // Upload files to backend (Cloudinary)
+            const uploadPromises = selectedFiles.map(async (file, idx) => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('folder', 'listings');
+
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/media/upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || 'Upload failed');
+                }
+
+                const result = await response.json();
+                const type: 'IMAGE' | 'VIDEO' = file.type.startsWith('video/') ? 'VIDEO' : 'IMAGE';
 
                 return {
-                    url: objectUrl,
+                    url: result.data.url, // Cloudinary URL
                     type,
                     sortOrder: files.length + idx,
-                    file
                 };
             });
 
+            const newFiles = await Promise.all(uploadPromises);
             const updatedFiles = [...files, ...newFiles];
             setFiles(updatedFiles);
             onFilesChange(updatedFiles);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Upload failed', error);
-            alert('Rasmlarni yuklashda xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.');
+            alert(error.message || 'Rasmlarni yuklashda xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.');
         } finally {
             setIsUploading(false);
             // Reset input
@@ -83,14 +95,6 @@ export function FileUpload({
     };
 
     const removeFile = (index: number) => {
-        const fileToRemove = files[index];
-
-        // Revoke blob URL before removing
-        if (fileToRemove.url.startsWith('blob:')) {
-            URL.revokeObjectURL(fileToRemove.url);
-            blobUrlsRef.current.delete(fileToRemove.url);
-        }
-
         const updatedFiles = files.filter((_, i) => i !== index)
             .map((file, idx) => ({ ...file, sortOrder: idx })); // Reorder
 

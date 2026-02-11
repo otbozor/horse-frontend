@@ -39,7 +39,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     }
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
             {/* Hero Section */}
             <div className="relative bg-gradient-to-br from-primary-600 to-primary-800 text-white py-12 md:py-16">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -87,10 +87,10 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Content */}
                     <article className="lg:col-span-2">
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                             {/* Cover Image */}
                             {post.coverImage && (
-                                <div className="aspect-video bg-slate-100">
+                                <div className="aspect-video bg-slate-100 dark:bg-slate-700">
                                     <img
                                         src={post.coverImage}
                                         alt={post.title}
@@ -102,23 +102,14 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                             {/* Content */}
                             <div className="p-6 md:p-8">
                                 {post.excerpt && (
-                                    <div className="text-lg text-slate-600 mb-6 pb-6 border-b border-slate-200">
+                                    <div className="text-lg text-slate-600 dark:text-slate-300 mb-6 pb-6 border-b border-slate-200 dark:border-slate-700">
                                         {post.excerpt}
                                     </div>
                                 )}
 
-                                <div
-                                    className="prose prose-slate max-w-none
-                                        prose-headings:font-bold prose-headings:text-slate-900
-                                        prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
-                                        prose-p:text-slate-600 prose-p:leading-relaxed
-                                        prose-a:text-primary-600 prose-a:no-underline hover:prose-a:underline
-                                        prose-strong:text-slate-900 prose-strong:font-semibold
-                                        prose-ul:list-disc prose-ol:list-decimal
-                                        prose-li:text-slate-600
-                                        prose-img:rounded-xl prose-img:shadow-md"
-                                    dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
-                                />
+                                <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+                                    {post.content}
+                                </p>
                             </div>
                         </div>
                     </article>
@@ -128,9 +119,9 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                         <div className="sticky top-4 space-y-6">
                             {/* Recent Posts */}
                             {recentPosts.length > 0 && (
-                                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-                                    <h3 className="text-lg font-bold text-slate-900 mb-4">
-                                        So'nggi maqolalar
+                                <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">
+                                        So&apos;nggi maqolalar
                                     </h3>
                                     <div className="space-y-4">
                                         {recentPosts.filter((p: any) => p.id !== post.id).slice(0, 3).map((recentPost: any) => (
@@ -139,10 +130,10 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                                                 href={`/blog/${recentPost.slug}`}
                                                 className="group block"
                                             >
-                                                <h4 className="font-medium text-slate-900 group-hover:text-primary-600 transition-colors line-clamp-2 mb-1">
+                                                <h4 className="font-medium text-slate-900 dark:text-slate-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2 mb-1">
                                                     {recentPost.title}
                                                 </h4>
-                                                <p className="text-xs text-slate-500">
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">
                                                     {new Date(recentPost.publishedAt).toLocaleDateString('uz-UZ', {
                                                         month: 'short',
                                                         day: 'numeric',

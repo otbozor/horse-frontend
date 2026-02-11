@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { getListings, ListingsFilter } from '@/lib/api';
 import { ListingCard } from '@/components/listing/ListingCard';
 import { ListingFilters } from '@/components/listing/ListingFilters';
+import { SortSelect } from '@/components/listing/SortSelect';
 import { Search } from 'lucide-react';
 import { Pagination } from '../../components/listing/Pagination';
 
@@ -26,12 +27,12 @@ export default async function BozorPage({
                 {/* Left Sidebar Filters */}
                 <aside className="lg:w-1/4">
                     <Suspense fallback={
-                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
                             <div className="animate-pulse space-y-4">
-                                <div className="h-4 bg-slate-200 rounded w-1/2"></div>
-                                <div className="h-10 bg-slate-200 rounded"></div>
-                                <div className="h-10 bg-slate-200 rounded"></div>
-                                <div className="h-10 bg-slate-200 rounded"></div>
+                                <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded w-1/2"></div>
+                                <div className="h-10 bg-slate-200 dark:bg-slate-600 rounded"></div>
+                                <div className="h-10 bg-slate-200 dark:bg-slate-600 rounded"></div>
+                                <div className="h-10 bg-slate-200 dark:bg-slate-600 rounded"></div>
                             </div>
                         </div>
                     }>
@@ -48,12 +49,9 @@ export default async function BozorPage({
                         </h1>
 
                         <div className="flex items-center gap-2 w-full sm:w-auto">
-                            <select className="select py-2 pl-3 pr-8 text-sm w-full sm:w-48 bg-white">
-                                <option value="newest">Yangi e'lonlar</option>
-                                <option value="price_asc">Arzonroq</option>
-                                <option value="price_desc">Qimmatroq</option>
-                                <option value="views">Ko'p ko'rilgan</option>
-                            </select>
+                            <Suspense fallback={<div className="w-48 h-9 bg-slate-100 rounded-lg animate-pulse" />}>
+                                <SortSelect />
+                            </Suspense>
                         </div>
                     </div>
 
@@ -65,12 +63,12 @@ export default async function BozorPage({
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-20 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
-                            <div className="bg-white p-4 rounded-full inline-block shadow-sm mb-4">
-                                <Search className="w-8 h-8 text-slate-400" />
+                        <div className="text-center py-20 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-300 dark:border-slate-600">
+                            <div className="bg-white dark:bg-slate-700 p-4 rounded-full inline-block shadow-sm mb-4">
+                                <Search className="w-8 h-8 text-slate-400 dark:text-slate-300" />
                             </div>
-                            <h3 className="text-lg font-medium text-slate-900 mb-2">E'lonlar topilmadi</h3>
-                            <p className="text-slate-500 max-w-xs mx-auto">
+                            <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">E'lonlar topilmadi</h3>
+                            <p className="text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
                                 Sizning so'rovingiz bo'yicha hech qanday natija yo'q. Filtrlarni o'zgartirib ko'ring.
                             </p>
                         </div>

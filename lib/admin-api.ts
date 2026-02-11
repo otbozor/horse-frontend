@@ -69,3 +69,30 @@ export async function changeAdminPassword(currentPassword: string, newPassword: 
         body: JSON.stringify({ currentPassword, newPassword }),
     });
 }
+
+// ---- Events (Ko'pkari) ----
+export async function getAdminEvents(): Promise<AuthResponse<any>> {
+    return apiFetch('/api/admin/events');
+}
+
+export async function createAdminEvent(data: any): Promise<AuthResponse<any>> {
+    return apiFetch('/api/admin/events', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+}
+
+export async function updateAdminEvent(id: string, data: any): Promise<AuthResponse<any>> {
+    return apiFetch(`/api/admin/events/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
+}
+
+export async function publishAdminEvent(id: string): Promise<AuthResponse<any>> {
+    return apiFetch(`/api/admin/events/${id}/publish`, { method: 'POST' });
+}
+
+export async function deleteAdminEvent(id: string): Promise<AuthResponse<any>> {
+    return apiFetch(`/api/admin/events/${id}`, { method: 'DELETE' });
+}

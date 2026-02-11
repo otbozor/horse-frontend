@@ -9,6 +9,7 @@ import { useAuth } from '@/components/providers/AuthProvider';
 const navigation = [
     { name: 'Bozor', href: '/bozor' },
     { name: "Ko'pkari", href: '/kopkari' },
+    { name: 'Mahsulotlar', href: '/mahsulotlar' },
     { name: 'Blog', href: '/blog' },
     { name: 'Aloqa', href: '/aloqa' },
 ];
@@ -25,9 +26,7 @@ export function Header() {
                 <div className="flex h-16 items-center justify-between">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2">
-                        <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center">
-                            <span className="text-white font-bold text-xl">🐴</span>
-                        </div>
+                        <img src="/logo.png" alt="Otbozor" className="w-10 h-10 object-contain" />
                         <span className="text-xl font-bold text-slate-900 dark:text-slate-100">
                             Ot<span className="text-primary-600 dark:text-primary-400">bozor</span>
                         </span>

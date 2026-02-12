@@ -102,6 +102,7 @@ export interface Listing {
         id: string;
         displayName: string;
         telegramUsername?: string;
+        phone?: string;
         isVerified: boolean;
         avatarUrl?: string;
     };
@@ -342,6 +343,11 @@ export async function removeFromFavorites(listingId: string): Promise<void> {
     if (!response.success) {
         throw new Error(response.message || 'Failed to remove from favorites');
     }
+}
+
+export async function isFavorite(listingId: string): Promise<boolean> {
+    const response = await apiFetch<AuthResponse<{ isFavorite: boolean }>>(`/api/listings/${listingId}/is-favorite`);
+    return response.data?.isFavorite ?? false;
 }
 
 // Auth

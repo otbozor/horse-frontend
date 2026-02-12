@@ -88,13 +88,11 @@ function AdminListingsContentInner() {
 
     return (
         <AdminLayout>
-            <div className="mb-6 flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Moderatsiya</h1>
-                    <p className="text-slate-500 text-sm">
-                        Tasdiqlash kutilayotgan e'lonlar ({pagination.total})
-                    </p>
-                </div>
+            <div className="mb-6">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Moderatsiya</h1>
+                <p className="text-slate-500 text-sm">
+                    Tasdiqlash kutilayotgan e'lonlar ({pagination.total})
+                </p>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">

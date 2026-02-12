@@ -1,13 +1,14 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 export function SortSelect() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const currentSort = searchParams.get('sort') || 'newest';
 
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleChange = (e: { target: { name: string; value: string } }) => {
         const params = new URLSearchParams(searchParams.toString());
         if (e.target.value === 'newest') {
             params.delete('sort');
@@ -18,15 +19,17 @@ export function SortSelect() {
     };
 
     return (
-        <select
+        <CustomSelect
+            name="sort"
             value={currentSort}
             onChange={handleChange}
-            className="select py-2 pl-3 pr-8 text-sm w-full sm:w-48"
-        >
-            <option value="newest">Yangi e'lonlar</option>
-            <option value="price_asc">Arzonroq</option>
-            <option value="price_desc">Qimmatroq</option>
-            <option value="views">Ko'p ko'rilgan</option>
-        </select>
+            className="w-full sm:w-48"
+            options={[
+                { value: 'newest', label: "Yangi e'lonlar" },
+                { value: 'price_asc', label: 'Arzonroq' },
+                { value: 'price_desc', label: 'Qimmatroq' },
+                { value: 'views', label: "Ko'p ko'rilgan" },
+            ]}
+        />
     );
 }

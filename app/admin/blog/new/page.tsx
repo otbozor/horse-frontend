@@ -140,7 +140,7 @@ export default function NewBlogPostPage() {
                                     type="text"
                                     value={formData.title}
                                     onChange={handleTitleChange}
-                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none bg-white text-slate-900 transition-all font-medium text-lg placeholder:text-slate-400"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none bg-white text-slate-900 transition-all font-medium text-lg placeholder:text-slate-400"
                                     placeholder="Maqola sarlavhasini kiriting..."
                                     disabled={isLoading}
                                     required
@@ -157,7 +157,7 @@ export default function NewBlogPostPage() {
                                         type="text"
                                         value={formData.slug}
                                         onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
-                                        className="w-full pl-[52px] pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none bg-slate-50 text-slate-600 transition-all text-sm font-mono"
+                                        className="w-full pl-[52px] pr-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none bg-slate-50 text-slate-600 transition-all text-sm font-mono"
                                         placeholder="url-manzili"
                                         disabled={isLoading}
                                         required
@@ -172,7 +172,7 @@ export default function NewBlogPostPage() {
                                 <textarea
                                     value={formData.content}
                                     onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none bg-white text-slate-900 font-mono transition-all"
+                                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none bg-white text-slate-900 font-mono transition-all modal-scroll"
                                     rows={15}
                                     placeholder="Markdown formatida maqola matnini kiriting..."
                                     disabled={isLoading}
@@ -249,7 +249,7 @@ export default function NewBlogPostPage() {
                                 <textarea
                                     value={formData.excerpt}
                                     onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
-                                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none bg-white text-slate-900 text-sm leading-relaxed transition-all"
+                                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none bg-white text-slate-900 text-sm leading-relaxed transition-all modal-scroll"
                                     rows={5}
                                     placeholder="Maqola haqida qisqacha mazmun..."
                                     disabled={isLoading}

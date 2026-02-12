@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { ChevronRight, ChevronLeft, Save, Loader2, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import { FileUpload } from '@/components/ui/FileUpload';
-import { getRegions, getRegionsWithDistricts, getBreeds, createListingDraft, attachMediaToListing, submitListingForReview, Region, Breed, District } from '@/lib/api';
+import { getRegionsWithDistricts, getBreeds, createListingDraft, attachMediaToListing, submitListingForReview, Region, Breed, District } from '@/lib/api';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 
 const steps = [
@@ -83,10 +83,14 @@ function CreateListingPageContent() {
         }
     }, [formData.regionId, regions]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value, type } = e.target;
-        const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
-        setFormData(prev => ({ ...prev, [name]: val }));
+    const handleChange = (e: { target: { name: string; value: string } }) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = e.target;
+        setFormData(prev => ({ ...prev, [name]: checked }));
     };
 
     const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 5));
@@ -227,41 +231,50 @@ function CreateListingPageContent() {
                         />
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Select
-                                label="Maqsad"
-                                name="purpose"
-                                value={formData.purpose}
-                                onChange={handleChange}
-                                options={[
-                                    { label: "Ko'pkari", value: 'KOPKARI' },
-                                    { label: 'Sport', value: 'SPORT' },
-                                    { label: 'Sayr', value: 'SAYR' },
-                                    { label: 'Ishchi', value: 'ISHCHI' },
-                                    { label: 'Naslchilik', value: 'NASLCHILIK' },
-                                ]}
-                            />
+                            <div>
+                                <label className="label">Maqsad</label>
+                                <CustomSelect
+                                    name="purpose"
+                                    value={formData.purpose}
+                                    onChange={handleChange}
+                                    placeholder="Tanlang"
+                                    options={[
+                                        { label: "Ko'pkari", value: 'KOPKARI' },
+                                        { label: 'Sport', value: 'SPORT' },
+                                        { label: 'Sayr', value: 'SAYR' },
+                                        { label: 'Ishchi', value: 'ISHCHI' },
+                                        { label: 'Naslchilik', value: 'NASLCHILIK' },
+                                    ]}
+                                />
+                            </div>
 
-                            <Select
-                                label="Zoti"
-                                name="breedId"
-                                value={formData.breedId}
-                                onChange={handleChange}
-                                options={breeds.map(b => ({ label: b.name, value: b.id }))}
-                            />
+                            <div>
+                                <label className="label">Zoti</label>
+                                <CustomSelect
+                                    name="breedId"
+                                    value={formData.breedId}
+                                    onChange={handleChange}
+                                    placeholder="Tanlang"
+                                    options={breeds.map(b => ({ label: b.name, value: b.id }))}
+                                />
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Select
-                                label="Jinsi"
-                                name="gender"
-                                value={formData.gender}
-                                onChange={handleChange}
-                                options={[
-                                    { label: 'Aygir', value: 'AYGIR' },
-                                    { label: 'Biya', value: 'BIYA' },
-                                    { label: 'Axta', value: 'AXTA' },
-                                ]}
-                            />
+                            <div>
+                                <label className="label">Jinsi</label>
+                                <CustomSelect
+                                    name="gender"
+                                    value={formData.gender}
+                                    onChange={handleChange}
+                                    placeholder="Tanlang"
+                                    options={[
+                                        { label: 'Aygir', value: 'AYGIR' },
+                                        { label: 'Biya', value: 'BIYA' },
+                                        { label: 'Axta', value: 'AXTA' },
+                                    ]}
+                                />
+                            </div>
 
                             <Input
                                 label="Yoshi (yil)"
@@ -299,22 +312,28 @@ function CreateListingPageContent() {
                 {/* Step 2: Location */}
                 {currentStep === 2 && (
                     <div className="space-y-6 animate-fade-in">
-                        <Select
-                            label="Viloyat"
-                            name="regionId"
-                            value={formData.regionId}
-                            onChange={handleChange}
-                            options={regions.map(r => ({ label: r.nameUz, value: r.id }))}
-                        />
+                        <div>
+                            <label className="label">Viloyat</label>
+                            <CustomSelect
+                                name="regionId"
+                                value={formData.regionId}
+                                onChange={handleChange}
+                                placeholder="Tanlang"
+                                options={regions.map(r => ({ label: r.nameUz, value: r.id }))}
+                            />
+                        </div>
 
-                        <Select
-                            label="Tuman"
-                            name="districtId"
-                            value={formData.districtId}
-                            onChange={handleChange}
-                            options={districts.map(d => ({ label: d.nameUz, value: d.id }))}
-                            disabled={!formData.regionId}
-                        />
+                        <div>
+                            <label className="label">Tuman</label>
+                            <CustomSelect
+                                name="districtId"
+                                value={formData.districtId}
+                                onChange={handleChange}
+                                placeholder="Tanlang"
+                                options={districts.map(d => ({ label: d.nameUz, value: d.id }))}
+                                disabled={!formData.regionId}
+                            />
+                        </div>
                     </div>
                 )}
 
@@ -331,16 +350,18 @@ function CreateListingPageContent() {
                                 placeholder="0"
                             />
 
-                            <Select
-                                label="Valyuta"
-                                name="priceCurrency"
-                                value={formData.priceCurrency}
-                                onChange={handleChange}
-                                options={[
-                                    { label: "So'm (UZS)", value: 'UZS' },
-                                    { label: 'Dollar (USD)', value: 'USD' },
-                                ]}
-                            />
+                            <div>
+                                <label className="label">Valyuta</label>
+                                <CustomSelect
+                                    name="priceCurrency"
+                                    value={formData.priceCurrency}
+                                    onChange={handleChange}
+                                    options={[
+                                        { label: "So'm (UZS)", value: 'UZS' },
+                                        { label: 'Dollar (USD)', value: 'USD' },
+                                    ]}
+                                />
+                            </div>
                         </div>
 
                         <div className="space-y-3">
@@ -351,7 +372,7 @@ function CreateListingPageContent() {
                                     type="checkbox"
                                     name="hasPassport"
                                     checked={formData.hasPassport}
-                                    onChange={handleChange}
+                                    onChange={handleCheckbox}
                                     className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500"
                                 />
                                 <span className="text-slate-900 font-medium text-base">Hujjati (pasporti) bor</span>
@@ -362,7 +383,7 @@ function CreateListingPageContent() {
                                     type="checkbox"
                                     name="hasVaccine"
                                     checked={formData.hasVaccine}
-                                    onChange={handleChange}
+                                    onChange={handleCheckbox}
                                     className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500"
                                 />
                                 <span className="text-slate-900 font-medium text-base">Emlangan (vaktsina qilingan)</span>

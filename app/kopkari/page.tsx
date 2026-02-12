@@ -1,18 +1,44 @@
-import { getAllPublicEvents } from '@/lib/api';
 import { formatDate, formatPrice } from '@/lib/utils';
+import { KopkariEvent } from '@/lib/api';
 import { MapPin, Calendar, Trophy, ChevronRight } from 'lucide-react';
 import { GiHorseshoe } from 'react-icons/gi';
 import Link from 'next/link';
+import { Pagination } from '@/components/listing/Pagination';
 
 export const revalidate = 0; // Always fetch fresh data
+
+const EVENTS_LIMIT = 12;
+
+async function getPublicEvents(page = 1) {
+    try {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const res = await fetch(`${API_URL}/api/events?page=${page}&limit=${EVENTS_LIMIT}`, {
+            cache: 'no-store',
+        });
+        const data = await res.json();
+        if (data.success) {
+            const events = Array.isArray(data.data) ? data.data : (data.data?.data || []);
+            const pagination = data.data?.pagination || data.pagination || { page: 1, limit: EVENTS_LIMIT, total: events.length, totalPages: 1 };
+            return { events, pagination };
+        }
+        return { events: [], pagination: { page: 1, limit: EVENTS_LIMIT, total: 0, totalPages: 1 } };
+    } catch {
+        return { events: [], pagination: { page: 1, limit: EVENTS_LIMIT, total: 0, totalPages: 1 } };
+    }
+}
 
 export const metadata = {
     title: "Ko'pkari taqvimi - Barcha tadbirlar | Otbozor",
     description: "O'zbekistondagi barcha ko'pkari va ot musobaqalari taqvimi. Sovrinlar, joylashuv va tashkilotchilar haqida ma'lumot.",
 };
 
-export default async function KopkariPage() {
-    const events = await getAllPublicEvents().catch(() => []);
+export default async function KopkariPage({
+    searchParams,
+}: {
+    searchParams: { page?: string };
+}) {
+    const page = Number(searchParams.page) || 1;
+    const { events, pagination } = await getPublicEvents(page);
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-800/50">
@@ -21,14 +47,14 @@ export default async function KopkariPage() {
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <h1 className="text-3xl md:text-4xl font-bold mb-2">Ko'pkari Taqvimi</h1>
                     <p className="text-amber-100 text-lg">Yaqinlashib kelayotgan ot choptirish musobaqalari</p>
-                    <p className="text-amber-200 text-sm mt-1">{events.length} ta tadbir rejalashtirilgan</p>
+                    <p className="text-amber-200 text-sm mt-1">{pagination.total || events.length} ta tadbir rejalashtirilgan</p>
                 </div>
             </div>
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {events.length > 0 ? (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        {events.map((event) => {
+                        {events.map((event: KopkariEvent) => {
                             const date = new Date(event.startsAt);
                             return (
                                 <Link
@@ -81,6 +107,16 @@ export default async function KopkariPage() {
                         <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">Hozircha tadbirlar yo'q</h3>
                         <p className="text-slate-500 dark:text-slate-400">Kutilayotgan ko'pkari musobaqalari tez orada qo'shiladi</p>
                     </div>
+                )}
+
+                {/* Pagination */}
+                {pagination.totalPages > 1 && (
+                    <Pagination
+                        currentPage={pagination.page}
+                        totalPages={pagination.totalPages}
+                        searchParams={searchParams}
+                        basePath="/kopkari"
+                    />
                 )}
             </div>
         </div>

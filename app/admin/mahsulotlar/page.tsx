@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Check, X, Trash2, Eye, Package, Loader2 } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Check, X, Trash2, Eye, Package, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 
 interface Product {
@@ -19,15 +19,25 @@ interface Product {
     createdAt: string;
 }
 
+const ITEMS_PER_PAGE = 20;
+
 export default function AdminProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<string>('DRAFT');
     const [processingId, setProcessingId] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
+    const paginatedProducts = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        return products.slice(start, start + ITEMS_PER_PAGE);
+    }, [products, currentPage]);
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
     useEffect(() => {
+        setCurrentPage(1);
         fetchProducts();
     }, [filter]);
 
@@ -161,8 +171,10 @@ export default function AdminProductsPage() {
                         </p>
                     </div>
                 ) : (
+                    <>
                     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                        <table className="w-full">
+                        <div className="overflow-x-auto">
+                        <table className="w-full min-w-[700px]">
                             <thead className="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
                                 <tr>
                                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Mahsulot</th>
@@ -173,7 +185,7 @@ export default function AdminProductsPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                                {products.map((product) => (
+                                {paginatedProducts.map((product) => (
                                     <tr key={product.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-3">
@@ -261,7 +273,47 @@ export default function AdminProductsPage() {
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                     </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <p className="text-sm text-slate-600 dark:text-slate-400">
+                                Sahifa <span className="font-medium">{currentPage}</span> / <span className="font-medium">{totalPages}</span>
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 disabled:bg-slate-100 dark:disabled:bg-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                >
+                                    <ChevronLeft className="w-5 h-5" />
+                                </button>
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                                    <button
+                                        key={p}
+                                        onClick={() => setCurrentPage(p)}
+                                        className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors ${
+                                            p === currentPage
+                                                ? 'bg-primary-600 text-white'
+                                                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600'
+                                        }`}
+                                    >
+                                        {p}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 disabled:bg-slate-100 dark:disabled:bg-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                >
+                                    <ChevronRight className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                    </>
                 )}
             </div>
         </AdminLayout>

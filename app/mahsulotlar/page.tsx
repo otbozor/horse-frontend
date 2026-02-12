@@ -165,7 +165,7 @@ export default function ProductsPage() {
                     type="submit"
                     className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-primary-600 text-white text-xs font-medium rounded-lg hover:bg-primary-700 transition-colors"
                 >
-                    Izla
+                    Qidirish
                 </button>
             </form>
 

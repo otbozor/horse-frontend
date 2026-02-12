@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, List, Users, FileText, Settings, LogOut, Loader2, Package, Trophy } from 'lucide-react';
+import { LayoutDashboard, List, Users, FileText, Settings, LogOut, Loader2, Package, Trophy, Menu, X } from 'lucide-react';
 import { logout } from '@/lib/api';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const sidebarItems = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
@@ -17,7 +17,7 @@ const sidebarItems = [
     { name: 'Sozlamalar', href: '/admin/settings', icon: Settings },
 ];
 
-export function AdminSidebar() {
+export function AdminSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const pathname = usePathname();
     const router = useRouter();
 
@@ -27,62 +27,74 @@ export function AdminSidebar() {
     };
 
     return (
-        <div className="w-64 bg-slate-900 min-h-screen text-slate-300 flex flex-col fixed left-0 top-0">
-            <div className="p-6 border-b border-slate-800">
-                <Link href="/" className="flex items-center gap-2">
-                    <span className="text-2xl font-bold text-white">Ot<span className="text-primary-500">Admin</span></span>
-                </Link>
-            </div>
+        <>
+            {/* Mobile overlay */}
+            {isOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                    onClick={onClose}
+                />
+            )}
 
-            <nav className="flex-1 p-4 space-y-1">
-                {sidebarItems.map((item) => {
-                    const isActive = pathname.startsWith(item.href);
-                    return (
-                        <Link
-                            key={item.name}
-                            href={item.href}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                                ? 'bg-primary-600 text-white'
-                                : 'hover:bg-slate-800 hover:text-white'
-                                }`}
-                        >
-                            <item.icon className="w-5 h-5" />
-                            <span className="font-medium">{item.name}</span>
-                        </Link>
-                    );
-                })}
-            </nav>
+            <div className={`w-64 bg-slate-900 min-h-screen text-slate-300 flex flex-col fixed left-0 top-0 bottom-0 z-50 transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="p-6 border-b border-slate-800 flex items-center justify-between">
+                    <Link href="/" className="flex items-center gap-2">
+                        <span className="text-2xl font-bold text-white">Ot<span className="text-primary-500">Admin</span></span>
+                    </Link>
+                    <button
+                        onClick={onClose}
+                        className="lg:hidden p-1 text-slate-400 hover:text-white rounded-lg"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
 
-            <div className="p-4 border-t border-slate-800">
-                <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-colors"
-                >
-                    <LogOut className="w-5 h-5" />
-                    <span className="font-medium">Chiqish</span>
-                </button>
+                <nav className="flex-1 p-4 space-y-1 overflow-y-auto modal-scroll">
+                    {sidebarItems.map((item) => {
+                        const isActive = pathname.startsWith(item.href);
+                        return (
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                onClick={onClose}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
+                                    ? 'bg-primary-600 text-white'
+                                    : 'hover:bg-slate-800 hover:text-white'
+                                    }`}
+                            >
+                                <item.icon className="w-5 h-5" />
+                                <span className="font-medium">{item.name}</span>
+                            </Link>
+                        );
+                    })}
+                </nav>
+
+                <div className="p-4 border-t border-slate-800 mt-auto">
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-colors"
+                    >
+                        <LogOut className="w-5 h-5" />
+                        <span className="font-medium">Chiqish</span>
+                    </button>
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
     const { user, isLoading } = useAuth();
     const router = useRouter();
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
-        console.log('🔐 AdminLayout - Auth State:', { user: !!user, isAdmin: user?.isAdmin, isLoading });
-
-        // Check if user is authenticated and is admin
         if (!isLoading && (!user || !user.isAdmin)) {
-            console.log('❌ Not admin, redirecting to admin login...');
             router.push('/admin/login');
         }
     }, [user, isLoading, router]);
 
-    // Show loading state
     if (isLoading) {
-        console.log('⏳ AdminLayout - Loading...');
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-100">
                 <div className="text-center">
@@ -93,19 +105,27 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         );
     }
 
-    // Show nothing if not authenticated (will redirect)
     if (!user || !user.isAdmin) {
-        console.log('❌ AdminLayout - No admin user, will redirect...');
         return null;
     }
 
-    console.log('✅ AdminLayout - Rendering for admin:', user.displayName);
-
     return (
         <div className="min-h-screen bg-slate-100">
-            <AdminSidebar />
-            <div className="pl-64">
-                <main className="p-8 min-h-screen">
+            <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+            {/* Mobile top bar */}
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-30 bg-white border-b border-slate-200 px-4 py-3 flex items-center gap-3">
+                <button
+                    onClick={() => setSidebarOpen(true)}
+                    className="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg"
+                >
+                    <Menu className="w-5 h-5" />
+                </button>
+                <span className="text-lg font-bold text-slate-900">Ot<span className="text-primary-500">Admin</span></span>
+            </div>
+
+            <div className="lg:pl-64">
+                <main className="p-4 pt-16 lg:pt-8 lg:p-8 min-h-screen">
                     {children}
                 </main>
             </div>

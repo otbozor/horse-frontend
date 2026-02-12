@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { Search, Plus, Shield, MessageCircle, Eye, Star, MapPin, ChevronRight, Video } from 'lucide-react';
+import { Shield, MessageCircle, Eye, Star, MapPin, ChevronRight, Video } from 'lucide-react';
 import { GiHorseHead } from 'react-icons/gi';
 import { getFeaturedListings, getUpcomingEvents } from '@/lib/api';
 import { formatPrice } from '@/lib/utils';
+import { HeroSection } from '@/components/home/HeroSection';
 
 export default async function HomePage() {
     // Fetch real data from API
@@ -11,54 +12,7 @@ export default async function HomePage() {
     return (
         <div className="flex flex-col">
             {/* Hero Section */}
-            <section className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 text-white py-16 md:py-24 overflow-hidden">
-                {/* Background pattern */}
-                <div className="absolute inset-0 opacity-10">
-                    <div className="absolute inset-0" style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                    }} />
-                </div>
-
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-                    <div className="max-w-3xl mx-auto text-center">
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                            Otingizni tez soting
-                            <br />
-                            yoki <span className="text-amber-300">toping</span>
-                        </h1>
-                        <p className="text-lg md:text-xl text-primary-100 mb-10 max-w-2xl mx-auto">
-                            O'zbekistondagi eng katta ot savdo platformasi. Minglab e'lonlar,
-                            verifikatsiyalangan sotuvchilar, xavfsiz savdo.
-                        </p>
-
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link
-                                href="/elon/yaratish"
-                                className="btn btn-lg bg-white text-primary-700 hover:bg-primary-50 shadow-xl"
-                            >
-                                <Plus className="w-5 h-5" />
-                                E'lon joylash
-                            </Link>
-                            <Link
-                                href="/bozor"
-                                className="btn btn-lg border-2 border-white/30 text-white hover:bg-white/10"
-                            >
-                                <Search className="w-5 h-5" />
-                                Ot qidirish
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Quick Filter Section */}
-            <section className="py-8 bg-white border-b border-slate-200 dark:bg-slate-900 dark:border-slate-700">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <p className="text-center text-slate-600 dark:text-slate-400 mb-4">
-                        Tez qidiruv uchun <Link href="/bozor" className="text-primary-600 hover:text-primary-700 font-medium">Bozor sahifasiga</Link> o'ting
-                    </p>
-                </div>
-            </section>
+            <HeroSection />
 
             {/* Featured Listings */}
             {featuredListings.length > 0 && (

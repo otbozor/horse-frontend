@@ -1,17 +1,26 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { Calendar, Eye } from 'lucide-react';
+import { Pagination } from '@/components/listing/Pagination';
 
-async function getBlogPosts() {
+const BLOG_LIMIT = 12;
+
+async function getBlogPosts(page = 1) {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/blog/posts?limit=20`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/blog/posts?page=${page}&limit=${BLOG_LIMIT}`, {
             cache: 'no-store',
         });
         const data = await res.json();
-        return data.success ? data.data : [];
+        if (data.success) {
+            return {
+                posts: data.data || [],
+                pagination: data.pagination || { page: 1, limit: BLOG_LIMIT, total: 0, totalPages: 1 },
+            };
+        }
+        return { posts: [], pagination: { page: 1, limit: BLOG_LIMIT, total: 0, totalPages: 1 } };
     } catch (error) {
         console.error('Failed to fetch blog posts:', error);
-        return [];
+        return { posts: [], pagination: { page: 1, limit: BLOG_LIMIT, total: 0, totalPages: 1 } };
     }
 }
 
@@ -20,8 +29,13 @@ export const metadata = {
     description: 'Otlarni parvarish qilish, ko\'pkari musobaqalari, ot zotlari va boshqa foydali ma\'lumotlar.',
 };
 
-export default async function BlogPage() {
-    const posts = await getBlogPosts();
+export default async function BlogPage({
+    searchParams,
+}: {
+    searchParams: { page?: string };
+}) {
+    const page = Number(searchParams.page) || 1;
+    const { posts, pagination } = await getBlogPosts(page);
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -98,6 +112,16 @@ export default async function BlogPage() {
                         Tez orada qiziqarli maqolalar paydo bo'ladi
                     </p>
                 </div>
+            )}
+
+            {/* Pagination */}
+            {pagination.totalPages > 1 && (
+                <Pagination
+                    currentPage={pagination.page}
+                    totalPages={pagination.totalPages}
+                    searchParams={searchParams}
+                    basePath="/blog"
+                />
             )}
         </div>
     );

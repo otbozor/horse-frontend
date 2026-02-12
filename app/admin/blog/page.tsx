@@ -1,17 +1,26 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { Plus, Edit, Trash2, Eye, Loader2, FileText, CheckCircle, ExternalLink, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Loader2, FileText, CheckCircle, ExternalLink, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
+
+const ITEMS_PER_PAGE = 20;
 
 export default function AdminBlogPage() {
     const [posts, setPosts] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [processingId, setProcessingId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalPages = Math.ceil(posts.length / ITEMS_PER_PAGE);
+    const paginatedPosts = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        return posts.slice(start, start + ITEMS_PER_PAGE);
+    }, [posts, currentPage]);
 
     useEffect(() => {
         loadPosts();
@@ -98,9 +107,9 @@ export default function AdminBlogPage() {
 
     return (
         <AdminLayout>
-            <div className="mb-6 flex justify-between items-center">
+            <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Blog maqolalari</h1>
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Blog maqolalari</h1>
                     <p className="text-slate-500 text-sm">Barcha blog maqolalarini boshqaring va tahrirlang</p>
                 </div>
                 <Link href="/admin/blog/new" className="btn btn-primary btn-sm">
@@ -119,8 +128,9 @@ export default function AdminBlogPage() {
                         </Link>
                     </div>
                 ) : (
+                    <>
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full text-left border-collapse min-w-[700px]">
                             <thead>
                                 <tr className="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
                                     <th className="px-6 py-4 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Rasm</th>
@@ -132,7 +142,7 @@ export default function AdminBlogPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                                {posts.map((post) => (
+                                {paginatedPosts.map((post) => (
                                     <tr key={post.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                                         <td className="px-6 py-4">
                                             {post.coverImage ? (
@@ -229,6 +239,45 @@ export default function AdminBlogPage() {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <p className="text-sm text-slate-600 dark:text-slate-400">
+                                Sahifa <span className="font-medium">{currentPage}</span> / <span className="font-medium">{totalPages}</span>
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 disabled:bg-slate-100 dark:disabled:bg-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                >
+                                    <ChevronLeft className="w-5 h-5" />
+                                </button>
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                                    <button
+                                        key={p}
+                                        onClick={() => setCurrentPage(p)}
+                                        className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors ${
+                                            p === currentPage
+                                                ? 'bg-primary-600 text-white'
+                                                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600'
+                                        }`}
+                                    >
+                                        {p}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 disabled:bg-slate-100 dark:disabled:bg-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                >
+                                    <ChevronRight className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                    </>
                 )}
             </div>
         </AdminLayout>

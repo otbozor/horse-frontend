@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { getAdminEvents, createAdminEvent, updateAdminEvent, publishAdminEvent, deleteAdminEvent } from '@/lib/admin-api';
+import { getAdminEvents, createAdminEvent, updateAdminEvent, deleteAdminEvent } from '@/lib/admin-api';
 import { getRegionsWithDistricts, Region } from '@/lib/api';
-import { Plus, Edit, Trash2, Eye, EyeOff, Loader2, X, Save, Calendar, MapPin } from 'lucide-react';
+import { Plus, Edit, Trash2, Loader2, X, Save, Calendar, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { GiHorseshoe } from 'react-icons/gi';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 interface Event {
     id: string;
@@ -36,8 +37,22 @@ const EMPTY_FORM = {
 };
 
 function slugify(text: string) {
-    return text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const base = text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    return `${base}-${Date.now().toString(36)}`;
 }
+
+function convertToEmbedUrl(url: string): string {
+    if (!url) return url;
+    if (url.includes('/maps/embed') || url.includes('output=embed')) return url;
+    // Extract coordinates from @lat,lng pattern
+    const coordMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+    if (coordMatch) {
+        return `https://maps.google.com/maps?q=${coordMatch[1]},${coordMatch[2]}&output=embed`;
+    }
+    return url;
+}
+
+const ITEMS_PER_PAGE = 20;
 
 export default function AdminKopkariPage() {
     const [events, setEvents] = useState<Event[]>([]);
@@ -48,6 +63,13 @@ export default function AdminKopkariPage() {
     const [form, setForm] = useState({ ...EMPTY_FORM });
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalPages = Math.ceil(events.length / ITEMS_PER_PAGE);
+    const paginatedEvents = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        return events.slice(start, start + ITEMS_PER_PAGE);
+    }, [events, currentPage]);
 
     useEffect(() => {
         loadData();
@@ -69,12 +91,13 @@ export default function AdminKopkariPage() {
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> | { target: { name: string; value: string } }) => {
         const { name, value } = e.target;
         setForm(prev => {
             const updated = { ...prev, [name]: value };
             if (name === 'title' && !editId) updated.slug = slugify(value);
             if (name === 'regionId') updated.districtId = '';
+            if (name === 'mapUrl') updated.mapUrl = convertToEmbedUrl(value);
             return updated;
         });
     };
@@ -128,6 +151,7 @@ export default function AdminKopkariPage() {
             if (editId) {
                 await updateAdminEvent(editId, payload);
             } else {
+                payload.status = 'PUBLISHED';
                 await createAdminEvent(payload);
             }
             setShowForm(false);
@@ -136,16 +160,6 @@ export default function AdminKopkariPage() {
             setError(e.message || 'Xatolik yuz berdi');
         } finally {
             setSaving(false);
-        }
-    };
-
-    const handlePublish = async (id: string) => {
-        if (!confirm("Tadbirni nashr qilasizmi?")) return;
-        try {
-            await publishAdminEvent(id);
-            await loadData();
-        } catch (e: any) {
-            alert('Xatolik: ' + e.message);
         }
     };
 
@@ -162,33 +176,16 @@ export default function AdminKopkariPage() {
     const selectedRegion = regions.find(r => r.id === form.regionId);
     const districts = selectedRegion?.districts || [];
 
-    const statusBadge = (status: string) => {
-        const map: Record<string, string> = {
-            DRAFT: 'bg-slate-100 text-slate-700',
-            PUBLISHED: 'bg-green-100 text-green-700',
-            CANCELLED: 'bg-red-100 text-red-700',
-            COMPLETED: 'bg-blue-100 text-blue-700',
-        };
-        const labels: Record<string, string> = {
-            DRAFT: 'Qoralama', PUBLISHED: 'Nashr', CANCELLED: 'Bekor', COMPLETED: 'Tugagan',
-        };
-        return (
-            <span className={`px-2 py-0.5 rounded text-xs font-medium ${map[status] || 'bg-slate-100 text-slate-600'}`}>
-                {labels[status] || status}
-            </span>
-        );
-    };
-
     return (
         <AdminLayout>
-            <div className="mb-6 flex justify-between items-center">
+            <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Ko'pkari Tadbirlari</h1>
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Ko'pkari Tadbirlari</h1>
                     <p className="text-slate-500 text-sm">Barcha ko'pkari va ot musobaqalarini boshqarish</p>
                 </div>
                 <button
                     onClick={openCreate}
-                    className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                    className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
                 >
                     <Plus className="w-4 h-4" />
                     Yangi tadbir
@@ -198,8 +195,8 @@ export default function AdminKopkariPage() {
             {/* Form Modal */}
             {showForm && (
                 <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-                        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl modal-scroll">
+                        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
                             <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                                 {editId ? 'Tadbirni tahrirlash' : 'Yangi tadbir qo\'shish'}
                             </h2>
@@ -244,20 +241,30 @@ export default function AdminKopkariPage() {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Viloyat *</label>
-                                    <select name="regionId" value={form.regionId} onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent">
-                                        <option value="">Viloyatni tanlang</option>
-                                        {regions.map(r => <option key={r.id} value={r.id}>{r.nameUz}</option>)}
-                                    </select>
+                                    <CustomSelect
+                                        name="regionId"
+                                        value={form.regionId}
+                                        onChange={handleChange}
+                                        options={[
+                                            { value: '', label: 'Viloyatni tanlang' },
+                                            ...regions.map(r => ({ value: r.id, label: r.nameUz }))
+                                        ]}
+                                        placeholder="Viloyatni tanlang"
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Tuman</label>
-                                    <select name="districtId" value={form.districtId} onChange={handleChange}
+                                    <CustomSelect
+                                        name="districtId"
+                                        value={form.districtId}
+                                        onChange={handleChange}
+                                        options={[
+                                            { value: '', label: 'Tumanni tanlang' },
+                                            ...districts.map(d => ({ value: d.id, label: d.nameUz }))
+                                        ]}
+                                        placeholder="Tumanni tanlang"
                                         disabled={!form.regionId}
-                                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:bg-slate-50 disabled:text-slate-400">
-                                        <option value="">Tumanni tanlang</option>
-                                        {districts.map(d => <option key={d.id} value={d.id}>{d.nameUz}</option>)}
-                                    </select>
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Manzil matni</label>
@@ -266,19 +273,23 @@ export default function AdminKopkariPage() {
                                         placeholder="To'liq manzil" />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Xarita URL (Google Maps embed)</label>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Xarita URL (Google Maps)</label>
                                     <input name="mapUrl" value={form.mapUrl} onChange={handleChange}
-                                        className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent ${form.mapUrl && !form.mapUrl.includes('/maps/embed') ? 'border-red-400 bg-red-50' : 'border-slate-300'}`}
-                                        placeholder="https://www.google.com/maps/embed?pb=..." />
-                                    {form.mapUrl && !form.mapUrl.includes('/maps/embed') && (
-                                        <p className="text-xs text-red-600 mt-1">
-                                            ⚠️ Noto'g'ri URL. Google Maps → Ulashish → Xaritani joylash → &lt;iframe&gt; ichidagi <strong>src</strong> qiymatini kiriting.
-                                        </p>
-                                    )}
-                                    {!form.mapUrl && (
-                                        <p className="text-xs text-slate-400 mt-1">
-                                            Google Maps → Ulashish → Xaritani joylash (Embed) → src="..." qiymatini ko'chiring
-                                        </p>
+                                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                        placeholder="https://www.google.com/maps/place/... yoki embed URL" />
+                                    <p className="text-xs text-slate-400 mt-1">
+                                        Har qanday Google Maps URL'ni joylashtiring — avtomatik o'zgartiriladi
+                                    </p>
+                                    {form.mapUrl && (form.mapUrl.includes('output=embed') || form.mapUrl.includes('/maps/embed')) && (
+                                        <div className="mt-2 rounded-lg overflow-hidden border border-slate-200" style={{ height: 180 }}>
+                                            <iframe
+                                                src={form.mapUrl}
+                                                width="100%"
+                                                height="180"
+                                                style={{ border: 0 }}
+                                                loading="lazy"
+                                            />
+                                        </div>
                                     )}
                                 </div>
                                 <div>
@@ -338,68 +349,93 @@ export default function AdminKopkariPage() {
                         </button>
                     </div>
                 ) : (
-                    <table className="w-full text-left">
-                        <thead className="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
-                            <tr>
-                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Tadbir</th>
-                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Sana</th>
-                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Joylashuv</th>
-                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Holat</th>
-                                <th className="px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase text-right">Amallar</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                            {events.map((ev) => (
-                                <tr key={ev.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                                    <td className="px-4 py-3">
-                                        <p className="font-medium text-slate-900 dark:text-slate-100 text-sm">{ev.title}</p>
-                                        <p className="text-xs text-slate-400 dark:text-slate-500">{ev.organizerName}</p>
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <span className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                                            <Calendar className="w-3.5 h-3.5" />
-                                            {new Date(ev.startsAt).toLocaleDateString('uz-UZ')}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <span className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                                            <MapPin className="w-3.5 h-3.5" />
-                                            {ev.region?.nameUz}{ev.district && `, ${ev.district.nameUz}`}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3">{statusBadge(ev.status)}</td>
-                                    <td className="px-4 py-3">
-                                        <div className="flex items-center justify-end gap-1">
-                                            {ev.status === 'DRAFT' && (
-                                                <button onClick={() => handlePublish(ev.id)}
-                                                    title="Nashr qilish"
-                                                    className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all">
-                                                    <Eye className="w-4 h-4" />
-                                                </button>
-                                            )}
-                                            {ev.status === 'PUBLISHED' && (
-                                                <button onClick={() => updateAdminEvent(ev.id, { status: 'DRAFT' }).then(loadData)}
-                                                    title="Qoralamaga qaytarish"
-                                                    className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all">
-                                                    <EyeOff className="w-4 h-4" />
-                                                </button>
-                                            )}
-                                            <button onClick={() => openEdit(ev)}
-                                                title="Tahrirlash"
-                                                className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all">
-                                                <Edit className="w-4 h-4" />
-                                            </button>
-                                            <button onClick={() => handleDelete(ev.id)}
-                                                title="O'chirish"
-                                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left min-w-[700px]">
+                                <thead className="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+                                    <tr>
+                                        <th className="px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Tadbir</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Sana</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Joylashuv</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase text-right">Amallar</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                                    {paginatedEvents.map((ev) => (
+                                        <tr key={ev.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                            <td className="px-4 py-3">
+                                                <p className="font-medium text-slate-900 dark:text-slate-100 text-sm">{ev.title}</p>
+                                                <p className="text-xs text-slate-400 dark:text-slate-500">{ev.organizerName}</p>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <span className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                                                    <Calendar className="w-3.5 h-3.5" />
+                                                    {new Date(ev.startsAt).toLocaleDateString('uz-UZ')}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <span className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                                                    <MapPin className="w-3.5 h-3.5" />
+                                                    {ev.region?.nameUz}{ev.district && `, ${ev.district.nameUz}`}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    <button onClick={() => openEdit(ev)}
+                                                        title="Tahrirlash"
+                                                        className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all">
+                                                        <Edit className="w-4 h-4" />
+                                                    </button>
+                                                    <button onClick={() => handleDelete(ev.id)}
+                                                        title="O'chirish"
+                                                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="mt-4 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                    Sahifa <span className="font-medium">{currentPage}</span> / <span className="font-medium">{totalPages}</span>
+                                </p>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                        disabled={currentPage === 1}
+                                        className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 disabled:bg-slate-100 dark:disabled:bg-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                    >
+                                        <ChevronLeft className="w-5 h-5" />
+                                    </button>
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                                        <button
+                                            key={p}
+                                            onClick={() => setCurrentPage(p)}
+                                            className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors ${p === currentPage
+                                                ? 'bg-primary-600 text-white'
+                                                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600'
+                                                }`}
+                                        >
+                                            {p}
+                                        </button>
+                                    ))}
+                                    <button
+                                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                        disabled={currentPage === totalPages}
+                                        className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 disabled:bg-slate-100 dark:disabled:bg-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                    >
+                                        <ChevronRight className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </AdminLayout>

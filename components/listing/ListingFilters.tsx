@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getRegions, getBreeds, Region, Breed } from '@/lib/api';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 export function ListingFilters() {
     const router = useRouter();
@@ -41,7 +42,7 @@ export function ListingFilters() {
         loadData();
     }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    const handleChange = (e: { target: { name: string; value: string } }) => {
         const { name, value } = e.target;
         setFilters(prev => ({ ...prev, [name]: value }));
     };
@@ -81,51 +82,50 @@ export function ListingFilters() {
             {/* Region */}
             <div>
                 <label className="label">Viloyat</label>
-                <select
+                <CustomSelect
                     name="regionId"
                     value={filters.regionId}
                     onChange={handleChange}
-                    className="select"
-                >
-                    <option value="">Barchasi</option>
-                    {regions.map(r => (
-                        <option key={r.id} value={r.id}>{r.nameUz}</option>
-                    ))}
-                </select>
+                    placeholder="Barchasi"
+                    options={[
+                        { value: '', label: 'Barchasi' },
+                        ...regions.map(r => ({ value: r.id, label: r.nameUz }))
+                    ]}
+                />
             </div>
 
             {/* Purpose */}
             <div>
                 <label className="label">Maqsad</label>
-                <select
+                <CustomSelect
                     name="purpose"
                     value={filters.purpose}
                     onChange={handleChange}
-                    className="select"
-                >
-                    <option value="">Barchasi</option>
-                    <option value="KOPKARI">Ko'pkari</option>
-                    <option value="SPORT">Sport</option>
-                    <option value="SAYR">Sayr</option>
-                    <option value="ISHCHI">Ishchi</option>
-                    <option value="NASLCHILIK">Naslchilik</option>
-                </select>
+                    placeholder="Barchasi"
+                    options={[
+                        { value: '', label: 'Barchasi' },
+                        { value: 'KOPKARI', label: "Ko'pkari" },
+                        { value: 'SPORT', label: 'Sport' },
+                        { value: 'SAYR', label: 'Sayr' },
+                        { value: 'ISHCHI', label: 'Ishchi' },
+                        { value: 'NASLCHILIK', label: 'Naslchilik' },
+                    ]}
+                />
             </div>
 
             {/* Breed */}
             <div>
                 <label className="label">Zoti</label>
-                <select
+                <CustomSelect
                     name="breedId"
                     value={filters.breedId}
                     onChange={handleChange}
-                    className="select"
-                >
-                    <option value="">Barchasi</option>
-                    {breeds.map(b => (
-                        <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
-                </select>
+                    placeholder="Barchasi"
+                    options={[
+                        { value: '', label: 'Barchasi' },
+                        ...breeds.map(b => ({ value: b.id, label: b.name }))
+                    ]}
+                />
             </div>
 
             {/* Price */}

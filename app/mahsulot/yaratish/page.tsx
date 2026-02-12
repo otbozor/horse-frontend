@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 import { Loader2, Package, CheckCircle } from 'lucide-react';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 interface Category {
     id: string;
@@ -13,7 +14,7 @@ interface Category {
 
 function CreateProductForm() {
     const router = useRouter();
-    const { user } = useAuth();
+    useAuth();
 
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(false);
@@ -39,13 +40,14 @@ function CreateProductForm() {
             .catch(() => {});
     }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value, type } = e.target;
-        if (type === 'checkbox') {
-            setForm(prev => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
-        } else {
-            setForm(prev => ({ ...prev, [name]: value }));
-        }
+    const handleChange = (e: { target: { name: string; value: string } }) => {
+        const { name, value } = e.target;
+        setForm(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = e.target;
+        setForm(prev => ({ ...prev, [name]: checked }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -143,12 +145,16 @@ function CreateProductForm() {
                 {/* Category */}
                 <div>
                     <label className="label">Kategoriya</label>
-                    <select name="categoryId" value={form.categoryId} onChange={handleChange} className="select">
-                        <option value="">Kategoriya tanlang</option>
-                        {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                        ))}
-                    </select>
+                    <CustomSelect
+                        name="categoryId"
+                        value={form.categoryId}
+                        onChange={handleChange}
+                        placeholder="Kategoriya tanlang"
+                        options={[
+                            { value: '', label: 'Kategoriya tanlang' },
+                            ...categories.map(cat => ({ value: cat.id, label: cat.name }))
+                        ]}
+                    />
                 </div>
 
                 {/* Price */}
@@ -168,10 +174,15 @@ function CreateProductForm() {
                     </div>
                     <div>
                         <label className="label">Valyuta</label>
-                        <select name="priceCurrency" value={form.priceCurrency} onChange={handleChange} className="select">
-                            <option value="UZS">So'm (UZS)</option>
-                            <option value="USD">Dollar (USD)</option>
-                        </select>
+                        <CustomSelect
+                            name="priceCurrency"
+                            value={form.priceCurrency}
+                            onChange={handleChange}
+                            options={[
+                                { value: 'UZS', label: "So'm (UZS)" },
+                                { value: 'USD', label: 'Dollar (USD)' },
+                            ]}
+                        />
                     </div>
                 </div>
 
@@ -191,11 +202,16 @@ function CreateProductForm() {
                 {/* Stock status */}
                 <div>
                     <label className="label">Mavjudlik holati</label>
-                    <select name="stockStatus" value={form.stockStatus} onChange={handleChange} className="select">
-                        <option value="IN_STOCK">Mavjud</option>
-                        <option value="OUT_OF_STOCK">Sotuvda yo'q</option>
-                        <option value="PREORDER">Oldindan buyurtma</option>
-                    </select>
+                    <CustomSelect
+                        name="stockStatus"
+                        value={form.stockStatus}
+                        onChange={handleChange}
+                        options={[
+                            { value: 'IN_STOCK', label: 'Mavjud' },
+                            { value: 'OUT_OF_STOCK', label: "Sotuvda yo'q" },
+                            { value: 'PREORDER', label: 'Oldindan buyurtma' },
+                        ]}
+                    />
                 </div>
 
                 {/* Delivery */}
@@ -204,7 +220,7 @@ function CreateProductForm() {
                         type="checkbox"
                         name="hasDelivery"
                         checked={form.hasDelivery}
-                        onChange={handleChange}
+                        onChange={handleCheckbox}
                     />
                     <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                         Yetkazib berish mavjud

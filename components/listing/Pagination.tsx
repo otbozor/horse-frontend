@@ -7,9 +7,10 @@ interface PaginationProps {
     currentPage: number;
     totalPages: number;
     searchParams: Record<string, any>;
+    basePath?: string;
 }
 
-export function Pagination({ currentPage, totalPages, searchParams }: PaginationProps) {
+export function Pagination({ currentPage, totalPages, searchParams, basePath = '/bozor' }: PaginationProps) {
     // Build URL with current filters
     const buildUrl = (page: number) => {
         const params = new URLSearchParams();
@@ -27,7 +28,7 @@ export function Pagination({ currentPage, totalPages, searchParams }: Pagination
         }
 
         const queryString = params.toString();
-        return `/bozor${queryString ? `?${queryString}` : ''}`;
+        return `${basePath}${queryString ? `?${queryString}` : ''}`;
     };
 
     // Calculate page numbers to show

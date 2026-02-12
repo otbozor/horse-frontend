@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import Link from 'next/link';
 import { GiHorseHead } from 'react-icons/gi';
-import { Plus, Edit, Eye } from 'lucide-react';
+import { Plus, Edit, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 
 interface Listing {
@@ -20,10 +20,19 @@ interface Listing {
     media: Array<{ url: string; thumbUrl?: string }>;
 }
 
+const ITEMS_PER_PAGE = 12;
+
 function MyListingsPageContent() {
     const { user } = useAuth();
     const [listings, setListings] = useState<Listing[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalPages = Math.ceil(listings.length / ITEMS_PER_PAGE);
+    const paginatedListings = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        return listings.slice(start, start + ITEMS_PER_PAGE);
+    }, [listings, currentPage]);
 
     useEffect(() => {
         if (user) {
@@ -98,8 +107,9 @@ function MyListingsPageContent() {
                 </div>
 
                 {listings.length > 0 ? (
+                    <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {listings.map((listing) => (
+                        {paginatedListings.map((listing) => (
                             <div
                                 key={listing.id}
                                 className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-md transition-all"
@@ -154,6 +164,45 @@ function MyListingsPageContent() {
                             </div>
                         ))}
                     </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <p className="text-sm text-slate-600">
+                                Sahifa <span className="font-medium">{currentPage}</span> / <span className="font-medium">{totalPages}</span>
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                >
+                                    <ChevronLeft className="w-5 h-5" />
+                                </button>
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                                    <button
+                                        key={p}
+                                        onClick={() => setCurrentPage(p)}
+                                        className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors ${
+                                            p === currentPage
+                                                ? 'bg-primary-600 text-white'
+                                                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                                        }`}
+                                    >
+                                        {p}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                >
+                                    <ChevronRight className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                    </>
                 ) : (
                     <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-300">
                         <div className="text-6xl mb-4">📝</div>

@@ -21,11 +21,11 @@ export default async function BozorPage({
     const pagination = result.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 };
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex flex-col lg:flex-row gap-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
 
                 {/* Left Sidebar Filters */}
-                <aside className="lg:w-1/4">
+                <aside className="w-full lg:w-1/4 lg:flex-shrink-0">
                     <Suspense fallback={
                         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
                             <div className="animate-pulse space-y-4">
@@ -41,11 +41,11 @@ export default async function BozorPage({
                 </aside>
 
                 {/* Main Content */}
-                <div className="lg:w-3/4">
+                <div className="w-full lg:w-3/4 min-w-0">
                     {/* Header */}
-                    <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-                        <h1 className="text-2xl font-bold text-slate-900">
-                            Barcha e'lonlar <span className="text-slate-500 text-lg font-normal">({pagination.total})</span>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3 sm:gap-4">
+                        <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
+                            Barcha e&apos;lonlar <span className="text-slate-500 text-base sm:text-lg font-normal">({pagination.total})</span>
                         </h1>
 
                         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -57,7 +57,7 @@ export default async function BozorPage({
 
                     {/* Listings Grid */}
                     {listings.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                             {listings.map((listing) => (
                                 <ListingCard key={listing.id} listing={listing} />
                             ))}

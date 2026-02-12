@@ -171,10 +171,10 @@ export default function AdminCategoriesPage() {
     return (
         <AdminLayout>
         <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Mahsulot Kategoriyalari</h1>
-                    <p className="text-slate-600">Kategoriyalarni boshqarish</p>
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Mahsulot Kategoriyalari</h1>
+                    <p className="text-slate-600 text-sm">Kategoriyalarni boshqarish</p>
                 </div>
                 <button
                     onClick={() => {
@@ -182,9 +182,9 @@ export default function AdminCategoriesPage() {
                         setEditingId(null);
                         setFormData({ name: '', slug: '' });
                     }}
-                    className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 flex items-center gap-2"
+                    className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 flex items-center gap-2 text-sm"
                 >
-                    {showAddForm ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                    {showAddForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                     {showAddForm ? 'Bekor qilish' : 'Yangi kategoriya'}
                 </button>
             </div>
@@ -252,7 +252,8 @@ export default function AdminCategoriesPage() {
                 </div>
             ) : (
                 <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-                    <table className="w-full">
+                    <div className="overflow-x-auto">
+                    <table className="w-full min-w-[500px]">
                         <thead className="bg-slate-50 border-b border-slate-200">
                             <tr>
                                 <th className="text-left px-4 py-3 text-sm font-medium text-slate-600">Nomi</th>
@@ -343,6 +344,7 @@ export default function AdminCategoriesPage() {
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 </div>
             )}
         </div>

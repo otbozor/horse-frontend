@@ -32,7 +32,7 @@ export function ListingGallery({ media, title }: ListingGalleryProps) {
     return (
         <div className="space-y-4">
             {/* Main image */}
-            <div className="relative aspect-[4/3] bg-black rounded-2xl overflow-hidden group">
+            <div className="relative aspect-[16/10] bg-black rounded-2xl overflow-hidden group max-h-[500px]">
                 {activeMedia.type === 'VIDEO' ? (
                     <video
                         src={activeMedia.url}

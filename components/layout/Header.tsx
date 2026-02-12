@@ -1,10 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Menu, X, ChevronDown, User, Plus, Sun, Moon, LogOut, Heart, FileText, Shield } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { usePathname } from 'next/navigation';
+import { createPortal } from 'react-dom';
 
 const navigation = [
     { name: 'Bozor', href: '/bozor' },
@@ -19,222 +21,281 @@ export function Header() {
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const { isDark, toggleTheme } = useTheme();
     const { user, isAuthenticated, logout } = useAuth();
+    const pathname = usePathname();
+    const userMenuRef = useRef<HTMLDivElement>(null);
+    const [mounted, setMounted] = useState(false);
 
-    return (
-        <header className="sticky top-0 z-50 glass border-b border-slate-200/50 dark:border-slate-700/50">
-            <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex h-16 items-center justify-between">
-                    {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2">
-                        <img src="/logo.png" alt="Otbozor" className="w-10 h-10 object-contain" />
-                        <span className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                            Ot<span className="text-primary-600 dark:text-primary-400">bozor</span>
-                        </span>
-                    </Link>
+    useEffect(() => { setMounted(true); }, []);
 
-                    {/* Desktop navigation */}
-                    <div className="hidden md:flex items-center gap-8">
-                        {navigation.map((item) => (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                className="text-slate-600 hover:text-primary-600 dark:text-slate-300 dark:hover:text-primary-400 font-medium transition-colors"
-                            >
-                                {item.name}
-                            </Link>
-                        ))}
+    // Sahifa o'zgarganda menyuni yopish
+    useEffect(() => {
+        setMobileMenuOpen(false);
+        setUserMenuOpen(false);
+    }, [pathname]);
+
+    // Tashqariga bosganda user menyuni yopish
+    useEffect(() => {
+        function handleClickOutside(e: MouseEvent) {
+            if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+                setUserMenuOpen(false);
+            }
+        }
+        if (userMenuOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+            return () => document.removeEventListener('mousedown', handleClickOutside);
+        }
+    }, [userMenuOpen]);
+
+    // Mobile menu ochilganda scroll bloklash
+    useEffect(() => {
+        if (mobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+            return () => { document.body.style.overflow = ''; };
+        }
+    }, [mobileMenuOpen]);
+
+    const isActive = (href: string) => pathname === href || pathname?.startsWith(href + '/');
+
+    const mobileMenu = mobileMenuOpen && mounted ? createPortal(
+        <div className="lg:hidden fixed inset-0 top-16 z-[999] bg-white dark:bg-slate-900 overflow-y-auto">
+            <div className="container mx-auto px-4 py-4">
+                {/* User info */}
+                {isAuthenticated && user && (
+                    <div className="flex items-center gap-3 p-4 mb-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                        {user.avatarUrl ? (
+                            <img src={user.avatarUrl} alt={user.displayName} className="w-10 h-10 rounded-full object-cover" />
+                        ) : (
+                            <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400 font-semibold">
+                                {user.displayName?.charAt(0).toUpperCase()}
+                            </div>
+                        )}
+                        <div className="min-w-0">
+                            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{user.displayName}</p>
+                            {user.telegramUsername && (
+                                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">@{user.telegramUsername}</p>
+                            )}
+                        </div>
                     </div>
+                )}
 
-                    {/* Desktop actions */}
-                    <div className="hidden md:flex items-center gap-3">
-                        <button
-                            onClick={toggleTheme}
-                            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
-                            aria-label="Toggle theme"
+                {/* Navigation links */}
+                <div className="space-y-1">
+                    {navigation.map((item) => (
+                        <Link
+                            key={item.name}
+                            href={item.href}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={`flex items-center px-4 py-3 rounded-xl text-base font-medium transition-colors ${
+                                isActive(item.href)
+                                    ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/20'
+                                    : 'text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800'
+                            }`}
                         >
-                            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                        </button>
-
-                        {isAuthenticated ? (
-                            <>
-                                <Link href="/elon/yaratish" className="btn btn-primary">
-                                    <Plus className="w-4 h-4" />
-                                    E'lon joylash
-                                </Link>
-
-                                {/* User Dropdown */}
-                                <div className="relative">
-                                    <button
-                                        onClick={() => setUserMenuOpen(!userMenuOpen)}
-                                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                    >
-                                        {user?.avatarUrl ? (
-                                            <img
-                                                src={user.avatarUrl}
-                                                alt={user.displayName}
-                                                className="w-8 h-8 rounded-full"
-                                            />
-                                        ) : (
-                                            <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400 font-medium">
-                                                {user?.displayName?.charAt(0).toUpperCase()}
-                                            </div>
-                                        )}
-                                        <ChevronDown className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-                                    </button>
-
-                                    {userMenuOpen && (
-                                        <>
-                                            <div
-                                                className="fixed inset-0 z-10"
-                                                onClick={() => setUserMenuOpen(false)}
-                                            />
-                                            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-2 z-20">
-                                                <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
-                                                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                                                        {user?.displayName}
-                                                    </p>
-                                                    {user?.telegramUsername && (
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                            @{user.telegramUsername}
-                                                        </p>
-                                                    )}
-                                                </div>
-
-                                                <Link
-                                                    href="/profil"
-                                                    className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                                                    onClick={() => setUserMenuOpen(false)}
-                                                >
-                                                    <User className="w-4 h-4" />
-                                                    Profil
-                                                </Link>
-
-                                                <Link
-                                                    href="/profil/elonlarim"
-                                                    className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                                                    onClick={() => setUserMenuOpen(false)}
-                                                >
-                                                    <FileText className="w-4 h-4" />
-                                                    Mening e'lonlarim
-                                                </Link>
-
-                                                <Link
-                                                    href="/profil/sevimlilar"
-                                                    className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                                                    onClick={() => setUserMenuOpen(false)}
-                                                >
-                                                    <Heart className="w-4 h-4" />
-                                                    Sevimlilar
-                                                </Link>
-
-                                                {user?.isAdmin && (
-                                                    <Link
-                                                        href="/admin/dashboard"
-                                                        className="flex items-center gap-3 px-4 py-2 text-sm text-primary-600 dark:text-primary-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                                                        onClick={() => setUserMenuOpen(false)}
-                                                    >
-                                                        <Shield className="w-4 h-4" />
-                                                        Admin Panel
-                                                    </Link>
-                                                )}
-
-                                                <div className="border-t border-slate-200 dark:border-slate-700 mt-2 pt-2">
-                                                    <button
-                                                        onClick={() => {
-                                                            setUserMenuOpen(false);
-                                                            logout();
-                                                        }}
-                                                        className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors w-full"
-                                                    >
-                                                        <LogOut className="w-4 h-4" />
-                                                        Chiqish
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <Link href="/login" className="btn btn-ghost">
-                                    <User className="w-4 h-4" />
-                                    Kirish
-                                </Link>
-                                <Link href="/elon/yaratish" className="btn btn-primary">
-                                    <Plus className="w-4 h-4" />
-                                    E'lon joylash
-                                </Link>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Mobile menu button */}
-                    <button
-                        type="button"
-                        className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    >
-                        {mobileMenuOpen ? (
-                            <X className="w-6 h-6 text-slate-600 dark:text-slate-300" />
-                        ) : (
-                            <Menu className="w-6 h-6 text-slate-600 dark:text-slate-300" />
-                        )}
-                    </button>
+                            {item.name}
+                        </Link>
+                    ))}
                 </div>
 
-                {/* Mobile menu */}
-                {mobileMenuOpen && (
-                    <div className="md:hidden py-4 border-t border-slate-200 dark:border-slate-700">
-                        <div className="flex flex-col gap-2">
+                <hr className="my-4 border-slate-200 dark:border-slate-700" />
+
+                {/* User actions */}
+                {isAuthenticated ? (
+                    <div className="space-y-1">
+                        <Link href="/profil" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-base text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <User className="w-5 h-5 text-slate-400" /> Profil
+                        </Link>
+                        <Link href="/profil/elonlarim" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-base text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <FileText className="w-5 h-5 text-slate-400" /> Mening e&apos;lonlarim
+                        </Link>
+                        <Link href="/profil/sevimlilar" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-base text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <Heart className="w-5 h-5 text-slate-400" /> Sevimlilar
+                        </Link>
+                        {user?.isAdmin && (
+                            <Link href="/admin/dashboard" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-base text-primary-600 dark:text-primary-400 hover:bg-slate-50 dark:hover:bg-slate-800">
+                                <Shield className="w-5 h-5" /> Admin Panel
+                            </Link>
+                        )}
+
+                        <hr className="my-4 border-slate-200 dark:border-slate-700" />
+
+                        <div className="flex items-center justify-between px-4 py-3">
+                            <span className="text-sm text-slate-500 dark:text-slate-400">Mavzu</span>
+                            <button
+                                onClick={toggleTheme}
+                                className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                            >
+                                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                            </button>
+                        </div>
+
+                        <button
+                            onClick={() => { setMobileMenuOpen(false); logout(); }}
+                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-base text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 w-full"
+                        >
+                            <LogOut className="w-5 h-5" /> Chiqish
+                        </button>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between px-4 py-3">
+                            <span className="text-sm text-slate-500 dark:text-slate-400">Mavzu</span>
+                            <button
+                                onClick={toggleTheme}
+                                className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                            >
+                                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                            </button>
+                        </div>
+
+                        <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl font-medium text-base">
+                            <User className="w-5 h-5" /> Kirish
+                        </Link>
+                        <Link href="/elon/yaratish" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full py-3 bg-primary-600 text-white rounded-xl font-medium text-base">
+                            <Plus className="w-5 h-5" /> E&apos;lon joylash
+                        </Link>
+                    </div>
+                )}
+            </div>
+        </div>,
+        document.body
+    ) : null;
+
+    return (
+        <>
+            <header className="sticky top-0 z-[100] glass border-b border-slate-200/50 dark:border-slate-700/50">
+                <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex h-16 items-center justify-between">
+                        {/* Logo */}
+                        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+                            <img src="/logo.png" alt="Otbozor" className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
+                            <span className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">
+                                Ot<span className="text-primary-600 dark:text-primary-400">bozor</span>
+                            </span>
+                        </Link>
+
+                        {/* Desktop navigation */}
+                        <div className="hidden lg:flex items-center gap-1">
                             {navigation.map((item) => (
                                 <Link
                                     key={item.name}
                                     href={item.href}
-                                    className="px-4 py-2.5 text-slate-600 hover:text-primary-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:text-primary-400 dark:hover:bg-slate-800 rounded-lg font-medium"
-                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={`px-3 xl:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                        isActive(item.href)
+                                            ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/20'
+                                            : 'text-slate-600 hover:text-primary-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:text-primary-400 dark:hover:bg-slate-800'
+                                    }`}
                                 >
                                     {item.name}
                                 </Link>
                             ))}
-                            <hr className="my-2 border-slate-200 dark:border-slate-700" />
+                        </div>
+
+                        {/* Desktop actions */}
+                        <div className="hidden lg:flex items-center gap-2">
                             <button
                                 onClick={toggleTheme}
-                                className="px-4 py-2.5 text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium flex items-center gap-2"
+                                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
+                                aria-label="Toggle theme"
                             >
-                                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                                {isDark ? 'Light Mode' : 'Dark Mode'}
+                                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                             </button>
-                            <Link
-                                href="/login"
-                                className="px-4 py-2.5 text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg font-medium"
-                                onClick={() => setMobileMenuOpen(false)}
+
+                            {isAuthenticated ? (
+                                <>
+                                    <Link href="/elon/yaratish" className="btn btn-primary btn-sm">
+                                        <Plus className="w-4 h-4" />
+                                        E&apos;lon joylash
+                                    </Link>
+
+                                    <div className="relative" ref={userMenuRef}>
+                                        <button
+                                            onClick={() => setUserMenuOpen(!userMenuOpen)}
+                                            className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                        >
+                                            {user?.avatarUrl ? (
+                                                <img src={user.avatarUrl} alt={user.displayName} className="w-8 h-8 rounded-full object-cover" />
+                                            ) : (
+                                                <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400 text-sm font-semibold">
+                                                    {user?.displayName?.charAt(0).toUpperCase()}
+                                                </div>
+                                            )}
+                                            <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                                        </button>
+
+                                        {userMenuOpen && (
+                                            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-20">
+                                                <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+                                                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{user?.displayName}</p>
+                                                    {user?.telegramUsername && (
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">@{user.telegramUsername}</p>
+                                                    )}
+                                                </div>
+                                                <div className="py-1">
+                                                    <Link href="/profil" className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                                                        <User className="w-4 h-4" /> Profil
+                                                    </Link>
+                                                    <Link href="/profil/elonlarim" className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                                                        <FileText className="w-4 h-4" /> Mening e&apos;lonlarim
+                                                    </Link>
+                                                    <Link href="/profil/sevimlilar" className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                                                        <Heart className="w-4 h-4" /> Sevimlilar
+                                                    </Link>
+                                                    {user?.isAdmin && (
+                                                        <Link href="/admin/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-sm text-primary-600 dark:text-primary-400 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                                                            <Shield className="w-4 h-4" /> Admin Panel
+                                                        </Link>
+                                                    )}
+                                                </div>
+                                                <div className="border-t border-slate-100 dark:border-slate-700 py-1">
+                                                    <button
+                                                        onClick={logout}
+                                                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 w-full"
+                                                    >
+                                                        <LogOut className="w-4 h-4" /> Chiqish
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <Link href="/login" className="btn btn-ghost btn-sm">Kirish</Link>
+                                    <Link href="/elon/yaratish" className="btn btn-primary btn-sm">
+                                        <Plus className="w-4 h-4" />
+                                        E&apos;lon joylash
+                                    </Link>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Mobile right side */}
+                        <div className="flex lg:hidden items-center gap-2">
+                            {isAuthenticated && (
+                                <Link href="/elon/yaratish" className="btn btn-primary btn-sm text-xs" style={{ padding: '6px 12px' }}>
+                                    <Plus className="w-3.5 h-3.5" />
+                                    <span className="hidden sm:inline">E&apos;lon</span>
+                                </Link>
+                            )}
+                            <button
+                                type="button"
+                                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                aria-label="Menu"
                             >
-                                Kirish
-                            </Link>
-                            <Link
-                                href="/elon/yaratish"
-                                className="mx-4 btn btn-primary justify-center"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                <Plus className="w-4 h-4" />
-                                E'lon joylash
-                            </Link>
+                                {mobileMenuOpen ? (
+                                    <X className="w-6 h-6 text-slate-700 dark:text-slate-200" />
+                                ) : (
+                                    <Menu className="w-6 h-6 text-slate-700 dark:text-slate-200" />
+                                )}
+                            </button>
                         </div>
                     </div>
-                )}
-            </nav>
+                </nav>
+            </header>
 
-            {/* Mobile sticky CTA */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 z-50">
-                <Link
-                    href="/elon/yaratish"
-                    className="btn btn-primary btn-lg w-full justify-center"
-                >
-                    <Plus className="w-5 h-5" />
-                    E'lon joylash
-                </Link>
-            </div>
-        </header>
+            {/* Mobile menu - portal orqali body ga chiqarildi */}
+            {mobileMenu}
+        </>
     );
 }

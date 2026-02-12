@@ -44,18 +44,18 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
     }
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 
                 {/* Left Column: Gallery & Description */}
-                <div className="lg:col-span-2 space-y-8">
+                <div className="lg:col-span-2 space-y-6 sm:space-y-8">
                     <ListingGallery media={listing.media} title={listing.title} />
 
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
-                        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
                             {listing.title}
                         </h1>
-                        <div className="flex flex-wrap items-center gap-4 text-slate-500 dark:text-slate-400 mb-6">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm sm:text-base text-slate-500 dark:text-slate-400 mb-4 sm:mb-6">
                             <span className="flex items-center gap-1">
                                 <MapPin className="w-4 h-4" />
                                 {listing.region.nameUz}{listing.district?.nameUz ? `, ${listing.district.nameUz}` : ''}
@@ -126,43 +126,33 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
                             </p>
                         )}
 
-                        <ListingInteractions telegramUsername={listing.user.telegramUsername || ''} />
-
-                        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 border border-slate-100 dark:border-slate-600 mt-6">
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="w-12 h-12 bg-slate-200 dark:bg-slate-600 rounded-full flex items-center justify-center text-xl overflow-hidden text-slate-600 dark:text-slate-300">
+                        {/* Seller Info */}
+                        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 border border-slate-100 dark:border-slate-600 mb-6">
+                            <div className="flex items-center gap-3">
+                                <div className="w-11 h-11 bg-slate-200 dark:bg-slate-600 rounded-full flex items-center justify-center text-lg overflow-hidden text-slate-600 dark:text-slate-300 flex-shrink-0">
                                     {listing.user.avatarUrl ? (
                                         <img src={listing.user.avatarUrl} alt={listing.user.displayName} className="w-full h-full object-cover" />
                                     ) : (
                                         listing.user.displayName?.[0]?.toUpperCase() || 'U'
                                     )}
                                 </div>
-                                <div>
-                                    <p className="font-semibold text-slate-900 dark:text-slate-100">{listing.user.displayName}</p>
-                                    {listing.publishedAt && (
-                                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                                            Otbozor&apos;da {new Date(listing.publishedAt).getFullYear()} yildan
-                                        </p>
-                                    )}
+                                <div className="min-w-0">
+                                    <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">{listing.user.displayName}</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        {listing.user.isVerified ? 'Tasdiqlangan sotuvchi' : 'Sotuvchi'}
+                                    </p>
                                 </div>
+                                {listing.user.isVerified && (
+                                    <Shield className="w-5 h-5 text-green-500 flex-shrink-0 ml-auto" />
+                                )}
                             </div>
-
-                            {listing.user.isVerified && (
-                                <div className="flex items-center gap-2 text-green-600 dark:text-green-400 text-sm bg-green-50 dark:bg-green-900/20 p-2 rounded-lg border border-green-100 dark:border-green-800/50 mb-3">
-                                    <Shield className="w-4 h-4" />
-                                    <span>Verifikatsiyalangan sotuvchi</span>
-                                </div>
-                            )}
-
-                            <a
-                                href={`https://t.me/${listing.user.telegramUsername || ''}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn btn-outline w-full justify-center text-sm"
-                            >
-                                Telegramda yozish
-                            </a>
                         </div>
+
+                        <ListingInteractions
+                            listingId={listing.id}
+                            telegramUsername={listing.user.telegramUsername || ''}
+                            phone={listing.user.phone}
+                        />
                     </div>
                 </div>
             </div>

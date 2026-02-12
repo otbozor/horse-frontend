@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { Users, Ban, CheckCircle, Search, Shield, Loader2 } from 'lucide-react';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 export const dynamic = 'force-dynamic';
 
@@ -113,17 +114,15 @@ export default function AdminUsersPage() {
 
     return (
         <AdminLayout>
-            <div className="mb-6 flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Foydalanuvchilar</h1>
-                    <p className="text-slate-500 text-sm">Platformadagi barcha foydalanuvchilarni boshqaring va moderatsiya qiling</p>
-                </div>
+            <div className="mb-6">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Foydalanuvchilar</h1>
+                <p className="text-slate-500 text-sm">Platformadagi barcha foydalanuvchilarni boshqaring va moderatsiya qiling</p>
             </div>
 
             {/* Search and Filters */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
-                <div className="flex flex-wrap gap-4">
-                    <div className="flex-1 min-w-[300px] relative">
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1 min-w-0 relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
                             type="text"
@@ -133,15 +132,18 @@ export default function AdminUsersPage() {
                             className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm transition-all"
                         />
                     </div>
-                    <select
+                    <CustomSelect
+                        name="statusFilter"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm transition-all min-w-[160px]"
-                    >
-                        <option value="">Barcha statuslar</option>
-                        <option value="ACTIVE">Faol</option>
-                        <option value="BANNED">Bloklangan</option>
-                    </select>
+                        options={[
+                            { value: '', label: 'Barcha statuslar' },
+                            { value: 'ACTIVE', label: 'Faol' },
+                            { value: 'BANNED', label: 'Bloklangan' }
+                        ]}
+                        placeholder="Barcha statuslar"
+                        className="min-w-[160px]"
+                    />
                 </div>
             </div>
 
@@ -153,7 +155,7 @@ export default function AdminUsersPage() {
                     </div>
                 ) : filteredUsers.length > 0 ? (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full text-left border-collapse min-w-[700px]">
                             <thead>
                                 <tr className="bg-slate-50 border-b border-slate-200">
                                     <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Foydalanuvchi</th>

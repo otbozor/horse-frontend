@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation';
 import { getEvent } from '@/lib/api';
 import { formatDate, formatPrice } from '@/lib/utils';
-import { MapPin, Calendar, Trophy, User, Phone, Share2, Navigation } from 'lucide-react';
+import { MapPin, Calendar, Trophy, User, Phone, Navigation } from 'lucide-react';
 import { GiHorseshoe } from 'react-icons/gi';
+import ShareButton from './ShareButton';
 
 export default async function EventDetailPage({ params }: { params: { slug: string } }) {
     let event;
@@ -56,7 +57,7 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
 
                         <div>
                             <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3">Xarita</h2>
-                            {event.mapUrl && event.mapUrl.includes('/maps/embed') ? (
+                            {event.mapUrl && (event.mapUrl.includes('/maps/embed') || event.mapUrl.includes('output=embed')) ? (
                                 <>
                                     <div className="aspect-video rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
                                         <iframe
@@ -120,10 +121,7 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
                                 </a>
                             )}
 
-                            <button className="btn btn-outline w-full justify-center bg-white dark:bg-slate-700 dark:text-slate-200 dark:border-slate-500">
-                                <Share2 className="w-4 h-4" />
-                                Ulashish
-                            </button>
+                            <ShareButton />
                         </div>
                     </div>
                 </div>

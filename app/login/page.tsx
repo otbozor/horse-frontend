@@ -191,7 +191,7 @@ function LoginContent() {
         )}
 
         {/* Code Inputs - always single row */}
-        <div className="flex gap-2 justify-center mb-10">
+        <div className="flex gap-1.5 sm:gap-2 justify-center mb-10">
           {Array.from({ length: CODE_LEN }).map((_, index) => (
             <input
               key={index}
@@ -240,7 +240,7 @@ function LoginContent() {
                 e.preventDefault();
                 handlePasteAll(e.clipboardData.getData("text"));
               }}
-              className="w-11 h-14 text-center text-xl font-bold font-mono rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none transition-all focus:border-slate-900 dark:focus:border-white focus:ring-0 disabled:opacity-40"
+              className="w-9 h-12 sm:w-11 sm:h-14 text-center text-lg sm:text-xl font-bold font-mono rounded-lg sm:rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none transition-all focus:border-slate-900 dark:focus:border-white focus:ring-0 disabled:opacity-40"
             />
           ))}
         </div>

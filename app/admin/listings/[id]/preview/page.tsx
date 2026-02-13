@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { formatPrice, formatDate, getPurposeLabel, getGenderLabel } from '@/lib/utils';
-import { approveListing, rejectListing } from '@/lib/admin-api';
+import { getAdminListingById, approveListing, rejectListing } from '@/lib/admin-api';
 import { MapPin, Calendar, Check, X, Loader2, ArrowLeft, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -31,13 +31,10 @@ export default function AdminListingPreviewPage() {
     const loadListing = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/listings/${id}`, {
-                credentials: 'include',
-            });
-            const data = await response.json();
+            const response = await getAdminListingById(id);
 
-            if (data.success && data.data) {
-                setListing(data.data);
+            if (response.success && response.data) {
+                setListing(response.data);
             } else {
                 setError('E\'lon topilmadi');
             }

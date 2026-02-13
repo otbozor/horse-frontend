@@ -38,16 +38,16 @@ export default function ContactPage() {
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
             {/* Header */}
-            <div className="mb-12 text-center">
-                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+            <div className="mb-8 sm:mb-12 text-center">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-3 sm:mb-4">
                     Biz bilan bog'laning
                 </h1>
-                <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
                     Savolingiz bormi? Taklif yoki shikoyatingiz bormi? Biz bilan bog'laning!
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
                 {/* Contact Info */}
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">

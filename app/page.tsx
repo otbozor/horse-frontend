@@ -1,14 +1,15 @@
 import Link from 'next/link';
-import { Shield, MessageCircle, Eye, Star, MapPin, ChevronRight, Video } from 'lucide-react';
+import { Shield, MessageCircle, Eye, Star, MapPin, ChevronRight, Video, Trophy } from 'lucide-react';
 import { GiHorseHead } from 'react-icons/gi';
-import { getFeaturedListings, getUpcomingEvents } from '@/lib/api';
+import { getFeaturedListings, getAllPublicEvents } from '@/lib/api';
 import { formatPrice } from '@/lib/utils';
 import { HeroSection } from '@/components/home/HeroSection';
 
 export default async function HomePage() {
     // Fetch real data from API
     const featuredListings = await getFeaturedListings(4).catch(() => []);
-    const upcomingEvents = await getUpcomingEvents(3).catch(() => []);
+    const allEvents = await getAllPublicEvents().catch(() => []);
+    const upcomingEvents = allEvents.slice(0, 3);
     return (
         <div className="flex flex-col">
             {/* Hero Section */}
@@ -98,25 +99,25 @@ export default async function HomePage() {
             )}
 
             {/* Upcoming Ko'pkari Events */}
-            {upcomingEvents.length > 0 && (
-                <section className="py-12 md:py-16 bg-white dark:bg-slate-800">
-                    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex justify-between items-center mb-8">
-                            <div>
-                                <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
-                                    Yaqinlashayotgan ko'pkarilar
-                                </h2>
-                                <p className="text-slate-600 dark:text-slate-400 mt-1">O'zbekiston bo'ylab tadbirlar</p>
-                            </div>
-                            <Link
-                                href="/kopkari"
-                                className="btn btn-outline hidden md:flex"
-                            >
-                                Barchasini ko'rish
-                                <ChevronRight className="w-4 h-4" />
-                            </Link>
+            <section className="py-12 md:py-16 bg-white dark:bg-slate-800">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center mb-8">
+                        <div>
+                            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
+                                Yaqinlashayotgan ko'pkarilar
+                            </h2>
+                            <p className="text-slate-600 dark:text-slate-400 mt-1">O'zbekiston bo'ylab tadbirlar</p>
                         </div>
+                        <Link
+                            href="/kopkari"
+                            className="btn btn-outline hidden md:flex"
+                        >
+                            Barchasini ko'rish
+                            <ChevronRight className="w-4 h-4" />
+                        </Link>
+                    </div>
 
+                    {upcomingEvents.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {upcomingEvents.map((event) => (
                                 <Link
@@ -135,7 +136,7 @@ export default async function HomePage() {
                                         </div>
                                         {event.prizePool && (
                                             <span className="badge bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">
-                                                🏆 {formatPrice(event.prizePool, 'UZS')}
+                                                {formatPrice(event.prizePool, 'UZS')}
                                             </span>
                                         )}
                                     </div>
@@ -149,16 +150,34 @@ export default async function HomePage() {
                                 </Link>
                             ))}
                         </div>
+                    ) : (
+                        <div className="text-center py-12 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-2xl border border-amber-200 dark:border-amber-800">
+                            <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Trophy className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+                                Tez orada ko'pkarilar boshlanadi
+                            </h3>
+                            <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">
+                                Yaqinlashayotgan musobaqalar haqida xabardor bo'ling
+                            </p>
+                            <Link href="/kopkari" className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-medium text-sm transition-colors">
+                                Ko'pkari taqvimini ko'rish
+                                <ChevronRight className="w-4 h-4" />
+                            </Link>
+                        </div>
+                    )}
 
+                    {upcomingEvents.length > 0 && (
                         <div className="mt-8 text-center md:hidden">
                             <Link href="/kopkari" className="btn btn-outline">
                                 Barchasini ko'rish
                                 <ChevronRight className="w-4 h-4" />
                             </Link>
                         </div>
-                    </div>
-                </section>
-            )}
+                    )}
+                </div>
+            </section>
 
             {/* Trust Blocks */}
             <section className="py-12 md:py-16 bg-slate-900 text-white dark:bg-slate-950">

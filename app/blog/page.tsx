@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { Calendar, Eye } from 'lucide-react';
+import { Calendar, Eye, FileText } from 'lucide-react';
 import { Pagination } from '@/components/listing/Pagination';
 
 const BLOG_LIMIT = 12;
@@ -67,8 +67,8 @@ export default async function BlogPage({
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-6xl">
-                                        📝
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <FileText className="w-16 h-16 text-primary-300" />
                                     </div>
                                 )}
                             </div>
@@ -104,7 +104,7 @@ export default async function BlogPage({
                 </div>
             ) : (
                 <div className="text-center py-20 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
-                    <div className="text-6xl mb-4">📝</div>
+                    <FileText className="w-16 h-16 mx-auto mb-4 text-slate-400" />
                     <h3 className="text-lg font-medium text-slate-900 mb-2">
                         Hozircha maqolalar yo'q
                     </h3>

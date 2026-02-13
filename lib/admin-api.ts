@@ -10,6 +10,23 @@ export async function getAdminStats(): Promise<AuthResponse<{
     return apiFetch('/api/admin/dashboard/stats');
 }
 
+// All Listings with filters (admin)
+export async function getAdminListings(options?: {
+    status?: string;
+    isPaid?: string;
+    page?: number;
+    limit?: number;
+}): Promise<any> {
+    return apiFetch('/api/admin/listings', {
+        params: {
+            status: options?.status,
+            isPaid: options?.isPaid,
+            page: options?.page,
+            limit: options?.limit,
+        } as any,
+    });
+}
+
 // Pending Listings
 export async function getPendingListings(page = 1, limit = 20): Promise<any> {
     const response = await apiFetch('/api/admin/listings/pending', {
@@ -17,6 +34,11 @@ export async function getPendingListings(page = 1, limit = 20): Promise<any> {
     });
     console.log('getPendingListings response:', response);
     return response;
+}
+
+// Get Listing by ID (admin)
+export async function getAdminListingById(id: string): Promise<AuthResponse<any>> {
+    return apiFetch(`/api/admin/listings/${id}`);
 }
 
 // Approve Listing

@@ -95,23 +95,23 @@ function FavoritesPageContent() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 py-8">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-6 sm:py-8">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-slate-900">Sevimlilar</h1>
-                    <p className="text-slate-600 mt-1">Saqlab qo'ygan e'lonlaringiz ({favorites.length})</p>
+                <div className="mb-6 sm:mb-8">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">Sevimlilar</h1>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1 text-sm sm:text-base">Saqlab qo'ygan e'lonlaringiz ({favorites.length})</p>
                 </div>
 
                 {favorites.length > 0 ? (
                     <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         {paginatedFavorites.map((listing) => (
                             <div
                                 key={listing.id}
-                                className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-md transition-all group"
+                                className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all group"
                             >
                                 <Link href={`/ot/${listing.slug}`} className="block">
-                                    <div className="relative aspect-video bg-slate-100">
+                                    <div className="relative aspect-video bg-slate-100 dark:bg-slate-700">
                                         {listing.media[0] ? (
                                             <img
                                                 src={listing.media[0].thumbUrl || listing.media[0].url}
@@ -119,24 +119,24 @@ function FavoritesPageContent() {
                                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                             />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-slate-300">
+                                            <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-500">
                                                 <GiHorseHead className="w-16 h-16" />
                                             </div>
                                         )}
                                     </div>
 
                                     <div className="p-4">
-                                        <h3 className="font-semibold text-slate-900 mb-2 line-clamp-2 group-hover:text-primary-600 transition-colors">
+                                        <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                                             {listing.title}
                                         </h3>
-                                        <p className="text-xl font-bold text-primary-600 mb-2">
+                                        <p className="text-xl font-bold text-primary-600 dark:text-primary-400 mb-2">
                                             {listing.priceAmount.toLocaleString()} {listing.priceCurrency}
                                         </p>
-                                        <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
+                                        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-2">
                                             <MapPin className="w-4 h-4" />
                                             <span>{listing.region.nameUz}</span>
                                         </div>
-                                        <div className="flex items-center gap-3 text-xs text-slate-500">
+                                        <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
                                             {listing.ageYears && (
                                                 <span className="badge badge-gray">{listing.ageYears} yosh</span>
                                             )}
@@ -150,7 +150,7 @@ function FavoritesPageContent() {
                                 <div className="px-4 pb-4">
                                     <button
                                         onClick={() => handleRemoveFavorite(listing.id)}
-                                        className="w-full btn btn-outline btn-sm text-red-600 hover:bg-red-50"
+                                        className="w-full btn btn-outline btn-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10"
                                     >
                                         <Heart className="w-4 h-4 fill-current" />
                                         Sevimlilardan o'chirish
@@ -163,14 +163,14 @@ function FavoritesPageContent() {
                     {/* Pagination */}
                     {totalPages > 1 && (
                         <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <p className="text-sm text-slate-600">
+                            <p className="text-sm text-slate-600 dark:text-slate-400">
                                 Sahifa <span className="font-medium">{currentPage}</span> / <span className="font-medium">{totalPages}</span>
                             </p>
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                     disabled={currentPage === 1}
-                                    className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                    className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400 disabled:cursor-not-allowed"
                                 >
                                     <ChevronLeft className="w-5 h-5" />
                                 </button>
@@ -181,7 +181,7 @@ function FavoritesPageContent() {
                                         className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors ${
                                             p === currentPage
                                                 ? 'bg-primary-600 text-white'
-                                                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                                                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600'
                                         }`}
                                     >
                                         {p}
@@ -190,7 +190,7 @@ function FavoritesPageContent() {
                                 <button
                                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                                    className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400 disabled:cursor-not-allowed"
                                 >
                                     <ChevronRight className="w-5 h-5" />
                                 </button>
@@ -199,12 +199,12 @@ function FavoritesPageContent() {
                     )}
                     </>
                 ) : (
-                    <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-300">
-                        <div className="text-6xl mb-4">❤️</div>
-                        <h3 className="text-xl font-medium text-slate-900 mb-2">
+                    <div className="text-center py-16 sm:py-20 bg-white dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-600">
+                        <Heart className="w-16 h-16 mx-auto mb-4 text-red-300 dark:text-red-400" />
+                        <h3 className="text-xl font-medium text-slate-900 dark:text-slate-100 mb-2">
                             Sevimlilar ro'yxati bo'sh
                         </h3>
-                        <p className="text-slate-500 mb-6">
+                        <p className="text-slate-500 dark:text-slate-400 mb-6">
                             Yoqqan e'lonlarni sevimlilar ro'yxatiga qo'shing
                         </p>
                         <Link href="/bozor" className="btn btn-primary">

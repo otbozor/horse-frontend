@@ -281,6 +281,14 @@ export async function createListingDraft(data: any): Promise<Listing> {
     throw new Error(response.message || 'Failed to create listing');
 }
 
+export async function getMyListingById(id: string): Promise<Listing> {
+    const response = await apiFetch<AuthResponse<Listing>>(`/api/my/listings/${id}`);
+    if (response.success && response.data) {
+        return response.data;
+    }
+    throw new Error(response.message || 'Listing not found');
+}
+
 export async function updateListingDraft(id: string, data: any): Promise<Listing> {
     const response = await apiFetch<AuthResponse<Listing>>(`/api/my/listings/${id}`, {
         method: 'PATCH',

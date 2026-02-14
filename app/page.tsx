@@ -1,13 +1,13 @@
 import Link from 'next/link';
-import { Shield, MessageCircle, Eye, Star, MapPin, ChevronRight, Video, Trophy } from 'lucide-react';
-import { GiHorseHead } from 'react-icons/gi';
+import { Shield, MessageCircle, Eye, Star, MapPin, ChevronRight, Trophy } from 'lucide-react';
 import { getFeaturedListings, getAllPublicEvents } from '@/lib/api';
 import { formatPrice } from '@/lib/utils';
 import { HeroSection } from '@/components/home/HeroSection';
+import { FeaturedSlider } from '@/components/home/FeaturedSlider';
 
 export default async function HomePage() {
-    // Fetch real data from API
-    const featuredListings = await getFeaturedListings(4).catch(() => []);
+    // Fetch real data from API - more listings for slider
+    const featuredListings = await getFeaturedListings(12).catch(() => []);
     const allEvents = await getAllPublicEvents().catch(() => []);
     const upcomingEvents = allEvents.slice(0, 3);
     return (
@@ -15,16 +15,16 @@ export default async function HomePage() {
             {/* Hero Section */}
             <HeroSection />
 
-            {/* Featured Listings */}
+            {/* Featured Listings - Auto-scrolling slider */}
             {featuredListings.length > 0 && (
                 <section className="py-12 md:py-16 bg-slate-50 dark:bg-slate-900">
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center mb-8">
                             <div>
                                 <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
-                                    Tanlangan e'lonlar
+                                    Premium e'lonlar
                                 </h2>
-                                <p className="text-slate-600 dark:text-slate-400 mt-1">Eng mashhur va ishonchli e'lonlar</p>
+                                <p className="text-slate-600 dark:text-slate-400 mt-1">To'langan va ishonchli e'lonlar</p>
                             </div>
                             <Link
                                 href="/bozor"
@@ -35,58 +35,7 @@ export default async function HomePage() {
                             </Link>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {featuredListings.map((listing) => (
-                                <Link
-                                    key={listing.id}
-                                    href={`/ot/${listing.slug}`}
-                                    className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 card-hover group"
-                                >
-                                    <div className="relative aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-700">
-                                        {listing.media[0] ? (
-                                            <img
-                                                src={listing.media[0].thumbUrl || listing.media[0].url}
-                                                alt={listing.title}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-slate-300">
-                                                <GiHorseHead className="w-20 h-20" />
-                                            </div>
-                                        )}
-                                        {listing.hasVideo && (
-                                            <span className="absolute top-3 left-3 badge bg-black/60 text-white flex items-center gap-1">
-                                                <Video className="w-3 h-3" /> Video
-                                            </span>
-                                        )}
-                                        {listing.user.isVerified && (
-                                            <span className="absolute top-3 right-3 badge badge-success">
-                                                ✓ Tasdiqlangan
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="p-4">
-                                        <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2 line-clamp-2 group-hover:text-primary-600 transition-colors">
-                                            {listing.title}
-                                        </h3>
-                                        <p className="text-xl font-bold text-primary-600 dark:text-primary-400 mb-2">
-                                            {formatPrice(listing.priceAmount, listing.priceCurrency)}
-                                        </p>
-                                        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                                            <MapPin className="w-4 h-4" />
-                                            <span>{listing.region.nameUz}{listing.district && `, ${listing.district.nameUz}`}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3 mt-3 text-xs text-slate-500 dark:text-slate-400">
-                                            {listing.ageYears && <span className="badge badge-gray">{listing.ageYears} yosh</span>}
-                                            {listing.breed && <span className="badge badge-gray">{listing.breed.name}</span>}
-                                            {listing.hasPassport && (
-                                                <span className="badge badge-info">Hujjat</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
+                        <FeaturedSlider listings={featuredListings} />
 
                         <div className="mt-8 text-center md:hidden">
                             <Link href="/bozor" className="btn btn-outline">

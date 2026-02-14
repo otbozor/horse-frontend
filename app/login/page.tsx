@@ -14,6 +14,7 @@ function LoginContent() {
   const [codeArr, setCodeArr] = useState<string[]>(Array(CODE_LEN).fill(""));
   const [error, setError] = useState("");
   const [botLink, setBotLink] = useState("");
+  const [botUsername, setBotUsername] = useState("otbozor_bot");
   const [initLoading, setInitLoading] = useState(true);
 
   const searchParams = useSearchParams();
@@ -38,6 +39,9 @@ function LoginContent() {
         const response = await startTelegramAuth(window.location.origin);
         if (response.success && response.data?.botDeepLink) {
           setBotLink(response.data.botDeepLink);
+          // Extract bot username from deep link (https://t.me/BOT_NAME?start=...)
+          const match = response.data.botDeepLink.match(/t\.me\/([^?]+)/);
+          if (match) setBotUsername(match[1]);
         }
       } catch (err) {
         console.error("Sessiya yaratishda xatolik:", err);
@@ -79,6 +83,8 @@ function LoginContent() {
       }
     } catch (err: any) {
       setError(err.message || "Tasdiqlashda xatolik");
+      setCodeArr(Array(CODE_LEN).fill(""));
+      setTimeout(() => focusAt(0), 100);
     } finally {
       setLoading(false);
     }
@@ -164,19 +170,20 @@ function LoginContent() {
                 rel="noopener noreferrer"
                 className="text-slate-900 dark:text-white font-semibold hover:underline"
               >
-                @kisfjvnsdj_bot
+                @{botUsername}
               </a>
               {"  "}telegram botiga kiring va 1 daqiqalik kodingizni oling.
             </>
           ) : (
             <>
-              <Link
-                href="https://t.me/kisfjvnsdj_bot"
+              <a
+                href={`https://t.me/${botUsername}`}
                 target="_blank"
+                rel="noopener noreferrer"
                 className="text-slate-900 dark:text-white font-semibold hover:underline"
               >
-                @kisfjvnsdj_bot
-              </Link>
+                @{botUsername}
+              </a>
               {"  "}telegram botiga kiring va 1 daqiqalik kodingizni oling.
             </>
           )}

@@ -180,14 +180,15 @@ function EditListingPageContent() {
     };
 
     const handleSubmit = async () => {
+        if (!canEdit) return;
+
         const saved = await saveChanges();
         if (!saved) return;
 
         setIsSubmitting(true);
         try {
-            // Attach new media if any
-            const newMedia = formData.media.filter(m => m.url.startsWith('blob:') || !m.url.includes('/'));
-            if (newMedia.length > 0) {
+            // Attach media
+            if (formData.media.length > 0) {
                 await attachMediaToListing(listingId, formData.media);
             }
 
@@ -195,6 +196,10 @@ function EditListingPageContent() {
             router.push('/profil/elonlarim?success=true');
         } catch (error: any) {
             console.error('Failed to submit', error);
+            if (error.message?.includes('already submitted')) {
+                router.push('/profil/elonlarim?success=true');
+                return;
+            }
             setError(error.message || 'Xatolik yuz berdi');
         } finally {
             setIsSubmitting(false);

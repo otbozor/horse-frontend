@@ -67,7 +67,14 @@ export function FileUpload({
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || 'Upload failed');
+                    console.error('Upload error response:', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        data: errorData,
+                    });
+                    throw new Error(
+                        errorData.message || `Yuklash xatosi (${response.status})`,
+                    );
                 }
 
                 const result = await response.json();

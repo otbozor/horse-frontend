@@ -161,9 +161,13 @@ function CreateListingPageContent() {
             }
 
             router.push('/profil/elonlarim?success=true');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to submit', error);
-            alert('Xatolik yuz berdi');
+            if (error.message?.includes('already submitted')) {
+                router.push('/profil/elonlarim?success=true');
+                return;
+            }
+            setError(error.message || 'Xatolik yuz berdi');
         } finally {
             setIsSubmitting(false);
         }

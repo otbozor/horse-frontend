@@ -53,10 +53,7 @@ function LoginContent() {
   }, []);
 
   const handleVerifyCode = useCallback(async () => {
-    if (!isComplete) {
-      setError("Code 8 ta belgidan iborat bo'lishi kerak");
-      return;
-    }
+    if (!isComplete || loading) return;
 
     setLoading(true);
     setError("");
@@ -81,14 +78,14 @@ function LoginContent() {
       } else {
         window.location.href = returnUrl;
       }
+      // Don't set loading=false on success - keep loading while redirecting
     } catch (err: any) {
       setError(err.message || "Tasdiqlashda xatolik");
       setCodeArr(Array(CODE_LEN).fill(""));
-      setTimeout(() => focusAt(0), 100);
-    } finally {
       setLoading(false);
+      setTimeout(() => focusAt(0), 100);
     }
-  }, [code, isComplete, returnUrl]);
+  }, [code, isComplete, returnUrl, loading]);
 
   // 8 ta to'lsa avtomatik tasdiqlash
   useEffect(() => {

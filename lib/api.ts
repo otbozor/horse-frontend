@@ -448,3 +448,28 @@ export async function logout(): Promise<AuthResponse<null>> {
     }
     return apiFetch('/api/auth/logout', { method: 'POST' });
 }
+
+// Payments
+export async function createPaymentInvoice(
+    listingId: string,
+    packageType: 'OSON_START' | 'TEZKOR_SAVDO' | 'TURBO_SAVDO',
+): Promise<{ paymentId: string; amount: number; clickUrl: string }> {
+    const response = await apiFetch<AuthResponse<{ paymentId: string; amount: number; clickUrl: string }>>(
+        '/api/payments/create-invoice',
+        { method: 'POST', body: JSON.stringify({ listingId, packageType }) },
+    );
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message || 'Failed to create invoice');
+}
+
+export async function getPaymentStatus(paymentId: string): Promise<{
+    id: string;
+    status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+    amount: number;
+    packageType: string;
+    listing: { id: string; title: string; slug: string; isPaid: boolean };
+}> {
+    const response = await apiFetch<AuthResponse<any>>(`/api/payments/status/${paymentId}`);
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message || 'Payment not found');
+}

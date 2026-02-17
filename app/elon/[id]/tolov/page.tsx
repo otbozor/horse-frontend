@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Zap, Rocket, Crown, Check, Star } from 'lucide-react';
 import { RequireAuth } from '@/components/auth/RequireAuth';
+import { createPaymentInvoice } from '@/lib/api';
 
 interface Package {
     id: string;
@@ -66,19 +67,32 @@ function PaymentPageContent() {
     const listingId = params.id as string;
     const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [error, setError] = useState('');
 
     const handleSelectPackage = (pkg: Package) => {
         setSelectedPackage(pkg.id);
+        setError('');
     };
 
     const handlePay = async () => {
-        if (!selectedPackage) return;
+        if (!selectedPackage || !listingId) return;
         setIsProcessing(true);
+        setError('');
 
-        // TODO: integrate with actual payment gateway (Payme, Click, etc.)
-        // For now, show a placeholder
-        alert("To'lov tizimi tez orada ulanadi. Hozircha admin bilan bog'laning.");
-        setIsProcessing(false);
+        try {
+            const packageMap: Record<string, 'OSON_START' | 'TEZKOR_SAVDO' | 'TURBO_SAVDO'> = {
+                oson_start: 'OSON_START',
+                tezkor_savdo: 'TEZKOR_SAVDO',
+                turbo_savdo: 'TURBO_SAVDO',
+            };
+            const packageType = packageMap[selectedPackage];
+            const result = await createPaymentInvoice(listingId, packageType);
+            // Redirect to Click payment page
+            window.location.href = result.clickUrl;
+        } catch (err: any) {
+            setError(err.message || "To'lov yaratishda xatolik");
+            setIsProcessing(false);
+        }
     };
 
     const selected = PACKAGES.find(p => p.id === selectedPackage);
@@ -104,6 +118,12 @@ function PaymentPageContent() {
                         E&apos;loningizni ko&apos;proq odamlarga yetkazing
                     </p>
                 </div>
+
+                {error && (
+                    <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                        <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>
+                    </div>
+                )}
 
                 {/* Packages Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-8">

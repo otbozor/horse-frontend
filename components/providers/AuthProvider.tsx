@@ -12,6 +12,7 @@ interface User {
     avatarUrl?: string;
     phone?: string;
     isAdmin: boolean;
+    listingCredits: number;
 }
 
 interface AuthContextType {
@@ -61,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 avatarUrl: response.data.avatarUrl,
                 phone: response.data.phone,
                 isAdmin: response.data.isAdmin,
+                listingCredits: response.data.listingCredits ?? 3,
             });
         } catch (error) {
             // Not authenticated or error - clear tokens

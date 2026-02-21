@@ -6,6 +6,7 @@ import { useAuth } from '@/components/providers/AuthProvider';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 import { Loader2, Package } from 'lucide-react';
 import { CustomSelect } from '@/components/ui/CustomSelect';
+import { FileUpload } from '@/components/ui/FileUpload';
 
 interface Category {
     id: string;
@@ -18,8 +19,8 @@ function CreateProductForm() {
 
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(false);
-
     const [error, setError] = useState('');
+    const [media, setMedia] = useState<Array<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number }>>([]);
 
     const [form, setForm] = useState({
         title: '',
@@ -81,7 +82,21 @@ function CreateProductForm() {
                 throw new Error(data.message || 'Xatolik yuz berdi');
             }
 
-            router.push(`/mahsulot/${data.id}/tolov`);
+            const productId = data.id;
+
+            // Rasmlarni mahsulotga biriktirish
+            if (media.length > 0) {
+                await fetch(`${API_URL}/api/media/attach`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ productId, media }),
+                });
+            }
+
+            router.push(`/mahsulot/${productId}/tolov`);
         } catch (err: any) {
             setError(err.message || 'Xatolik yuz berdi');
         } finally {
@@ -192,6 +207,16 @@ function CreateProductForm() {
                         Yetkazib berish mavjud
                     </span>
                 </label>
+
+                {/* Rasmlar */}
+                <div>
+                    <FileUpload
+                        label="Rasmlar (ixtiyoriy)"
+                        maxFiles={6}
+                        accept="image/*"
+                        onFilesChange={setMedia}
+                    />
+                </div>
 
                 <button
                     type="submit"

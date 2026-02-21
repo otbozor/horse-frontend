@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { Save, Loader2, TrendingUp, Package, List, CheckCircle, Clock, XCircle, Zap, Rocket, Crown, RefreshCw } from 'lucide-react';
-import { getFinanceSettings, updateFinanceSettings, getAdminPayments, FinanceSettings } from '@/lib/admin-api';
+import { getFinanceSettings, updateFinanceSettings, getAdminPayments } from '@/lib/admin-api';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +29,7 @@ export default function AdminMoliyaPage() {
         TEZKOR_SAVDO: { price: '', discount: '' },
         TURBO_SAVDO: { price: '', discount: '' },
     });
+    const [bundlePrices, setBundlePrices] = useState({ bundle5: '', bundle10: '', bundle20: '' });
     const [isLoadingSettings, setIsLoadingSettings] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [settingsError, setSettingsError] = useState('');
@@ -55,6 +56,10 @@ export default function AdminMoliyaPage() {
                         TEZKOR_SAVDO: { price: String(lp.TEZKOR_SAVDO.price), discount: lp.TEZKOR_SAVDO.discountPrice ? String(lp.TEZKOR_SAVDO.discountPrice) : '' },
                         TURBO_SAVDO: { price: String(lp.TURBO_SAVDO.price), discount: lp.TURBO_SAVDO.discountPrice ? String(lp.TURBO_SAVDO.discountPrice) : '' },
                     });
+                    if (res.data.listingBundles) {
+                        const b = res.data.listingBundles;
+                        setBundlePrices({ bundle5: String(b.bundle5), bundle10: String(b.bundle10), bundle20: String(b.bundle20) });
+                    }
                 }
             })
             .catch(() => {})
@@ -97,6 +102,11 @@ export default function AdminMoliyaPage() {
                 productListingPrice: Number(productPrice),
                 reactivationPrice: Number(reactivationPrice),
                 listingPackages,
+                listingBundles: {
+                    bundle5: Number(bundlePrices.bundle5),
+                    bundle10: Number(bundlePrices.bundle10),
+                    bundle20: Number(bundlePrices.bundle20),
+                },
             });
             if (res.success) setSettingsSuccess('Narxlar muvaffaqiyatli yangilandi!');
             else setSettingsError(res.message || 'Xatolik');
@@ -195,6 +205,38 @@ export default function AdminMoliyaPage() {
                                         <span className="text-sm text-slate-400">so'm</span>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Listing credit bundles */}
+                        <div>
+                            <p className="text-sm font-medium text-slate-700 mb-3">E&apos;lon joylash paketlari (kredit)</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                {([
+                                    { key: 'bundle5' as const, label: '5 ta e\'lon', desc: 'Kichik paket' },
+                                    { key: 'bundle10' as const, label: '10 ta e\'lon', desc: 'O\'rta paket' },
+                                    { key: 'bundle20' as const, label: '20 ta e\'lon', desc: 'Katta paket' },
+                                ]).map(({ key, label, desc }) => (
+                                    <div key={key} className="p-4 bg-green-50 rounded-xl border border-slate-200">
+                                        <p className="text-sm font-semibold text-slate-900 mb-0.5">{label}</p>
+                                        <p className="text-xs text-slate-400 mb-2">{desc}</p>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="number"
+                                                value={bundlePrices[key]}
+                                                onChange={e => setBundlePrices(prev => ({ ...prev, [key]: e.target.value }))}
+                                                min="1000" step="1000"
+                                                className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                            />
+                                            <span className="text-xs text-slate-400 whitespace-nowrap">so&apos;m</span>
+                                        </div>
+                                        {bundlePrices[key] && Number(bundlePrices[key]) > 0 && (
+                                            <p className="text-xs text-slate-500 mt-1">
+                                                1 ta = {Math.round(Number(bundlePrices[key]) / Number(key.replace('bundle', ''))).toLocaleString('uz-UZ')} so&apos;m
+                                            </p>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
                         </div>
 

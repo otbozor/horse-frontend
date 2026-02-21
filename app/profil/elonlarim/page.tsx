@@ -8,7 +8,7 @@ import {
     Plus, Edit, Eye, ChevronLeft, ChevronRight, Package,
     CheckCircle, Clock, CreditCard, XCircle, Archive,
     TimerOff, RefreshCw, MoreVertical, Share2, Heart,
-    Megaphone, X, Trash2, Loader2,
+    Megaphone, X, Trash2, Loader2, AlertTriangle, Info,
 } from 'lucide-react';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 import { getReactivationPrice } from '@/lib/api';
@@ -110,8 +110,11 @@ function getStatusCounts(listings: Listing[]) {
     };
 }
 
+const MONTHS_UZ = ['yan', 'fev', 'mar', 'apr', 'may', 'iyn', 'iyl', 'avg', 'sen', 'okt', 'noy', 'dek'];
+
 function formatDate(dateStr: string) {
-    return new Date(dateStr).toLocaleDateString('uz-UZ', { day: '2-digit', month: 'short' });
+    const d = new Date(dateStr);
+    return `${d.getDate()}-${MONTHS_UZ[d.getMonth()]}`;
 }
 
 function MyListingsPageContent() {
@@ -370,6 +373,41 @@ function MyListingsPageContent() {
                     </div>
                 )}
 
+                {/* Listing Credits Banner — only show on horses tab */}
+                {mainTab === 'horses' && user && (
+                    user.listingCredits === 0 ? (
+                        <div className="mb-5 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3">
+                            <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                                <p className="font-semibold text-red-800 dark:text-red-300">Kredit tugadi</p>
+                                <p className="text-sm text-red-700 dark:text-red-400 mt-0.5">
+                                    Yangi ot e&apos;loni joylashtirish uchun paket sotib olishingiz kerak (5, 10 yoki 20 ta e&apos;lon).
+                                </p>
+                            </div>
+                        </div>
+                    ) : user.listingCredits <= 1 ? (
+                        <div className="mb-5 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl flex items-start gap-3">
+                            <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                                <p className="font-semibold text-amber-800 dark:text-amber-300">
+                                    Sizda faqat <span className="font-bold">{user.listingCredits} ta</span> kredit qoldi
+                                </p>
+                                <p className="text-sm text-amber-700 dark:text-amber-400 mt-0.5">
+                                    Kredit tugagach, yangi e&apos;lon joylash uchun paket sotib olishingiz kerak bo&apos;ladi.
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="mb-5 p-3.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center gap-3">
+                            <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                            <p className="text-sm text-blue-700 dark:text-blue-300">
+                                Sizda <span className="font-semibold">{user.listingCredits} ta</span> e&apos;lon krediti mavjud.
+                                {user.listingCredits <= 3 && ' Kredit tugagach, paket sotib olish talab qilinadi.'}
+                            </p>
+                        </div>
+                    )
+                )}
+
                 {/* Header */}
                 <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                     <div>
@@ -509,7 +547,8 @@ function MyListingsPageContent() {
                                                         onClick={(e) => e.stopPropagation()}
                                                         className="absolute right-0 top-10 z-50 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden py-1"
                                                     >
-                                                        {listing.status === 'APPROVED' && listing.isPaid && (
+                                                        {/* Ulashish — APPROVED */}
+                                                        {listing.status === 'APPROVED' && (
                                                             <button
                                                                 onClick={() => handleShare(listing)}
                                                                 className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
@@ -518,6 +557,7 @@ function MyListingsPageContent() {
                                                                 Ulashish
                                                             </button>
                                                         )}
+                                                        {/* Tahrirlash — DRAFT, REJECTED */}
                                                         {(listing.status === 'DRAFT' || listing.status === 'REJECTED') && (
                                                             <Link
                                                                 href={`/elon/${listing.id}/edit`}
@@ -528,6 +568,7 @@ function MyListingsPageContent() {
                                                                 Tahrirlash
                                                             </Link>
                                                         )}
+                                                        {/* Nofaol qilish — APPROVED, EXPIRED, DRAFT */}
                                                         {(listing.status === 'APPROVED' || listing.status === 'EXPIRED' || listing.status === 'DRAFT') && (
                                                             <button
                                                                 onClick={() => { setDeactivateListingId(listing.id); setOpenMenuId(null); }}
@@ -545,19 +586,36 @@ function MyListingsPageContent() {
                                         {/* Card body */}
                                         <div className="p-3 flex flex-col flex-1">
                                             {/* Dates */}
-                                            <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 mb-1.5">
-                                                <span>{formatDate(listing.createdAt)}</span>
-                                                {listing.boostExpiresAt ? (
-                                                    <span className="text-primary-500 dark:text-primary-400 flex items-center gap-0.5">
-                                                        <Megaphone className="w-3 h-3" />
-                                                        {formatDate(listing.boostExpiresAt)}
+                                            {listing.status === 'APPROVED' && listing.publishedAt ? (
+                                                <div className="flex items-center justify-between text-xs mb-1.5 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800 rounded-lg px-2 py-1">
+                                                    <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                                                        <CheckCircle className="w-3 h-3" />
+                                                        {formatDate(listing.publishedAt)}
                                                     </span>
-                                                ) : listing.expiresAt ? (
-                                                    <span className="text-amber-500 dark:text-amber-400">
-                                                        tugaydi: {formatDate(listing.expiresAt)}
-                                                    </span>
-                                                ) : null}
-                                            </div>
+                                                    {listing.expiresAt && (
+                                                        <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                                                            <Clock className="w-3 h-3" />
+                                                            {formatDate(listing.expiresAt)} gacha
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 mb-1.5">
+                                                    <span>{formatDate(listing.createdAt)}</span>
+                                                    {listing.expiresAt && listing.status === 'EXPIRED' && (
+                                                        <span className="text-amber-500 dark:text-amber-400">
+                                                            tugdi: {formatDate(listing.expiresAt)}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
+                                            {/* Boost info — shown separately if boosted */}
+                                            {listing.boostExpiresAt && listing.status === 'APPROVED' && (
+                                                <div className="flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 mb-1.5 bg-primary-50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-800 rounded-lg px-2 py-1">
+                                                    <Megaphone className="w-3 h-3 flex-shrink-0" />
+                                                    Reklama: {formatDate(listing.boostExpiresAt)} gacha
+                                                </div>
+                                            )}
 
                                             {/* Title */}
                                             <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm mb-1 line-clamp-2 leading-snug">
@@ -633,11 +691,11 @@ function MyListingsPageContent() {
                                                     </div>
                                                 )}
 
-                                                {/* TO'LANMAGAN: To'lov qilish + Tahrirlash */}
+                                                {/* TO'LANMAGAN: Nashr to'lovi + Tahrirlash */}
                                                 {!listing.isPaid && listing.status === 'DRAFT' && (
                                                     <div className="flex gap-2">
                                                         <Link
-                                                            href={`/elon/${listing.id}/tolov`}
+                                                            href={`/elon/${listing.id}/nashr-tolov`}
                                                             className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors"
                                                         >
                                                             <CreditCard className="w-3.5 h-3.5" />

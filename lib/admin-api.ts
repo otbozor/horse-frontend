@@ -132,6 +132,11 @@ export interface FinanceSettings {
         TEZKOR_SAVDO: ListingPackageSetting;
         TURBO_SAVDO: ListingPackageSetting;
     };
+    listingBundles: {
+        bundle5: number;
+        bundle10: number;
+        bundle20: number;
+    };
 }
 
 export async function getFinanceSettings(): Promise<AuthResponse<FinanceSettings>> {
@@ -145,6 +150,11 @@ export async function updateFinanceSettings(body: {
         OSON_START?: { price?: number; discountPrice?: number | null };
         TEZKOR_SAVDO?: { price?: number; discountPrice?: number | null };
         TURBO_SAVDO?: { price?: number; discountPrice?: number | null };
+    };
+    listingBundles?: {
+        bundle5?: number;
+        bundle10?: number;
+        bundle20?: number;
     };
 }): Promise<AuthResponse<any>> {
     return apiFetch('/api/admin/finance/settings', {

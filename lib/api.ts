@@ -110,6 +110,8 @@ export interface Listing {
     hasVaccine?: boolean;
     hasVideo: boolean;
     isTop?: boolean;
+    isPaid?: boolean;
+    isPremium?: boolean;
     viewCount: number;
     favoriteCount: number;
     status: string;
@@ -320,14 +322,45 @@ export async function updateListingDraft(id: string, data: any): Promise<Listing
     throw new Error(response.message || 'Failed to update listing');
 }
 
+export class PaymentRequiredError extends Error {
+    listingId: string;
+    price: number;
+    constructor(listingId: string, price: number) {
+        super('PAYMENT_REQUIRED');
+        this.listingId = listingId;
+        this.price = price;
+    }
+}
+
 export async function submitListingForReview(id: string): Promise<Listing> {
-    const response = await apiFetch<AuthResponse<Listing>>(`/api/my/listings/${id}/submit`, {
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    const res = await fetch(`${API_BASE}/api/my/listings/${id}/submit`, {
         method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
     });
+    if (res.status === 402) {
+        const body = await res.json();
+        throw new PaymentRequiredError(body.listingId || id, body.price || 35000);
+    }
+    const response = await res.json();
     if (response.success && response.data) {
         return response.data;
     }
     throw new Error(response.message || 'Failed to submit listing');
+}
+
+export async function createListingBundleInvoice(listingId: string, bundleSize: 5 | 10 | 20): Promise<{ paymentId: string; amount: number; clickUrl: string }> {
+    const response = await apiFetch<AuthResponse<{ paymentId: string; amount: number; clickUrl: string }>>('/api/payments/create-listing-bundle-invoice', {
+        method: 'POST',
+        body: JSON.stringify({ listingId, bundleSize }),
+    });
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message || 'Failed to create invoice');
 }
 
 // Media
@@ -417,6 +450,7 @@ export interface UserMeResponse {
     isVerified: boolean;
     phone?: string;
     isAdmin: boolean;
+    listingCredits: number;
 }
 
 export async function adminLogin(username: string, password: string): Promise<AuthResponse<AdminLoginResponse>> {

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { MapPin, Video, Clock } from 'lucide-react';
+import { MapPin, Video, Clock, Crown } from 'lucide-react';
 import { GiHorseHead } from 'react-icons/gi';
 import { Listing } from '@/lib/api';
 import { formatPrice, formatRelativeTime } from '@/lib/utils';
@@ -31,11 +31,17 @@ export function ListingCard({ listing }: ListingCardProps) {
 
                 {/* Top-left badges */}
                 <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
-                    {listing.isTop && (
-                        <span className="badge bg-amber-500 text-white font-bold shadow">
+                    {listing.isPremium ? (
+                        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-gradient-to-r from-amber-400 to-yellow-500 text-white shadow-sm">
+                            <Crown className="w-3 h-3" />
+                            Premium
+                        </span>
+                    ) : listing.isTop ? (
+                        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-sm">
+                            <Crown className="w-3 h-3" />
                             Top
                         </span>
-                    )}
+                    ) : null}
                     {listing.hasVideo && (
                         <span className="badge bg-black/60 text-white backdrop-blur-sm flex items-center gap-1">
                             <Video className="w-3 h-3" />

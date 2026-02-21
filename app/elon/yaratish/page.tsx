@@ -7,7 +7,7 @@ import { ChevronRight, ChevronLeft, Save, Loader2, AlertCircle } from 'lucide-re
 import { Input } from '@/components/ui/Input';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { FileUpload } from '@/components/ui/FileUpload';
-import { getRegionsWithDistricts, getBreeds, createListingDraft, attachMediaToListing, submitListingForReview, Region, Breed, District } from '@/lib/api';
+import { getRegionsWithDistricts, getBreeds, createListingDraft, attachMediaToListing, submitListingForReview, PaymentRequiredError, Region, Breed, District } from '@/lib/api';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 
 const steps = [
@@ -163,6 +163,11 @@ function CreateListingPageContent() {
             router.push('/profil/elonlarim?success=true');
         } catch (error: any) {
             console.error('Failed to submit', error);
+            if (error instanceof PaymentRequiredError) {
+                // 4th+ listing — redirect to publication fee payment
+                router.push(`/elon/${error.listingId}/nashr-tolov`);
+                return;
+            }
             if (error.message?.includes('already submitted')) {
                 router.push('/profil/elonlarim?success=true');
                 return;

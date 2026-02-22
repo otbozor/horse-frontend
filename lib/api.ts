@@ -5,27 +5,31 @@ interface FetchOptions extends RequestInit {
 }
 
 // Try to refresh access token using the refresh token cookie
-let isRefreshing = false;
+// Concurrent callers share the same promise to avoid multiple refresh calls
+let refreshPromise: Promise<string | null> | null = null;
 async function tryRefreshToken(): Promise<string | null> {
-    if (isRefreshing) return null;
-    isRefreshing = true;
-    try {
-        const res = await fetch(`${API_BASE}/api/auth/refresh`, {
-            method: 'POST',
-            credentials: 'include',
-        });
-        if (!res.ok) return null;
-        const data = await res.json();
-        const newToken = data?.data?.accessToken || data?.accessToken;
-        if (newToken && typeof window !== 'undefined') {
-            localStorage.setItem('accessToken', newToken);
+    if (refreshPromise) return refreshPromise;
+    refreshPromise = (async () => {
+        try {
+            const res = await fetch(`${API_BASE}/api/auth/refresh`, {
+                method: 'POST',
+                credentials: 'include',
+            });
+            if (!res.ok) return null;
+            const data = await res.json();
+            // Response shape: { success, data: { tokens: { accessToken, refreshToken } } }
+            const newToken = data?.data?.tokens?.accessToken || data?.data?.accessToken || data?.accessToken;
+            if (newToken && typeof window !== 'undefined') {
+                localStorage.setItem('accessToken', newToken);
+            }
+            return newToken || null;
+        } catch {
+            return null;
+        } finally {
+            refreshPromise = null;
         }
-        return newToken || null;
-    } catch {
-        return null;
-    } finally {
-        isRefreshing = false;
-    }
+    })();
+    return refreshPromise;
 }
 
 export async function apiFetch<T>(

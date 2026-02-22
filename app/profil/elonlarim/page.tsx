@@ -22,14 +22,17 @@ interface Listing {
     status: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'ARCHIVED' | 'EXPIRED';
     isPaid: boolean;
     isTop: boolean;
+    isPremium: boolean;
     viewCount: number;
     favoriteCount: number;
     createdAt: string;
     expiresAt?: string;
     boostExpiresAt?: string;
     publishedAt?: string;
+    rejectReason?: string;
     region: { nameUz: string };
     media: Array<{ url: string; thumbUrl?: string }>;
+    payments?: Array<{ packageType: string | null }>;
 }
 
 interface Product {
@@ -610,12 +613,25 @@ function MyListingsPageContent() {
                                                 </div>
                                             )}
                                             {/* Boost info — shown separately if boosted */}
-                                            {listing.boostExpiresAt && listing.status === 'APPROVED' && (
-                                                <div className="flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 mb-1.5 bg-primary-50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-800 rounded-lg px-2 py-1">
-                                                    <Megaphone className="w-3 h-3 flex-shrink-0" />
-                                                    Reklama: {formatDate(listing.boostExpiresAt)} gacha
-                                                </div>
-                                            )}
+                                            {listing.boostExpiresAt && listing.status === 'APPROVED' && (() => {
+                                                const pkg = listing.payments?.[0]?.packageType;
+                                                const label = listing.isPremium
+                                                    ? '👑 Premium Reklama'
+                                                    : pkg === 'TEZKOR_SAVDO'
+                                                        ? '⚡ Tezkor Reklama'
+                                                        : '🚀 Oson Reklama';
+                                                const colorClass = listing.isPremium
+                                                    ? 'text-yellow-700 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800'
+                                                    : pkg === 'TEZKOR_SAVDO'
+                                                        ? 'text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800'
+                                                        : 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/10 border-primary-100 dark:border-primary-800';
+                                                return (
+                                                    <div className={`flex items-center gap-1 text-xs mb-1.5 border rounded-lg px-2 py-1 ${colorClass}`}>
+                                                        <Megaphone className="w-3 h-3 flex-shrink-0" />
+                                                        {label}: {formatDate(listing.boostExpiresAt)} gacha
+                                                    </div>
+                                                );
+                                            })()}
 
                                             {/* Title */}
                                             <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm mb-1 line-clamp-2 leading-snug">
@@ -730,7 +746,13 @@ function MyListingsPageContent() {
                                                     </div>
                                                 )}
 
-                                                {/* RAD ETILGAN: Tahrirlash + Qayta yuborish */}
+                                                {/* RAD ETILGAN: sabab + Tahrirlash + Qayta yuborish */}
+                                                {listing.status === 'REJECTED' && listing.rejectReason && (
+                                                    <div className="mb-2 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                                        <p className="text-xs font-semibold text-red-700 dark:text-red-400 mb-0.5">Rad etish sababi:</p>
+                                                        <p className="text-xs text-red-600 dark:text-red-400">{listing.rejectReason}</p>
+                                                    </div>
+                                                )}
                                                 {listing.status === 'REJECTED' && (
                                                     <div className="flex gap-2">
                                                         <Link

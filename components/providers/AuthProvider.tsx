@@ -33,15 +33,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             setIsLoading(true);
 
-            const hasToken = typeof window !== 'undefined' &&
-                (localStorage.getItem('accessToken') || document.cookie.includes('accessToken'));
-
-            if (!hasToken) {
-                setUser(null);
-                setIsLoading(false);
-                return;
-            }
-
+            // Don't use localStorage/cookie check as a gate — httpOnly cookies are invisible
+            // to document.cookie. Always try the API; apiFetch handles 401→refresh→retry.
             const response = await getCurrentUser();
 
             if (!response.success || !response.data) {

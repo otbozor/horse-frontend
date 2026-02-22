@@ -104,7 +104,7 @@ export default function AdminListingPreviewPage() {
                             <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">E'lonni rad etish</h3>
                         </div>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                            Rad etish sababini kiriting. Bu sabab sotuvchiga yuborilmaydi (faqat admin uchun).
+                            Rad etish sababini kiriting. Bu sabab sotuvchining e&apos;lonlar sahifasida ko&apos;rsatiladi.
                         </p>
                         <textarea
                             value={rejectReason}

@@ -1,14 +1,11 @@
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
 
 export default function TermsPage() {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-800/50 py-8 px-4">
             <div className="max-w-3xl mx-auto">
-                <Link href="/profil" className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 mb-4 transition-colors">
-                    <ArrowLeft className="w-4 h-4" />
-                    Orqaga
-                </Link>
+                <BackButton />
                 <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 md:p-12">
                     <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
                         Joylashtirish qoidalari

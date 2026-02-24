@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Shield, Eye, Truck, ShoppingCart } from 'lucide-react';
 import { ListingGallery } from '@/components/listing/ListingGallery';
-import { ListingDetailActions } from '@/components/listing/ListingDetailActions';
+import { ProductDetailActions } from '@/components/product/ProductDetailActions';
 import { ListingInteractions } from '@/components/listing/ListingInteractions';
 import { ProductViewTracker } from './ProductViewTracker';
 
@@ -39,11 +39,6 @@ function formatPrice(amount: number, currency = 'UZS') {
     return `${Number(amount).toLocaleString()} so'm`;
 }
 
-const STOCK_LABELS: Record<string, { text: string; color: string }> = {
-    IN_STOCK: { text: 'Mavjud', color: 'text-green-600 dark:text-green-400' },
-    OUT_OF_STOCK: { text: "Sotuvda yo'q", color: 'text-red-600 dark:text-red-400' },
-    PREORDER: { text: 'Oldindan buyurtma', color: 'text-orange-600 dark:text-orange-400' },
-};
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
     const product = await getProduct(params.slug);
@@ -65,11 +60,6 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
         ? await getSimilarProducts(product.category.id, params.slug)
         : [];
 
-    const stockLabel = STOCK_LABELS[product.stockStatus as string] ?? {
-        text: product.stockStatus,
-        color: 'text-slate-500',
-    };
-
     const galleryMedia = (product.media ?? []).map((m: any) => ({
         ...m,
         type: 'IMAGE' as const,
@@ -79,7 +69,12 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
             <ProductViewTracker slug={params.slug} />
 
-            <ListingDetailActions title={product.title} />
+            <ProductDetailActions
+                title={product.title}
+                productId={product.id}
+                ownerId={product.userId ?? null}
+                slug={params.slug}
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 
@@ -115,9 +110,6 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
 
                         {/* Meta row */}
                         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mb-6">
-                            <span className={`font-medium ${stockLabel.color}`}>
-                                {stockLabel.text}
-                            </span>
                             {product.hasDelivery && (
                                 <span className="flex items-center gap-1.5">
                                     <Truck className="w-4 h-4" />

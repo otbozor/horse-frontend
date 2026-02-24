@@ -306,6 +306,17 @@ function MyListingsPageContent() {
         setOpenMenuId(null);
     };
 
+    const handleShareProduct = async (product: Product) => {
+        const url = `${window.location.origin}/mahsulotlar/${product.slug}`;
+        try {
+            if (navigator.share) {
+                await navigator.share({ title: product.title, url });
+            } else {
+                await navigator.clipboard.writeText(url);
+            }
+        } catch { }
+    };
+
     const handleDeleteProduct = async (productId: string) => {
         if (!confirm('Mahsulotni o\'chirishni xohlaysizmi?')) return;
         try {
@@ -874,24 +885,54 @@ function MyListingsPageContent() {
                                                     {product.category.name}
                                                 </span>
                                             )}
-                                            <div className="mt-auto flex gap-2">
+                                            <div className="mt-auto space-y-2">
+                                                {/* TO'LANMAGAN: To'lov + Tahrirlash icon + Delete icon */}
                                                 {!product.isPaid && (
-                                                    <Link
-                                                        href={`/mahsulot/${product.id}/tolov`}
-                                                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors"
-                                                    >
-                                                        <CreditCard className="w-3.5 h-3.5" />
-                                                        To&apos;lov qilish
-                                                    </Link>
+                                                    <div className="flex gap-2">
+                                                        <Link href={`/mahsulot/${product.id}/tolov`} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors">
+                                                            <CreditCard className="w-3.5 h-3.5" />
+                                                            To&apos;lov qilish
+                                                        </Link>
+                                                        <Link href={`/mahsulot/${product.id}/tahrir`} className="flex items-center justify-center px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                                            <Edit className="w-3.5 h-3.5" />
+                                                        </Link>
+                                                        <button onClick={() => handleDeleteProduct(product.id)} className="flex items-center justify-center px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
                                                 )}
-                                                {product.status === 'PUBLISHED' && (
-                                                    <Link href={`/mahsulotlar/${product.slug}`} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                        <Eye className="w-3.5 h-3.5" /> Ko&apos;rish
-                                                    </Link>
+                                                {/* FAOL: Ko'rish + Tahrirlash, keyin Ulashish + O'chirish */}
+                                                {product.isPaid && product.status === 'PUBLISHED' && (
+                                                    <>
+                                                        <div className="flex gap-2">
+                                                            <Link href={`/mahsulotlar/${product.slug}`} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                                                <Eye className="w-3.5 h-3.5" /> Ko&apos;rish
+                                                            </Link>
+                                                            <Link href={`/mahsulot/${product.id}/tahrir`} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                                                <Edit className="w-3.5 h-3.5" /> Tahrirlash
+                                                            </Link>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <button onClick={() => handleShareProduct(product)} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                                                <Share2 className="w-3.5 h-3.5" /> Ulashish
+                                                            </button>
+                                                            <button onClick={() => handleDeleteProduct(product.id)} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                                                <Trash2 className="w-3.5 h-3.5" /> O&apos;chirish
+                                                            </button>
+                                                        </div>
+                                                    </>
                                                 )}
-                                                <button onClick={() => handleDeleteProduct(product.id)} className="flex items-center justify-center p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
+                                                {/* KUTILAYOTGAN yoki ARXIV: Tahrirlash + O'chirish */}
+                                                {product.isPaid && (product.status === 'DRAFT' || product.status === 'ARCHIVED') && (
+                                                    <div className="flex gap-2">
+                                                        <Link href={`/mahsulot/${product.id}/tahrir`} className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                                            <Edit className="w-3.5 h-3.5" /> Tahrirlash
+                                                        </Link>
+                                                        <button onClick={() => handleDeleteProduct(product.id)} className="flex items-center justify-center px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

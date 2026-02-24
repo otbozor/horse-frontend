@@ -9,6 +9,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isAdminRoute = pathname?.startsWith('/admin');
     const isProfilRoute = pathname?.startsWith('/profil');
+    const isLoginRoute = pathname === '/login';
 
     if (isAdminRoute) {
         return <>{children}</>;
@@ -19,7 +20,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
             {pathname === '/' && <SocialPopup />}
             <Header />
             <main className="flex-grow">{children}</main>
-            {!isProfilRoute && <Footer />}
+            {!isProfilRoute && !isLoginRoute && <Footer />}
         </div>
     );
 }

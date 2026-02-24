@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Package, Trash2, Eye, Loader2, ArrowLeft, Plus, ShoppingCart } from 'lucide-react';
+import { Package, Trash2, Eye, Loader2, ArrowLeft, Plus, ShoppingCart, Pencil } from 'lucide-react';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 
 interface MyProduct {
@@ -223,12 +223,21 @@ function MahsulotlarimContent() {
 
                                     {/* Actions */}
                                     <div className="flex border-t border-slate-100 dark:border-slate-700 divide-x divide-slate-100 dark:divide-slate-700">
+                                        {product.status === 'PUBLISHED' && (
+                                            <Link
+                                                href={`/mahsulotlar/${product.slug}`}
+                                                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                                            >
+                                                <Eye className="w-3.5 h-3.5" />
+                                                Ko&apos;rish
+                                            </Link>
+                                        )}
                                         <Link
-                                            href={`/mahsulotlar/${product.slug}`}
+                                            href={`/mahsulot/${product.id}/tahrir`}
                                             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                                         >
-                                            <Eye className="w-3.5 h-3.5" />
-                                            Ko&apos;rish
+                                            <Pencil className="w-3.5 h-3.5" />
+                                            Tahrirlash
                                         </Link>
                                         <button
                                             onClick={() => handleDelete(product.id)}

@@ -13,11 +13,23 @@ interface Category {
     name: string;
 }
 
+interface District {
+    id: string;
+    nameUz: string;
+}
+
+interface Region {
+    id: string;
+    nameUz: string;
+    districts: District[];
+}
+
 function CreateProductForm() {
     const router = useRouter();
     useAuth();
 
     const [categories, setCategories] = useState<Category[]>([]);
+    const [regions, setRegions] = useState<Region[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [media, setMedia] = useState<Array<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number }>>([]);
@@ -25,6 +37,8 @@ function CreateProductForm() {
     const [form, setForm] = useState({
         title: '',
         categoryId: '',
+        regionId: '',
+        districtId: '',
         description: '',
         priceAmount: '',
         priceCurrency: 'UZS',
@@ -38,11 +52,23 @@ function CreateProductForm() {
             .then(r => r.json())
             .then(data => setCategories(Array.isArray(data) ? data : []))
             .catch(() => {});
+
+        fetch(`${API_URL}/api/regions/with-districts`)
+            .then(r => r.json())
+            .then(data => setRegions(Array.isArray(data?.data) ? data.data : []))
+            .catch(() => {});
     }, []);
+
+    const selectedRegion = regions.find(r => r.id === form.regionId);
+    const districts = selectedRegion?.districts || [];
 
     const handleChange = (e: { target: { name: string; value: string } }) => {
         const { name, value } = e.target;
-        setForm(prev => ({ ...prev, [name]: value }));
+        if (name === 'regionId') {
+            setForm(prev => ({ ...prev, regionId: value, districtId: '' }));
+        } else {
+            setForm(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,6 +95,8 @@ function CreateProductForm() {
                 body: JSON.stringify({
                     title: form.title,
                     categoryId: form.categoryId || undefined,
+                    regionId: form.regionId || undefined,
+                    districtId: form.districtId || undefined,
                     description: form.description || undefined,
                     priceAmount: Number(form.priceAmount),
                     priceCurrency: form.priceCurrency,
@@ -84,7 +112,6 @@ function CreateProductForm() {
 
             const productId = data.id;
 
-            // Rasmlarni mahsulotga biriktirish
             if (media.length > 0) {
                 await fetch(`${API_URL}/api/media/attach`, {
                     method: 'POST',
@@ -151,6 +178,36 @@ function CreateProductForm() {
                             ...categories.map(cat => ({ value: cat.id, label: cat.name }))
                         ]}
                     />
+                </div>
+
+                {/* Region & District */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="label">Viloyat</label>
+                        <CustomSelect
+                            name="regionId"
+                            value={form.regionId}
+                            onChange={handleChange}
+                            placeholder="Viloyat tanlang"
+                            options={[
+                                { value: '', label: 'Viloyat tanlang' },
+                                ...regions.map(r => ({ value: r.id, label: r.nameUz }))
+                            ]}
+                        />
+                    </div>
+                    <div>
+                        <label className="label">Tuman</label>
+                        <CustomSelect
+                            name="districtId"
+                            value={form.districtId}
+                            onChange={handleChange}
+                            placeholder="Tuman tanlang"
+                            options={[
+                                { value: '', label: 'Tuman tanlang' },
+                                ...districts.map(d => ({ value: d.id, label: d.nameUz }))
+                            ]}
+                        />
+                    </div>
                 </div>
 
                 {/* Price */}

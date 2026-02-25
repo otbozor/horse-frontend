@@ -176,7 +176,7 @@ export function FeaturedSlider({ listings }: FeaturedSliderProps) {
                                 <Heart className={`w-4 h-4 transition-colors ${favorites.has(listing.id) ? 'fill-red-500 text-red-500' : 'text-slate-400'}`} />
                             </button>
                             {/* Premium badge */}
-                            <div className="absolute bottom-3 left-3">
+                            <div className="absolute top-3 left-3">
                                 <span className="bg-amber-500 text-white text-xs font-semibold px-2.5 py-1 rounded-md shadow-sm">
                                     Premium
                                 </span>

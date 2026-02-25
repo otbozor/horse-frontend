@@ -14,6 +14,7 @@ export async function getAdminStats(): Promise<AuthResponse<{
 export async function getAdminListings(options?: {
     status?: string;
     isPaid?: string;
+    regionId?: string;
     page?: number;
     limit?: number;
 }): Promise<any> {
@@ -21,10 +22,16 @@ export async function getAdminListings(options?: {
         params: {
             status: options?.status,
             isPaid: options?.isPaid,
+            regionId: options?.regionId,
             page: options?.page,
             limit: options?.limit,
         } as any,
     });
+}
+
+// Region stats for dashboard charts
+export async function getRegionStats(): Promise<AuthResponse<any>> {
+    return apiFetch('/api/admin/dashboard/region-stats');
 }
 
 // Pending Listings
@@ -45,6 +52,13 @@ export async function getAdminListingById(id: string): Promise<AuthResponse<any>
 export async function approveListing(listingId: string): Promise<AuthResponse<any>> {
     return apiFetch(`/api/admin/listings/${listingId}/approve`, {
         method: 'POST',
+    });
+}
+
+// Delete Listing
+export async function deleteAdminListing(listingId: string): Promise<AuthResponse<any>> {
+    return apiFetch(`/api/admin/listings/${listingId}`, {
+        method: 'DELETE',
     });
 }
 

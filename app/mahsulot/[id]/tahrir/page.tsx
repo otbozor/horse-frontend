@@ -4,11 +4,23 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Loader2, Package, Save, ArrowLeft } from 'lucide-react';
 import { CustomSelect } from '@/components/ui/CustomSelect';
+import { FileUpload } from '@/components/ui/FileUpload';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 
 interface Category {
     id: string;
     name: string;
+}
+
+interface District {
+    id: string;
+    nameUz: string;
+}
+
+interface Region {
+    id: string;
+    nameUz: string;
+    districts: District[];
 }
 
 function EditProductForm() {
@@ -17,14 +29,19 @@ function EditProductForm() {
     const productId = params.id as string;
 
     const [categories, setCategories] = useState<Category[]>([]);
+    const [regions, setRegions] = useState<Region[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
     const [productSlug, setProductSlug] = useState('');
+    const [media, setMedia] = useState<Array<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number }>>([]);
+    const [initialMedia, setInitialMedia] = useState<Array<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number }>>([]);
 
     const [form, setForm] = useState({
         title: '',
         categoryId: '',
+        regionId: '',
+        districtId: '',
         description: '',
         priceAmount: '',
         priceCurrency: 'UZS',
@@ -38,8 +55,9 @@ function EditProductForm() {
             setLoading(true);
             try {
                 const token = localStorage.getItem('accessToken');
-                const [catRes, myRes] = await Promise.all([
+                const [catRes, regRes, myRes] = await Promise.all([
                     fetch(`${API_URL}/api/products/categories`),
+                    fetch(`${API_URL}/api/regions/with-districts`),
                     fetch(`${API_URL}/api/my/products`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
@@ -48,6 +66,11 @@ function EditProductForm() {
                 if (catRes.ok) {
                     const cats = await catRes.json();
                     setCategories(Array.isArray(cats) ? cats : []);
+                }
+
+                if (regRes.ok) {
+                    const regData = await regRes.json();
+                    setRegions(Array.isArray(regData?.data) ? regData.data : []);
                 }
 
                 if (myRes.ok) {
@@ -59,11 +82,20 @@ function EditProductForm() {
                         setForm({
                             title: product.title || '',
                             categoryId: product.category?.id || '',
+                            regionId: product.region?.id || '',
+                            districtId: product.district?.id || '',
                             description: product.description || '',
                             priceAmount: String(Number(product.priceAmount)) || '',
                             priceCurrency: product.priceCurrency || 'UZS',
                             hasDelivery: product.hasDelivery || false,
                         });
+                        const existing = (product.media || []).map((m: any, i: number) => ({
+                            url: m.url,
+                            type: (m.type || 'IMAGE') as 'IMAGE' | 'VIDEO',
+                            sortOrder: i,
+                        }));
+                        setInitialMedia(existing);
+                        setMedia(existing);
                     } else {
                         setError("Mahsulot topilmadi yoki siz uning egasi emassiz");
                     }
@@ -77,9 +109,16 @@ function EditProductForm() {
         load();
     }, [productId, API_URL]);
 
+    const selectedRegion = regions.find(r => r.id === form.regionId);
+    const districts = selectedRegion?.districts || [];
+
     const handleChange = (e: { target: { name: string; value: string } }) => {
         const { name, value } = e.target;
-        setForm(prev => ({ ...prev, [name]: value }));
+        if (name === 'regionId') {
+            setForm(prev => ({ ...prev, regionId: value, districtId: '' }));
+        } else {
+            setForm(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,6 +145,8 @@ function EditProductForm() {
                 body: JSON.stringify({
                     title: form.title,
                     categoryId: form.categoryId || undefined,
+                    regionId: form.regionId || undefined,
+                    districtId: form.districtId || undefined,
                     description: form.description || undefined,
                     priceAmount: Number(form.priceAmount),
                     priceCurrency: form.priceCurrency,
@@ -115,6 +156,14 @@ function EditProductForm() {
 
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || 'Xatolik yuz berdi');
+
+            if (media.length > 0) {
+                await fetch(`${API_URL}/api/media/attach`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ productId, media }),
+                });
+            }
 
             const slug = data.slug || productSlug;
             router.push(`/mahsulotlar/${slug}`);
@@ -204,6 +253,36 @@ function EditProductForm() {
                     />
                 </div>
 
+                {/* Region & District */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="label">Viloyat</label>
+                        <CustomSelect
+                            name="regionId"
+                            value={form.regionId}
+                            onChange={handleChange}
+                            placeholder="Viloyat tanlang"
+                            options={[
+                                { value: '', label: 'Viloyat tanlang' },
+                                ...regions.map(r => ({ value: r.id, label: r.nameUz }))
+                            ]}
+                        />
+                    </div>
+                    <div>
+                        <label className="label">Tuman</label>
+                        <CustomSelect
+                            name="districtId"
+                            value={form.districtId}
+                            onChange={handleChange}
+                            placeholder="Tuman tanlang"
+                            options={[
+                                { value: '', label: 'Tuman tanlang' },
+                                ...districts.map(d => ({ value: d.id, label: d.nameUz }))
+                            ]}
+                        />
+                    </div>
+                </div>
+
                 {/* Price */}
                 <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -243,6 +322,17 @@ function EditProductForm() {
                         className="input min-h-[100px] resize-none"
                         placeholder="Mahsulot haqida qo'shimcha ma'lumot..."
                         rows={4}
+                    />
+                </div>
+
+                {/* Rasmlar */}
+                <div>
+                    <FileUpload
+                        label="Rasmlar (ixtiyoriy)"
+                        maxFiles={6}
+                        accept="image/*"
+                        initialFiles={initialMedia}
+                        onFilesChange={setMedia}
                     />
                 </div>
 

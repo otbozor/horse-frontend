@@ -3,13 +3,15 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { getAdminListings, approveListing, rejectListing } from '@/lib/admin-api';
+import { getAdminListings, approveListing, rejectListing, deleteAdminListing } from '@/lib/admin-api';
 import {
-    Check, X, Eye, Loader2, Image as ImageIcon,
+    Check, X, Eye, Trash2, Loader2, Image as ImageIcon,
     ListFilter, Clock, CheckCircle, XCircle, CreditCard, TimerOff,
 } from 'lucide-react';
 import Link from 'next/link';
 import { AdminPagination } from '@/components/listing/AdminPagination';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 type TabKey = 'all' | 'pending' | 'approved' | 'rejected' | 'paid' | 'expired';
 
@@ -65,8 +67,17 @@ function AdminListingsContentInner() {
     const [tabCounts, setTabCounts] = useState<Record<TabKey, number>>({
         all: 0, pending: 0, approved: 0, rejected: 0, paid: 0, expired: 0,
     });
+    const [regions, setRegions] = useState<{ id: string; nameUz: string }[]>([]);
+    const [selectedRegion, setSelectedRegion] = useState('');
 
     const activeTab = TABS.find(t => t.key === currentTab) || TABS[0];
+
+    useEffect(() => {
+        fetch(`${API_URL}/api/regions`)
+            .then(r => r.json())
+            .then(data => setRegions(Array.isArray(data) ? data : (data?.data ?? [])))
+            .catch(() => {});
+    }, []);
 
     const loadListings = async () => {
         try {
@@ -74,6 +85,7 @@ function AdminListingsContentInner() {
             setError(null);
             const response = await getAdminListings({
                 ...activeTab.filter,
+                regionId: selectedRegion || undefined,
                 page: currentPage,
                 limit: 20,
             });
@@ -114,7 +126,7 @@ function AdminListingsContentInner() {
 
     useEffect(() => {
         loadListings();
-    }, [currentTab, currentPage]);
+    }, [currentTab, currentPage, selectedRegion]);
 
     useEffect(() => {
         loadCounts();
@@ -142,6 +154,17 @@ function AdminListingsContentInner() {
         if (!reason) return;
         try {
             await rejectListing(id, reason);
+            await loadListings();
+            await loadCounts();
+        } catch (err: any) {
+            alert('Xatolik: ' + err.message);
+        }
+    };
+
+    const handleDelete = async (id: string, title: string) => {
+        if (!confirm(`"${title}" e'lonini butunlay o'chirasizmi? Bu amalni ortga qaytarib bo'lmaydi.`)) return;
+        try {
+            await deleteAdminListing(id);
             await loadListings();
             await loadCounts();
         } catch (err: any) {
@@ -192,6 +215,28 @@ function AdminListingsContentInner() {
                         </span>
                     </button>
                 ))}
+            </div>
+
+            {/* Region filter */}
+            <div className="mb-4 flex items-center gap-3 flex-wrap">
+                <select
+                    value={selectedRegion}
+                    onChange={e => { setSelectedRegion(e.target.value); }}
+                    className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                    <option value="">Barcha viloyatlar</option>
+                    {regions.map(r => (
+                        <option key={r.id} value={r.id}>{r.nameUz}</option>
+                    ))}
+                </select>
+                {selectedRegion && (
+                    <button
+                        onClick={() => setSelectedRegion('')}
+                        className="text-xs text-slate-500 hover:text-red-500 transition-colors"
+                    >
+                        × Filtrni tozalash
+                    </button>
+                )}
             </div>
 
             {/* Content */}
@@ -295,6 +340,13 @@ function AdminListingsContentInner() {
                                                             </button>
                                                         </>
                                                     )}
+                                                    <button
+                                                        onClick={() => handleDelete(item.id, item.title)}
+                                                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                                        title="O'chirish"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>

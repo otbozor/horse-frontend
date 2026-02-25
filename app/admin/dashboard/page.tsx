@@ -2,13 +2,46 @@
 
 import { useEffect, useState } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { getAdminStats } from '@/lib/admin-api';
-import { Users, FileCheck, Eye, Activity, Loader2 } from 'lucide-react';
+import { getAdminStats, getRegionStats } from '@/lib/admin-api';
+import { Users, FileCheck, Eye, Activity, Loader2, MapPin, Package } from 'lucide-react';
+
+interface RegionStat {
+    regionId: string | null;
+    name: string;
+    count: number;
+}
+
+function RegionBarChart({ data, color, emptyMsg }: { data: RegionStat[]; color: string; emptyMsg: string }) {
+    if (!data || data.length === 0) {
+        return <p className="text-sm text-slate-400 py-4 text-center">{emptyMsg}</p>;
+    }
+    const max = Math.max(...data.map(d => d.count), 1);
+    return (
+        <div className="space-y-2.5">
+            {data.map((item, i) => (
+                <div key={i} className="flex items-center gap-3">
+                    <span className="text-xs text-slate-500 w-32 flex-shrink-0 truncate" title={item.name}>
+                        {item.name}
+                    </span>
+                    <div className="flex-1 bg-slate-100 rounded-full h-5 overflow-hidden">
+                        <div
+                            className={`h-full rounded-full flex items-center justify-end pr-2 transition-all duration-500 ${color}`}
+                            style={{ width: `${Math.max((item.count / max) * 100, 8)}%` }}
+                        >
+                            <span className="text-xs font-bold text-white">{item.count}</span>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
 
 export const dynamic = 'force-dynamic';
 
 export default function AdminDashboardPage() {
     const [stats, setStats] = useState<any>(null);
+    const [regionStats, setRegionStats] = useState<{ listings: RegionStat[]; products: RegionStat[] } | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -16,11 +49,17 @@ export default function AdminDashboardPage() {
         async function loadStats() {
             try {
                 setIsLoading(true);
-                const response = await getAdminStats();
-                if (response.success && response.data) {
-                    setStats(response.data);
+                const [statsRes, regionRes] = await Promise.all([
+                    getAdminStats(),
+                    getRegionStats(),
+                ]);
+                if (statsRes.success && statsRes.data) {
+                    setStats(statsRes.data);
                 } else {
-                    throw new Error(response.message || 'Ma\'lumotlarni yuklashda xatolik');
+                    throw new Error(statsRes.message || 'Ma\'lumotlarni yuklashda xatolik');
+                }
+                if (regionRes.success && regionRes.data) {
+                    setRegionStats(regionRes.data);
                 }
             } catch (err: any) {
                 setError(err.message || 'Ma\'lumotlarni yuklashda xatolik');
@@ -105,6 +144,36 @@ export default function AdminDashboardPage() {
                     <p className="text-slate-500 text-sm">Bugungi ko'rishlar</p>
                 </div>
             </div>
+
+            {/* Region charts */}
+            {regionStats && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h2 className="text-base font-bold text-slate-900 mb-1 flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-primary-600" />
+                            Ot e'lonlari — viloyat bo'yicha
+                        </h2>
+                        <p className="text-xs text-slate-400 mb-5">Top 10 viloyat</p>
+                        <RegionBarChart
+                            data={regionStats.listings}
+                            color="bg-primary-500"
+                            emptyMsg="E'lonlar topilmadi"
+                        />
+                    </div>
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h2 className="text-base font-bold text-slate-900 mb-1 flex items-center gap-2">
+                            <Package className="w-4 h-4 text-amber-600" />
+                            Mahsulotlar — viloyat bo'yicha
+                        </h2>
+                        <p className="text-xs text-slate-400 mb-5">Top 10 viloyat</p>
+                        <RegionBarChart
+                            data={regionStats.products}
+                            color="bg-amber-500"
+                            emptyMsg="Mahsulotlar topilmadi"
+                        />
+                    </div>
+                </div>
+            )}
 
             {stats.recentActivity && stats.recentActivity.length > 0 && (
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">

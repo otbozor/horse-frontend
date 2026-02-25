@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Shield, Eye, Truck, ShoppingCart } from 'lucide-react';
+import { Shield, Eye, Truck, ShoppingCart, MapPin, Calendar, Clock } from 'lucide-react';
+import { formatRelativeTime } from '@/lib/utils';
 import { ListingGallery } from '@/components/listing/ListingGallery';
 import { ProductDetailActions } from '@/components/product/ProductDetailActions';
 import { ListingInteractions } from '@/components/listing/ListingInteractions';
 import { ProductViewTracker } from './ProductViewTracker';
+import { ProductFavoriteButton } from '@/components/product/ProductFavoriteButton';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -37,6 +39,11 @@ async function getSimilarProducts(categoryId: string, currentSlug: string) {
 function formatPrice(amount: number, currency = 'UZS') {
     if (currency === 'USD') return `$${Number(amount).toLocaleString()}`;
     return `${Number(amount).toLocaleString()} so'm`;
+}
+
+function formatDate(dateStr: string) {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 
@@ -96,20 +103,32 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
                             {product.title}
                         </h1>
 
-                        {/* Price */}
-                        <div className="mb-4">
-                            <p className="text-2xl sm:text-3xl font-bold text-primary-600 dark:text-primary-400">
-                                {formatPrice(Number(product.priceAmount), product.priceCurrency)}
-                            </p>
-                            {product.priceCurrency === 'USD' && (
-                                <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">
-                                    Taxminan {formatPrice(Number(product.priceAmount) * 12400)}
+                        {/* Price + Favorite */}
+                        <div className="flex items-start justify-between gap-4 mb-4">
+                            <div>
+                                <p className="text-2xl sm:text-3xl font-bold text-primary-600 dark:text-primary-400">
+                                    {formatPrice(Number(product.priceAmount), product.priceCurrency)}
                                 </p>
-                            )}
+                                {product.priceCurrency === 'USD' && (
+                                    <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">
+                                        Taxminan {formatPrice(Number(product.priceAmount) * 12400)}
+                                    </p>
+                                )}
+                            </div>
+                            <ProductFavoriteButton
+                                productId={product.id}
+                                favoriteCount={product.favoriteCount ?? 0}
+                            />
                         </div>
 
                         {/* Meta row */}
                         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mb-6">
+                            {product.region && (
+                                <span className="flex items-center gap-1.5">
+                                    <MapPin className="w-4 h-4" />
+                                    {product.district ? `${product.district.nameUz}, ` : ''}{product.region.nameUz}
+                                </span>
+                            )}
                             {product.hasDelivery && (
                                 <span className="flex items-center gap-1.5">
                                     <Truck className="w-4 h-4" />
@@ -120,6 +139,12 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
                                 <span className="flex items-center gap-1">
                                     <Eye className="w-4 h-4" />
                                     {product.viewCount} ko&apos;rildi
+                                </span>
+                            )}
+                            {product.publishedAt && (
+                                <span className="flex items-center gap-1.5">
+                                    <Calendar className="w-4 h-4" />
+                                    {formatDate(product.publishedAt)}
                                 </span>
                             )}
                         </div>
@@ -188,7 +213,7 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
                             <Link
                                 key={item.id}
                                 href={`/mahsulotlar/${item.slug}`}
-                                className="group bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition-all"
+                                className="group bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition-all duration-300 hover:-translate-y-1 block"
                             >
                                 <div className="aspect-square bg-slate-100 dark:bg-slate-700 relative overflow-hidden">
                                     {item.media?.[0] ? (
@@ -207,19 +232,38 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
                                             Yetkazib berish
                                         </div>
                                     )}
+                                    <div className="absolute top-2 right-2">
+                                        <ProductFavoriteButton productId={item.id} variant="card" />
+                                    </div>
                                 </div>
-                                <div className="p-4">
+                                <div className="p-3">
                                     {item.category && (
                                         <p className="text-xs text-slate-400 dark:text-slate-500 mb-1">
                                             {item.category.name}
                                         </p>
                                     )}
-                                    <h3 className="font-medium text-slate-900 dark:text-slate-100 mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                                    <h3 className="font-medium text-slate-900 dark:text-slate-100 mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 text-sm">
                                         {item.title}
                                     </h3>
-                                    <p className="font-bold text-slate-900 dark:text-slate-100">
+                                    <p className="font-bold text-primary-600 dark:text-primary-400">
                                         {formatPrice(Number(item.priceAmount), item.priceCurrency)}
                                     </p>
+                                    <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                                        <span className="flex items-center gap-1 truncate">
+                                            <MapPin className="w-3 h-3 flex-shrink-0" />
+                                            <span className="truncate">
+                                                {item.region
+                                                    ? (item.district ? `${item.district.nameUz}, ${item.region.nameUz}` : item.region.nameUz)
+                                                    : '—'}
+                                            </span>
+                                        </span>
+                                        {(item.publishedAt || item.createdAt) && (
+                                            <span className="flex items-center gap-1 flex-shrink-0 ml-2">
+                                                <Clock className="w-3 h-3" />
+                                                {formatRelativeTime(item.publishedAt || item.createdAt)}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </Link>
                         ))}

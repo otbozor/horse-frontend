@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Check, X, Trash2, Eye, Package, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 
 interface Product {
@@ -222,6 +223,13 @@ export default function AdminProductsPage() {
                                         <td className="px-4 py-3">{statusBadge(product.status)}</td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center justify-end gap-1">
+                                                <Link
+                                                    href={`/admin/mahsulotlar/${product.id}`}
+                                                    className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all"
+                                                    title="Ko'rish"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                </Link>
                                                 {product.status === 'DRAFT' && (
                                                     <>
                                                         <button

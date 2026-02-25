@@ -21,6 +21,35 @@ const PACKAGE_META = [
     { key: 'TURBO_SAVDO', label: 'Premium', days: '30 kun', Icon: Crown, color: 'text-amber-600', bg: 'bg-amber-50' },
 ] as const;
 
+function getTarifBadge(p: any) {
+    if (p.packageType === 'OSON_START') return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-600">
+            <Zap className="w-3 h-3" /> Oson start
+        </span>
+    );
+    if (p.packageType === 'TEZKOR_SAVDO') return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-600">
+            <Rocket className="w-3 h-3" /> Tezkor savdo
+        </span>
+    );
+    if (p.packageType === 'TURBO_SAVDO') return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-600">
+            <Crown className="w-3 h-3" /> Premium
+        </span>
+    );
+    if (p.listingBundleSize) return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-600">
+            <List className="w-3 h-3" /> {p.listingBundleSize} ta kredit
+        </span>
+    );
+    if (p.type === 'product') return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+            <Package className="w-3 h-3" /> Mahsulot joylash
+        </span>
+    );
+    return <span className="text-xs text-slate-400">—</span>;
+}
+
 export default function AdminMoliyaPage() {
     const [productPrice, setProductPrice] = useState('');
     const [reactivationPrice, setReactivationPrice] = useState('');
@@ -331,6 +360,7 @@ export default function AdminMoliyaPage() {
                             <tr className="border-b border-slate-200 bg-slate-50">
                                 <th className="px-4 py-3 text-left font-medium text-slate-600">Foydalanuvchi</th>
                                 <th className="px-4 py-3 text-left font-medium text-slate-600">Tur</th>
+                                <th className="px-4 py-3 text-left font-medium text-slate-600">Tarif</th>
                                 <th className="px-4 py-3 text-left font-medium text-slate-600">Sarlavha</th>
                                 <th className="px-4 py-3 text-left font-medium text-slate-600">Summa</th>
                                 <th className="px-4 py-3 text-left font-medium text-slate-600">Holat</th>
@@ -340,13 +370,13 @@ export default function AdminMoliyaPage() {
                         <tbody>
                             {isLoadingPayments ? (
                                 <tr>
-                                    <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                                    <td colSpan={7} className="px-4 py-8 text-center text-slate-400">
                                         <Loader2 className="w-6 h-6 animate-spin mx-auto" />
                                     </td>
                                 </tr>
                             ) : payments.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                                    <td colSpan={7} className="px-4 py-8 text-center text-slate-400">
                                         To'lovlar topilmadi
                                     </td>
                                 </tr>
@@ -364,6 +394,9 @@ export default function AdminMoliyaPage() {
                                                     : <><Package className="w-3 h-3" /> Mahsulot</>
                                                 }
                                             </span>
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            {getTarifBadge(p)}
                                         </td>
                                         <td className="px-4 py-3 max-w-[200px] truncate text-slate-700">
                                             {p.subject?.title || '—'}

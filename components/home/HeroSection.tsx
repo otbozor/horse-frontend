@@ -7,7 +7,8 @@ export function HeroSection() {
         <section className="relative min-h-[88vh] flex items-center bg-white dark:bg-slate-950 overflow-hidden">
             {/* Glow effects */}
             <div className="absolute right-0 top-0 w-[500px] h-[500px] bg-primary-400/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute right-1/3 bottom-0 w-72 h-72 bg-yellow-300/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute right-1/3 bottom-0 w-72 h-72 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute left-0 top-1/2 w-64 h-64 bg-emerald-300/8 rounded-full blur-3xl pointer-events-none" />
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-20 relative z-10 py-16">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -57,9 +58,11 @@ export function HeroSection() {
                     {/* Right - Horse image */}
                     <div className="hidden lg:flex justify-center">
                         <div className="relative w-full max-w-lg">
-                            <div className="relative rounded-3xl overflow-hidden aspect-[4/3] shadow-2xl">
+                            {/* Decorative ring matching forest-green tones */}
+                            <div className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-emerald-100 to-primary-100 dark:from-emerald-900/30 dark:to-primary-900/30 blur-sm" />
+                            <div className="relative rounded-3xl overflow-hidden aspect-[4/3] shadow-2xl ring-1 ring-emerald-200/60 dark:ring-emerald-700/40">
                                 <Image
-                                    src="/horse.jpg"
+                                    src="/group.png"
                                     alt="Ot"
                                     fill
                                     className="object-cover"

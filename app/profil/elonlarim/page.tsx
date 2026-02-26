@@ -547,6 +547,7 @@ function MyListingsPageContent() {
                                             </div>
 
                                             {/* 3-dot menu — top right */}
+                                            {listing.status !== 'PENDING' && (
                                             <div className="absolute top-2 right-2">
                                                 <button
                                                     onClick={(e) => {
@@ -597,6 +598,7 @@ function MyListingsPageContent() {
                                                     </div>
                                                 )}
                                             </div>
+                                            )}
                                         </div>
 
                                         {/* Card body */}

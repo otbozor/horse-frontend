@@ -5,7 +5,7 @@ import { useAuth } from '@/components/providers/AuthProvider';
 import Link from 'next/link';
 import Image from 'next/image';
 import { HorseHeadIcon } from '@/components/icons/HorseIcons';
-import { Heart, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, MapPin, ChevronLeft, ChevronRight, Package } from 'lucide-react';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 
 interface Listing {
@@ -21,37 +21,51 @@ interface Listing {
     media: Array<{ url: string; thumbUrl?: string }>;
 }
 
+interface Product {
+    id: string;
+    title: string;
+    slug: string;
+    priceAmount: number;
+    priceCurrency: string;
+    viewCount: number;
+    region?: { nameUz: string };
+    category?: { name: string };
+    media: Array<{ url: string; thumbUrl?: string }>;
+}
+
 const ITEMS_PER_PAGE = 12;
 
 function FavoritesPageContent() {
     const { user } = useAuth();
     const [favorites, setFavorites] = useState<Listing[]>([]);
+    const [productFavorites, setProductFavorites] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<'listings' | 'products'>('listings');
     const [currentPage, setCurrentPage] = useState(1);
 
-    const totalPages = Math.ceil(favorites.length / ITEMS_PER_PAGE);
-    const paginatedFavorites = useMemo(() => {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+    const activeItems = activeTab === 'listings' ? favorites : productFavorites;
+    const totalPages = Math.ceil(activeItems.length / ITEMS_PER_PAGE);
+    const paginatedItems = useMemo(() => {
         const start = (currentPage - 1) * ITEMS_PER_PAGE;
-        return favorites.slice(start, start + ITEMS_PER_PAGE);
-    }, [favorites, currentPage]);
+        return activeItems.slice(start, start + ITEMS_PER_PAGE);
+    }, [activeItems, currentPage]);
 
     useEffect(() => {
         if (user) {
             fetchFavorites();
+            fetchProductFavorites();
         }
     }, [user]);
 
+    useEffect(() => { setCurrentPage(1); }, [activeTab]);
+
     const fetchFavorites = async () => {
         try {
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/my/listings/favorites`,
-                {
-                    credentials: 'include',
-                }
-            );
+            const res = await fetch(`${apiBase}/api/my/listings/favorites`, { credentials: 'include' });
             const data = await res.json();
-            const favorites = Array.isArray(data) ? data : (data?.data ?? []);
-            setFavorites(favorites);
+            setFavorites(Array.isArray(data) ? data : (data?.data ?? []));
         } catch (error) {
             console.error('Failed to fetch favorites:', error);
         } finally {
@@ -59,23 +73,43 @@ function FavoritesPageContent() {
         }
     };
 
-    const handleRemoveFavorite = async (listingId: string) => {
+    const fetchProductFavorites = async () => {
         try {
-            await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/listings/${listingId}/favorite`,
-                {
-                    method: 'DELETE',
-                    credentials: 'include',
-                }
-            );
+            const res = await fetch(`${apiBase}/api/my/products/favorites`, { credentials: 'include' });
+            const data = await res.json();
+            setProductFavorites(Array.isArray(data) ? data : (data?.data ?? []));
+        } catch (error) {
+            console.error('Failed to fetch product favorites:', error);
+        }
+    };
+
+    const handleRemoveListingFavorite = async (listingId: string) => {
+        try {
+            await fetch(`${apiBase}/api/listings/${listingId}/favorite`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
             const updated = favorites.filter(f => f.id !== listingId);
             setFavorites(updated);
-            const newTotalPages = Math.ceil(updated.length / ITEMS_PER_PAGE);
-            if (currentPage > newTotalPages && newTotalPages > 0) {
-                setCurrentPage(newTotalPages);
-            }
+            const newTotal = Math.ceil(updated.length / ITEMS_PER_PAGE);
+            if (currentPage > newTotal && newTotal > 0) setCurrentPage(newTotal);
         } catch (error) {
-            console.error('Failed to remove favorite:', error);
+            console.error('Failed to remove listing favorite:', error);
+        }
+    };
+
+    const handleRemoveProductFavorite = async (productId: string) => {
+        try {
+            await fetch(`${apiBase}/api/products/${productId}/favorite`, {
+                method: 'POST',
+                credentials: 'include',
+            });
+            const updated = productFavorites.filter(p => p.id !== productId);
+            setProductFavorites(updated);
+            const newTotal = Math.ceil(updated.length / ITEMS_PER_PAGE);
+            if (currentPage > newTotal && newTotal > 0) setCurrentPage(newTotal);
+        } catch (error) {
+            console.error('Failed to remove product favorite:', error);
         }
     };
 
@@ -87,123 +121,171 @@ function FavoritesPageContent() {
         );
     }
 
+    const isEmpty = activeItems.length === 0;
+
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-6 sm:py-8">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="mb-6 sm:mb-8">
                     <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">Sevimlilar</h1>
-                    <p className="text-slate-600 dark:text-slate-400 mt-1 text-sm sm:text-base">Saqlab qo'ygan e'lonlaringiz ({favorites.length})</p>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1 text-sm sm:text-base">
+                        Saqlab qo'ygan e'lonlaringiz
+                    </p>
                 </div>
 
-                {favorites.length > 0 ? (
+                {/* Tabs */}
+                <div className="flex gap-1 mb-6 bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 w-full sm:w-auto sm:inline-flex">
+                    <button
+                        onClick={() => setActiveTab('listings')}
+                        className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'listings' ? 'bg-primary-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                    >
+                        <HorseHeadIcon className="w-4 h-4" />
+                        Ot e'lonlari
+                        <span className={`px-1.5 py-0.5 rounded-full text-xs ${activeTab === 'listings' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300'}`}>{favorites.length}</span>
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('products')}
+                        className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'products' ? 'bg-primary-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                    >
+                        <Package className="w-4 h-4" />
+                        Mahsulotlar
+                        <span className={`px-1.5 py-0.5 rounded-full text-xs ${activeTab === 'products' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300'}`}>{productFavorites.length}</span>
+                    </button>
+                </div>
+
+                {!isEmpty ? (
                     <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                        {paginatedFavorites.map((listing) => (
-                            <div
-                                key={listing.id}
-                                className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all group"
-                            >
-                                <Link href={`/ot/${listing.slug}`} className="block">
-                                    <div className="relative aspect-video bg-slate-100 dark:bg-slate-700">
-                                        {listing.media[0] ? (
-                                            <Image
-                                                src={listing.media[0].thumbUrl || listing.media[0].url}
-                                                alt={listing.title}
-                                                fill
-                                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-500">
-                                                <HorseHeadIcon className="w-16 h-16" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                            {activeTab === 'listings'
+                                ? (paginatedItems as Listing[]).map((listing) => (
+                                    <div key={listing.id} className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all group">
+                                        <Link href={`/ot/${listing.slug}`} className="block">
+                                            <div className="relative aspect-video bg-slate-100 dark:bg-slate-700">
+                                                {listing.media[0] ? (
+                                                    <Image
+                                                        src={listing.media[0].thumbUrl || listing.media[0].url}
+                                                        alt={listing.title}
+                                                        fill
+                                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-500">
+                                                        <HorseHeadIcon className="w-16 h-16" />
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                    </div>
-
-                                    <div className="p-4">
-                                        <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                                            {listing.title}
-                                        </h3>
-                                        <p className="text-xl font-bold text-primary-600 dark:text-primary-400 mb-2">
-                                            {listing.priceAmount.toLocaleString()} {listing.priceCurrency}
-                                        </p>
-                                        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-2">
-                                            <MapPin className="w-4 h-4" />
-                                            <span>{listing.region.nameUz}</span>
+                                            <div className="p-4">
+                                                <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                                    {listing.title}
+                                                </h3>
+                                                <p className="text-xl font-bold text-primary-600 dark:text-primary-400 mb-2">
+                                                    {listing.priceAmount.toLocaleString()} {listing.priceCurrency}
+                                                </p>
+                                                <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-2">
+                                                    <MapPin className="w-4 h-4" />
+                                                    <span>{listing.region.nameUz}</span>
+                                                </div>
+                                                <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                                                    {listing.ageYears && <span className="badge badge-gray">{listing.ageYears} yosh</span>}
+                                                    {listing.breed && <span className="badge badge-gray">{listing.breed.name}</span>}
+                                                </div>
+                                            </div>
+                                        </Link>
+                                        <div className="px-4 pb-4">
+                                            <button
+                                                onClick={() => handleRemoveListingFavorite(listing.id)}
+                                                className="w-full btn btn-outline btn-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10"
+                                            >
+                                                <Heart className="w-4 h-4 fill-current" />
+                                                Sevimlilardan o'chirish
+                                            </button>
                                         </div>
-                                        <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-                                            {listing.ageYears && (
-                                                <span className="badge badge-gray">{listing.ageYears} yosh</span>
-                                            )}
-                                            {listing.breed && (
-                                                <span className="badge badge-gray">{listing.breed.name}</span>
-                                            )}
+                                    </div>
+                                ))
+                                : (paginatedItems as Product[]).map((product) => (
+                                    <div key={product.id} className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all group">
+                                        <Link href={`/mahsulotlar/${product.slug}`} className="block">
+                                            <div className="relative aspect-video bg-slate-100 dark:bg-slate-700">
+                                                {product.media[0] ? (
+                                                    <Image
+                                                        src={product.media[0].thumbUrl || product.media[0].url}
+                                                        alt={product.title}
+                                                        fill
+                                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-500">
+                                                        <Package className="w-16 h-16" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="p-4">
+                                                <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                                    {product.title}
+                                                </h3>
+                                                <p className="text-xl font-bold text-primary-600 dark:text-primary-400 mb-2">
+                                                    {product.priceAmount.toLocaleString()} {product.priceCurrency}
+                                                </p>
+                                                {product.region && (
+                                                    <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-2">
+                                                        <MapPin className="w-4 h-4" />
+                                                        <span>{product.region.nameUz}</span>
+                                                    </div>
+                                                )}
+                                                {product.category && (
+                                                    <span className="badge badge-gray text-xs">{product.category.name}</span>
+                                                )}
+                                            </div>
+                                        </Link>
+                                        <div className="px-4 pb-4">
+                                            <button
+                                                onClick={() => handleRemoveProductFavorite(product.id)}
+                                                className="w-full btn btn-outline btn-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10"
+                                            >
+                                                <Heart className="w-4 h-4 fill-current" />
+                                                Sevimlilardan o'chirish
+                                            </button>
                                         </div>
                                     </div>
-                                </Link>
+                                ))
+                            }
+                        </div>
 
-                                <div className="px-4 pb-4">
-                                    <button
-                                        onClick={() => handleRemoveFavorite(listing.id)}
-                                        className="w-full btn btn-outline btn-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10"
-                                    >
-                                        <Heart className="w-4 h-4 fill-current" />
-                                        Sevimlilardan o'chirish
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                    Sahifa <span className="font-medium">{currentPage}</span> / <span className="font-medium">{totalPages}</span>
+                                </p>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 disabled:opacity-40 disabled:cursor-not-allowed">
+                                        <ChevronLeft className="w-5 h-5" />
+                                    </button>
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                                        <button key={p} onClick={() => setCurrentPage(p)} className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors ${p === currentPage ? 'bg-primary-600 text-white' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600'}`}>
+                                            {p}
+                                        </button>
+                                    ))}
+                                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 disabled:opacity-40 disabled:cursor-not-allowed">
+                                        <ChevronRight className="w-5 h-5" />
                                     </button>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <p className="text-sm text-slate-600 dark:text-slate-400">
-                                Sahifa <span className="font-medium">{currentPage}</span> / <span className="font-medium">{totalPages}</span>
-                            </p>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                    disabled={currentPage === 1}
-                                    className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400 disabled:cursor-not-allowed"
-                                >
-                                    <ChevronLeft className="w-5 h-5" />
-                                </button>
-                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                                    <button
-                                        key={p}
-                                        onClick={() => setCurrentPage(p)}
-                                        className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors ${
-                                            p === currentPage
-                                                ? 'bg-primary-600 text-white'
-                                                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600'
-                                        }`}
-                                    >
-                                        {p}
-                                    </button>
-                                ))}
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                    disabled={currentPage === totalPages}
-                                    className="w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400 disabled:cursor-not-allowed"
-                                >
-                                    <ChevronRight className="w-5 h-5" />
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                        )}
                     </>
                 ) : (
                     <div className="text-center py-16 sm:py-20 bg-white dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-600">
                         <Heart className="w-16 h-16 mx-auto mb-4 text-red-300 dark:text-red-400" />
                         <h3 className="text-xl font-medium text-slate-900 dark:text-slate-100 mb-2">
-                            Sevimlilar ro'yxati bo'sh
+                            {activeTab === 'listings' ? "Sevimli e'lonlar yo'q" : "Sevimli mahsulotlar yo'q"}
                         </h3>
                         <p className="text-slate-500 dark:text-slate-400 mb-6">
-                            Yoqqan e'lonlarni sevimlilar ro'yxatiga qo'shing
+                            {activeTab === 'listings' ? "Yoqqan e'lonlarni sevimlilar ro'yxatiga qo'shing" : "Yoqqan mahsulotlarni sevimlilar ro'yxatiga qo'shing"}
                         </p>
-                        <Link href="/bozor" className="btn btn-primary">
-                            E'lonlarni ko'rish
+                        <Link href={activeTab === 'listings' ? '/bozor' : '/mahsulotlar'} className="btn btn-primary">
+                            {activeTab === 'listings' ? "E'lonlarni ko'rish" : "Mahsulotlarni ko'rish"}
                         </Link>
                     </div>
                 )}
@@ -211,7 +293,6 @@ function FavoritesPageContent() {
         </div>
     );
 }
-
 
 export default function FavoritesPage() {
     return (

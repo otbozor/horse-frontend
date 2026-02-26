@@ -273,7 +273,10 @@ export interface KopkariEvent {
 export async function getUpcomingEvents(limit = 6): Promise<KopkariEvent[]> {
     // Ensure limit doesn't exceed 50
     const safeLimit = Math.min(limit, 50);
-    const response = await apiFetch<AuthResponse<KopkariEvent[]>>('/api/events/upcoming', { params: { limit: safeLimit } });
+    const response = await apiFetch<AuthResponse<KopkariEvent[]>>('/api/events/upcoming', {
+        params: { limit: safeLimit },
+        next: { revalidate: 300 },
+    } as any);
     if (response.success && response.data) {
         return response.data;
     }
@@ -281,7 +284,9 @@ export async function getUpcomingEvents(limit = 6): Promise<KopkariEvent[]> {
 }
 
 export async function getAllPublicEvents(): Promise<KopkariEvent[]> {
-    const response = await apiFetch<AuthResponse<KopkariEvent[]>>('/api/events');
+    const response = await apiFetch<AuthResponse<KopkariEvent[]>>('/api/events', {
+        next: { revalidate: 300 },
+    } as any);
     if (response.success && response.data) {
         return response.data;
     }
@@ -289,7 +294,9 @@ export async function getAllPublicEvents(): Promise<KopkariEvent[]> {
 }
 
 export async function getEvent(slug: string): Promise<KopkariEvent> {
-    const response = await apiFetch<AuthResponse<KopkariEvent>>(`/api/events/${slug}`);
+    const response = await apiFetch<AuthResponse<KopkariEvent>>(`/api/events/${slug}`, {
+        next: { revalidate: 300 },
+    } as any);
     if (response.success && response.data) {
         return response.data;
     }

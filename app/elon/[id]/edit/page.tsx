@@ -311,7 +311,7 @@ function EditListingPageContent() {
                             name="title"
                             value={formData.title}
                             onChange={handleChange}
-                            placeholder="Masalan: Karabayir oti sotiladi"
+                            placeholder="Masalan: Qorabayir oti sotiladi"
                             required
                             disabled={!canEdit}
                         />
@@ -331,6 +331,7 @@ function EditListingPageContent() {
                                         { label: 'Sayr', value: 'SAYR' },
                                         { label: 'Ishchi', value: 'ISHCHI' },
                                         { label: 'Naslchilik', value: 'NASLCHILIK' },
+                                        { label: "Go'sht uchun", value: 'GOSHT' },
                                     ]}
                                 />
                             </div>

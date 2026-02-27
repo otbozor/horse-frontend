@@ -53,7 +53,7 @@ export default function ContactPage() {
 
                         {/* Email */}
                         <a
-                            href="mailto:info@otbozor.uz"
+                            href="mailto:otbozor.rasmiy@gmail.com"
                             className="flex items-center gap-4 p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-primary-300 dark:hover:border-primary-700 transition-all group"
                         >
                             <div className="flex-shrink-0 w-12 h-12 bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-xl flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-primary-900/50 transition-colors">
@@ -62,7 +62,7 @@ export default function ContactPage() {
                             <div>
                                 <p className="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-0.5">Email</p>
                                 <p className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                                    info@otbozor.uz
+                                    otbozor.rasmiy@gmail.com
                                 </p>
                             </div>
                         </a>
@@ -107,7 +107,7 @@ export default function ContactPage() {
                                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 14.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" />
                                 </svg>
-                                @doniyorjon_k ga yozish
+                                Bog'lanish
                             </a>
                         </div>
                     </div>

@@ -177,8 +177,8 @@ export async function getListing(idOrSlug: string): Promise<Listing> {
 }
 
 export async function getFeaturedListings(limit = 50): Promise<Listing[]> {
-    // Ensure limit doesn't exceed 100
-    const safeLimit = Math.min(limit, 100);
+    // Ensure limit doesn't exceed 50
+    const safeLimit = Math.min(limit, 50);
     const response = await apiFetch<AuthResponse<Listing[]>>('/api/listings/featured', {
         params: { limit: safeLimit },
         next: { revalidate: 60 },

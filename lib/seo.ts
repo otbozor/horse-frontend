@@ -21,7 +21,7 @@ export async function generateSitemap() {
     // Dynamic Listings
     let listingRoutes: any[] = [];
     try {
-        const { data: listings } = await getListings({ limit: 100 });
+        const { data: listings } = await getListings({ limit: 50 });
         listingRoutes = listings.map((listing) => ({
             url: `${BASE_URL}/ot/${listing.id}-${listing.slug}`,
             lastModified: listing.publishedAt || new Date().toISOString(),

@@ -127,6 +127,9 @@ function FavoritesPageContent() {
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-6 sm:py-8">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="mb-6 sm:mb-8">
+                    <Link href="/profil" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mb-3 transition-colors">
+                        <ChevronLeft className="w-4 h-4" /> Profil
+                    </Link>
                     <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">Sevimlilar</h1>
                     <p className="text-slate-600 dark:text-slate-400 mt-1 text-sm sm:text-base">
                         Saqlab qo'ygan e'lonlaringiz

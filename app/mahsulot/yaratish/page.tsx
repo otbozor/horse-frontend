@@ -282,7 +282,7 @@ function CreateProductForm() {
                     {loading ? (
                         <><Loader2 className="w-4 h-4 animate-spin" /> Yuborilmoqda...</>
                     ) : (
-                        <><Package className="w-4 h-4" /> Mahsulotni yuborish</>
+                        <><Package className="w-4 h-4" /> Mahsulotni joylash</>
                     )}
                 </button>
             </form>

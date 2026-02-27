@@ -235,7 +235,7 @@ function CreateListingPageContent() {
                             name="title"
                             value={formData.title}
                             onChange={handleChange}
-                            placeholder="Masalan: Karabayir oti sotiladi"
+                            placeholder="Masalan: Qorabayir oti sotiladi"
                             required
                         />
 
@@ -253,6 +253,7 @@ function CreateListingPageContent() {
                                         { label: 'Sayr', value: 'SAYR' },
                                         { label: 'Ishchi', value: 'ISHCHI' },
                                         { label: 'Naslchilik', value: 'NASLCHILIK' },
+                                        { label: "Go'sht uchun", value: 'GOSHT' },
                                     ]}
                                 />
                             </div>
@@ -464,10 +465,13 @@ function CreateListingPageContent() {
                             </div>
                         </div>
 
-                        <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
-                            E'lonni chop etish orqali siz foydalanish shartlariga rozilik bildirasiz.
-                            Moderatorlar e'lonni tekshirib chiqqandan so'ng u saytda ko'rinadi.
-                        </p>
+                        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 text-sm text-amber-800 dark:text-amber-300">
+                            E'lonni joylash orqali siz{' '}
+                            <a href="https://www.otbozor.uz/terms" target="_blank" rel="noopener noreferrer" className="underline font-medium hover:text-amber-900 dark:hover:text-amber-200">
+                                foydalanish shartlariga
+                            </a>{' '}
+                            rozilik bildirasiz. E'lon tekshiruvdan o'tgach avtomatik e'lon qilinadi.
+                        </div>
                     </div>
                 )}
 
@@ -530,7 +534,7 @@ function CreateListingPageContent() {
                             ) : (
                                 <Save className="w-4 h-4" />
                             )}
-                            Chop etish
+                            E'lon joylash
                         </button>
                     )}
                 </div>

@@ -415,8 +415,7 @@ function MyListingsPageContent() {
                         <div className="mb-5 p-3.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center gap-3">
                             <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                             <p className="text-sm text-blue-700 dark:text-blue-300">
-                                Sizda <span className="font-semibold">{user.listingCredits} ta</span> e&apos;lon krediti mavjud.
-                                {user.listingCredits <= 3 && ' Kredit tugagach, paket sotib olish talab qilinadi.'}
+                                Siz <span className="font-semibold">3 ta</span> e&apos;lonni bepul joylashingiz mumkin. Limit tugagach, qo&apos;shimcha e&apos;lon uchun paket sotib olishingiz kerak.
                             </p>
                         </div>
                     )
@@ -425,6 +424,9 @@ function MyListingsPageContent() {
                 {/* Header */}
                 <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                     <div>
+                        <Link href="/profil" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mb-3 transition-colors">
+                            <ChevronLeft className="w-4 h-4" /> Profil
+                        </Link>
                         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">Mening e&apos;lonlarim</h1>
                         <p className="text-slate-600 dark:text-slate-400 mt-1 text-sm sm:text-base">Barcha e&apos;lonlaringizni boshqaring</p>
                     </div>

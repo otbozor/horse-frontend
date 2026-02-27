@@ -20,7 +20,7 @@ export const metadata: Metadata = {
         "ot bozori o'zbekiston",
         "ko'pkari ot",
         'sport ot',
-        'karabayir',
+        'qorabayir',
         'axaltekin',
         'bozor',
     ],

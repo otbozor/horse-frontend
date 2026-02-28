@@ -100,8 +100,8 @@ function CreateListingPageContent() {
         setIsSubmitting(true);
         try {
             // Validate required fields
-            if (!formData.title || !formData.regionId || !formData.priceAmount) {
-                setError('Iltimos barcha majburiy maydonlarni to\'ldiring');
+            if (!formData.title || !formData.regionId || !formData.priceAmount || !formData.color || !formData.description) {
+                setError('Iltimos barcha majburiy maydonlarni to\'ldiring (rang va tavsif ham)');
                 return false;
             }
 
@@ -110,12 +110,12 @@ function CreateListingPageContent() {
 
             const data = {
                 title: dataWithoutMedia.title,
-                description: dataWithoutMedia.description || undefined,
+                description: dataWithoutMedia.description,
                 purpose: dataWithoutMedia.purpose || undefined,
                 breedId: dataWithoutMedia.breedId || undefined,
                 gender: dataWithoutMedia.gender || undefined,
                 ageYears: dataWithoutMedia.ageYears ? Number(dataWithoutMedia.ageYears) : undefined,
-                color: dataWithoutMedia.color || undefined,
+                color: dataWithoutMedia.color,
                 regionId: dataWithoutMedia.regionId,
                 districtId: dataWithoutMedia.districtId || undefined,
                 priceAmount: Number(dataWithoutMedia.priceAmount),
@@ -298,22 +298,24 @@ function CreateListingPageContent() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <Input
-                                label="Rangi"
+                                label="Rangi *"
                                 name="color"
                                 value={formData.color}
                                 onChange={handleChange}
                                 placeholder="Masalan: Qora, Jiyron"
+                                required
                             />
                         </div>
 
                         <div>
-                            <label className="label">Tavsif</label>
+                            <label className="label">Tavsif *</label>
                             <textarea
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
                                 className="input h-32 resize-none"
                                 placeholder="Ot haqida batafsil ma'lumot..."
+                                required
                             />
                         </div>
                     </div>

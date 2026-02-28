@@ -12,8 +12,8 @@ export function FeaturedSlider({ listings }: FeaturedSliderProps) {
 
     return (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {items.map((listing) => (
-                <ListingCard key={listing.id} listing={listing} />
+            {items.map((listing, index) => (
+                <ListingCard key={listing.id} listing={listing} priority={index < 2} />
             ))}
         </div>
     );

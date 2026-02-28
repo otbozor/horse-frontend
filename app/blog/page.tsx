@@ -9,7 +9,7 @@ const BLOG_LIMIT = 12;
 async function getBlogPosts(page = 1) {
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/blog/posts?page=${page}&limit=${BLOG_LIMIT}`, {
-            cache: 'no-store',
+            next: { revalidate: 300 },
         });
         const data = await res.json();
         if (data.success) {

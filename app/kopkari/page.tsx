@@ -8,7 +8,7 @@ import { Pagination } from '@/components/listing/Pagination';
 
 const ITEMS_PER_PAGE = 12;
 
-export const revalidate = 0;
+export const revalidate = 300;
 
 async function getPublicEvents(regionId?: string, status?: string) {
     try {
@@ -18,7 +18,7 @@ async function getPublicEvents(regionId?: string, status?: string) {
         if (status === 'upcoming') params.set('upcoming', 'true');
         if (status === 'past') params.set('past', 'true');
 
-        const res = await fetch(`${API_URL}/api/events?${params.toString()}`, { cache: 'no-store' });
+        const res = await fetch(`${API_URL}/api/events?${params.toString()}`, { next: { revalidate: 300 } });
         const data = await res.json();
         if (data.success) {
             return Array.isArray(data.data) ? data.data : (data.data?.data || []);
@@ -32,7 +32,7 @@ async function getPublicEvents(regionId?: string, status?: string) {
 async function getRegions() {
     try {
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        const res = await fetch(`${API_URL}/api/regions`, { cache: 'no-store' });
+        const res = await fetch(`${API_URL}/api/regions`, { next: { revalidate: 300 } });
         const data = await res.json();
         return data.success ? (data.data || []) : [];
     } catch {

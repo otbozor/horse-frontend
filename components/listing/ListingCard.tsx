@@ -8,9 +8,10 @@ import { FavoriteButton } from './FavoriteButton';
 
 interface ListingCardProps {
     listing: Listing;
+    priority?: boolean;
 }
 
-export function ListingCard({ listing }: ListingCardProps) {
+export function ListingCard({ listing, priority = false }: ListingCardProps) {
     const mainImage = listing.media?.[0]?.thumbUrl || listing.media?.[0]?.url || null;
     const dateStr = listing.publishedAt || listing.createdAt;
 
@@ -27,6 +28,7 @@ export function ListingCard({ listing }: ListingCardProps) {
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        priority={priority}
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-300"><HorseHeadIcon className="w-20 h-20" /></div>

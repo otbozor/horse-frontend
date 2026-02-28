@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { ArrowLeft, Loader2, Save, Upload, X } from 'lucide-react';
+import RichTextEditor from '@/components/ui/RichTextEditor';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -200,14 +201,11 @@ export default function EditBlogPostPage() {
 
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 mb-1.5">Maqola matni *</label>
-                                <textarea
+                                <RichTextEditor
                                     value={formData.content}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none bg-white text-slate-900 font-mono transition-all modal-scroll"
-                                    rows={15}
-                                    placeholder="Markdown formatida maqola matnini kiriting..."
+                                    onChange={(val) => setFormData(prev => ({ ...prev, content: val }))}
+                                    placeholder="Maqola matnini kiriting..."
                                     disabled={isLoading}
-                                    required
                                 />
                             </div>
                         </div>

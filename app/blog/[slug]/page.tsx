@@ -2,11 +2,12 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, Eye, ArrowLeft, Tag } from 'lucide-react';
+import { BlogViewTracker } from '@/components/blog/BlogViewTracker';
 
 async function getBlogPost(slug: string) {
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/blog/posts/${slug}`, {
-            cache: 'no-store',
+            next: { revalidate: 300 },
         });
         const data = await res.json();
         return data.success ? data.data : null;
@@ -19,7 +20,7 @@ async function getBlogPost(slug: string) {
 async function getRecentPosts() {
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/blog/posts/recent?limit=3`, {
-            cache: 'no-store',
+            next: { revalidate: 300 },
         });
         const data = await res.json();
         return data.success ? data.data : [];
@@ -27,6 +28,35 @@ async function getRecentPosts() {
         console.error('Failed to fetch recent posts:', error);
         return [];
     }
+}
+
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+    const post = await getBlogPost(params.slug);
+    if (!post) return { title: 'Maqola topilmadi | Otbozor' };
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://otbozor.uz';
+
+    return {
+        title: `${post.title} | Otbozor Blog`,
+        description: post.excerpt || post.title,
+        openGraph: {
+            title: post.title,
+            description: post.excerpt || post.title,
+            type: 'article',
+            url: `${siteUrl}/blog/${post.slug}`,
+            publishedTime: post.publishedAt,
+            images: post.coverImage ? [{ url: post.coverImage, width: 1200, height: 630, alt: post.title }] : [],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: post.title,
+            description: post.excerpt || post.title,
+            images: post.coverImage ? [post.coverImage] : [],
+        },
+        alternates: {
+            canonical: `${siteUrl}/blog/${post.slug}`,
+        },
+    };
 }
 
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
@@ -39,8 +69,30 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
         notFound();
     }
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://otbozor.uz';
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: post.title,
+        description: post.excerpt || post.title,
+        datePublished: post.publishedAt,
+        dateModified: post.updatedAt || post.publishedAt,
+        image: post.coverImage ? [post.coverImage] : [],
+        url: `${siteUrl}/blog/${post.slug}`,
+        publisher: {
+            '@type': 'Organization',
+            name: 'Otbozor',
+            url: siteUrl,
+        },
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <BlogViewTracker slug={params.slug} />
             {/* Hero Section */}
             <div className="relative bg-gradient-to-br from-primary-600 to-primary-800 text-white py-12 md:py-16">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,6 +150,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                                         fill
                                         sizes="(max-width: 1024px) 100vw, 66vw"
                                         className="object-cover"
+                                        priority
                                     />
                                 </div>
                             )}
@@ -110,9 +163,21 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                                     </div>
                                 )}
 
-                                <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
-                                    {post.content}
-                                </p>
+                                <div
+                                    className="text-slate-700 dark:text-slate-300 leading-relaxed
+                                        [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:text-slate-900 dark:[&_h2]:text-slate-100
+                                        [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:text-slate-900 dark:[&_h3]:text-slate-100
+                                        [&_p]:mb-3
+                                        [&_strong]:font-bold
+                                        [&_em]:italic
+                                        [&_s]:line-through
+                                        [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3
+                                        [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3
+                                        [&_li]:mb-1
+                                        [&_blockquote]:border-l-4 [&_blockquote]:border-slate-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-slate-500 [&_blockquote]:my-3
+                                        [&_hr]:border-slate-200 [&_hr]:my-6"
+                                    dangerouslySetInnerHTML={{ __html: post.content }}
+                                />
                             </div>
                         </div>
                     </article>

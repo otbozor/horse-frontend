@@ -158,7 +158,7 @@ export interface ListingsFilter {
 }
 
 export async function getListings(filter: ListingsFilter = {}): Promise<ListingsResponse> {
-    const response = await apiFetch<AuthResponse<ListingsResponse>>('/api/listings', { params: filter as any });
+    const response = await apiFetch<AuthResponse<ListingsResponse>>('/api/listings', { params: filter as any, next: { revalidate: 60 } } as any);
     if (response.success && response.data) {
         return response.data;
     }

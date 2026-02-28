@@ -11,6 +11,21 @@ import {
 import Link from 'next/link';
 import { AdminPagination } from '@/components/listing/AdminPagination';
 
+// Module-level cache — sahifadan chiqqanda ham saqlanadi
+const listingsCache = new Map<string, { listings: any[]; pagination: any; ts: number }>();
+const countsCache = { data: null as Record<string, number> | null, ts: 0 };
+const CACHE_TTL = 3 * 60_000; // 3 daqiqa
+
+function getCacheKey(tab: string, page: number, region: string, saleSource: string) {
+    return `${tab}:${page}:${region}:${saleSource}`;
+}
+
+function invalidateCache() {
+    listingsCache.clear();
+    countsCache.data = null;
+    countsCache.ts = 0;
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 type TabKey = 'all' | 'pending' | 'approved' | 'rejected' | 'paid' | 'expired' | 'archived';
@@ -81,10 +96,24 @@ function AdminListingsContentInner() {
             .catch(() => {});
     }, []);
 
-    const loadListings = async () => {
+    const loadListings = async (forceRefresh = false) => {
+        const cacheKey = getCacheKey(currentTab, currentPage, selectedRegion, selectedSaleSource);
+        const cached = listingsCache.get(cacheKey);
+        const now = Date.now();
+
+        // Kesh mavjud va muddati o'tmagan bo'lsa — darhol ko'rsat
+        if (!forceRefresh && cached && now - cached.ts < CACHE_TTL) {
+            setListings(cached.listings);
+            setPagination(cached.pagination);
+            setIsLoading(false);
+            return;
+        }
+
         try {
-            setIsLoading(true);
+            // Kesh bo'lsa spinner ko'rsatmaymiz (fon yangilanish)
+            if (!cached) setIsLoading(true);
             setError(null);
+
             const response = await getAdminListings({
                 ...activeTab.filter,
                 regionId: selectedRegion || undefined,
@@ -96,9 +125,11 @@ function AdminListingsContentInner() {
             if (response.success && response.data) {
                 const listingsData = response.data.data || response.data;
                 const paginationData = response.data.pagination || { page: currentPage, limit: 20, total: 0, totalPages: 0 };
+                const data = Array.isArray(listingsData) ? listingsData : [];
 
-                setListings(Array.isArray(listingsData) ? listingsData : []);
+                setListings(data);
                 setPagination(paginationData);
+                listingsCache.set(cacheKey, { listings: data, pagination: paginationData, ts: Date.now() });
             } else {
                 setListings([]);
                 setPagination({ page: currentPage, limit: 20, total: 0, totalPages: 0 });
@@ -112,7 +143,12 @@ function AdminListingsContentInner() {
     };
 
     // Load tab counts
-    const loadCounts = async () => {
+    const loadCounts = async (forceRefresh = false) => {
+        const now = Date.now();
+        if (!forceRefresh && countsCache.data && now - countsCache.ts < CACHE_TTL) {
+            setTabCounts(countsCache.data as Record<TabKey, number>);
+            return;
+        }
         try {
             const results = await Promise.all(
                 TABS.map(tab => getAdminListings({ ...tab.filter, page: 1, limit: 1 }))
@@ -121,6 +157,8 @@ function AdminListingsContentInner() {
             results.forEach((res, i) => {
                 counts[TABS[i].key] = res?.data?.pagination?.total || 0;
             });
+            countsCache.data = counts;
+            countsCache.ts = Date.now();
             setTabCounts(counts as Record<TabKey, number>);
         } catch {
             // Ignore count errors
@@ -133,6 +171,7 @@ function AdminListingsContentInner() {
 
     useEffect(() => {
         loadCounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const switchTab = (tab: TabKey) => {
@@ -145,8 +184,9 @@ function AdminListingsContentInner() {
         if (!confirm("E'lonni tasdiqlaysizmi?")) return;
         try {
             await approveListing(id);
-            await loadListings();
-            await loadCounts();
+            invalidateCache();
+            await loadListings(true);
+            await loadCounts(true);
         } catch (err: any) {
             alert('Xatolik: ' + err.message);
         }
@@ -157,8 +197,9 @@ function AdminListingsContentInner() {
         if (!reason) return;
         try {
             await rejectListing(id, reason);
-            await loadListings();
-            await loadCounts();
+            invalidateCache();
+            await loadListings(true);
+            await loadCounts(true);
         } catch (err: any) {
             alert('Xatolik: ' + err.message);
         }
@@ -168,8 +209,9 @@ function AdminListingsContentInner() {
         if (!confirm(`"${title}" e'lonini butunlay o'chirasizmi? Bu amalni ortga qaytarib bo'lmaydi.`)) return;
         try {
             await deleteAdminListing(id);
-            await loadListings();
-            await loadCounts();
+            invalidateCache();
+            await loadListings(true);
+            await loadCounts(true);
         } catch (err: any) {
             alert('Xatolik: ' + err.message);
         }

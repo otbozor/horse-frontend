@@ -1,7 +1,7 @@
-import { Metadata } from 'next';
-import { getListing, getListings } from '@/lib/api';
+import { getListings } from '@/lib/api';
 
 export const BASE_URL = 'https://otbozor.uz';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export async function generateSitemap() {
     // Static pages
@@ -21,13 +21,27 @@ export async function generateSitemap() {
     // Dynamic Listings
     let listingRoutes: any[] = [];
     try {
-        const { data: listings } = await getListings({ limit: 50 });
+        const { data: listings } = await getListings({ limit: 500 });
         listingRoutes = listings.map((listing) => ({
             url: `${BASE_URL}/ot/${listing.id}-${listing.slug}`,
             lastModified: listing.publishedAt || new Date().toISOString(),
         }));
-    } catch (error) {
-        console.warn('Failed to fetch listings for sitemap, skipping dynamic routes');
+    } catch {
+        console.warn('Failed to fetch listings for sitemap');
+    }
+
+    // Blog posts
+    let blogRoutes: any[] = [];
+    try {
+        const res = await fetch(`${API_URL}/api/blog/posts?limit=200`);
+        const data = await res.json();
+        const posts = data.success ? (data.data || []) : [];
+        blogRoutes = posts.map((post: any) => ({
+            url: `${BASE_URL}/blog/${post.slug}`,
+            lastModified: post.updatedAt || post.publishedAt || new Date().toISOString(),
+        }));
+    } catch {
+        console.warn('Failed to fetch blog posts for sitemap');
     }
 
     // Viloyatlar (SEO pages)
@@ -43,5 +57,5 @@ export async function generateSitemap() {
         lastModified: new Date().toISOString(),
     }));
 
-    return [...routes, ...regionRoutes, ...listingRoutes];
+    return [...routes, ...regionRoutes, ...listingRoutes, ...blogRoutes];
 }

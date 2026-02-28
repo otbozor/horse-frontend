@@ -15,6 +15,7 @@ export async function getAdminListings(options?: {
     status?: string;
     isPaid?: string;
     regionId?: string;
+    saleSource?: string;
     page?: number;
     limit?: number;
 }): Promise<any> {
@@ -23,6 +24,7 @@ export async function getAdminListings(options?: {
             status: options?.status,
             isPaid: options?.isPaid,
             regionId: options?.regionId,
+            saleSource: options?.saleSource,
             page: options?.page,
             limit: options?.limit,
         } as any,

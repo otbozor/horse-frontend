@@ -269,11 +269,13 @@ function MyListingsPageContent() {
         }
     };
 
-    const handleDeactivate = async (listingId: string) => {
+    const handleDeactivate = async (listingId: string, saleSource: 'OTBOZOR' | 'OTHER') => {
         try {
             await fetch(`${apiBase}/api/my/listings/${listingId}`, {
                 method: 'DELETE',
                 credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ saleSource }),
             });
             setDeactivateListingId(null);
             await fetchListings();
@@ -397,6 +399,12 @@ function MyListingsPageContent() {
                                 <p className="text-sm text-red-700 dark:text-red-400 mt-0.5">
                                     Yangi ot e&apos;loni joylashtirish uchun paket sotib olishingiz kerak (5, 10 yoki 20 ta e&apos;lon).
                                 </p>
+                                <Link
+                                    href="/paketlar"
+                                    className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors"
+                                >
+                                    Paket sotib olish
+                                </Link>
                             </div>
                         </div>
                     ) : user.listingCredits <= 1 ? (
@@ -979,7 +987,7 @@ function MyListingsPageContent() {
             {/* ── DEACTIVATE MODAL ── */}
             {deactivateListingId && (
                 <div
-                    className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
                     onClick={() => setDeactivateListingId(null)}
                 >
                     <div
@@ -996,14 +1004,14 @@ function MyListingsPageContent() {
                         )}
                         <div className="space-y-2">
                             <button
-                                onClick={() => handleDeactivate(deactivateListingId)}
+                                onClick={() => handleDeactivate(deactivateListingId, 'OTBOZOR')}
                                 className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 font-medium hover:border-green-400 dark:hover:border-green-600 transition-colors text-left"
                             >
                                 <span className="text-xl leading-none">✅</span>
                                 <span>Ha, Otbozor&apos;da sotildi</span>
                             </button>
                             <button
-                                onClick={() => handleDeactivate(deactivateListingId)}
+                                onClick={() => handleDeactivate(deactivateListingId, 'OTHER')}
                                 className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:border-slate-400 dark:hover:border-slate-500 transition-colors text-left"
                             >
                                 <span className="text-xl leading-none">🔄</span>
@@ -1023,7 +1031,7 @@ function MyListingsPageContent() {
             {/* ── REACTIVATION PRICE MODAL ── */}
             {reactivationModal && (
                 <div
-                    className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
                     onClick={() => setReactivationModal(null)}
                 >
                     <div

@@ -373,6 +373,15 @@ export async function createListingBundleInvoice(listingId: string, bundleSize: 
     throw new Error(response.message || 'Failed to create invoice');
 }
 
+export async function createCreditBundleInvoice(bundleSize: 5 | 10 | 20): Promise<{ paymentId: string; amount: number; clickUrl: string }> {
+    const response = await apiFetch<AuthResponse<{ paymentId: string; amount: number; clickUrl: string }>>('/api/payments/create-credit-bundle-invoice', {
+        method: 'POST',
+        body: JSON.stringify({ bundleSize }),
+    });
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message || 'Failed to create invoice');
+}
+
 // Media
 export async function getSignedUploadUrl(
     entityType: string,

@@ -81,6 +81,8 @@ function CreateProductForm() {
         setError('');
 
         if (!form.title.trim()) return setError('Sarlavha kiritish majburiy');
+        if (!form.regionId) return setError('Viloyatni tanlash majburiy');
+        if (!form.districtId) return setError('Tumanni tanlash majburiy');
         if (!form.priceAmount || Number(form.priceAmount) <= 0) return setError('To\'g\'ri narx kiriting');
 
         setLoading(true);
@@ -182,7 +184,7 @@ function CreateProductForm() {
                 {/* Region & District */}
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="label">Viloyat</label>
+                        <label className="label">Viloyat <span className="text-red-500">*</span></label>
                         <CustomSelect
                             name="regionId"
                             value={form.regionId}
@@ -195,7 +197,7 @@ function CreateProductForm() {
                         />
                     </div>
                     <div>
-                        <label className="label">Tuman</label>
+                        <label className="label">Tuman <span className="text-red-500">*</span></label>
                         <CustomSelect
                             name="districtId"
                             value={form.districtId}

@@ -6,14 +6,14 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { getAdminListings, approveListing, rejectListing, deleteAdminListing } from '@/lib/admin-api';
 import {
     Check, X, Eye, Trash2, Loader2, Image as ImageIcon,
-    ListFilter, Clock, CheckCircle, XCircle, CreditCard, TimerOff,
+    ListFilter, Clock, CheckCircle, XCircle, CreditCard, TimerOff, Archive,
 } from 'lucide-react';
 import Link from 'next/link';
 import { AdminPagination } from '@/components/listing/AdminPagination';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-type TabKey = 'all' | 'pending' | 'approved' | 'rejected' | 'paid' | 'expired';
+type TabKey = 'all' | 'pending' | 'approved' | 'rejected' | 'paid' | 'expired' | 'archived';
 
 interface Tab {
     key: TabKey;
@@ -29,6 +29,7 @@ const TABS: Tab[] = [
     { key: 'rejected', label: 'Rad etilgan', icon: <XCircle className="w-4 h-4" />, filter: { status: 'REJECTED' } },
     { key: 'expired', label: 'Muddati tugagan', icon: <TimerOff className="w-4 h-4" />, filter: { status: 'EXPIRED' } },
     { key: 'paid', label: "To'langan", icon: <CreditCard className="w-4 h-4" />, filter: { status: 'APPROVED', isPaid: 'true' } },
+    { key: 'archived', label: 'Nofaol (Sotilgan)', icon: <Archive className="w-4 h-4" />, filter: { status: 'ARCHIVED' } },
 ];
 
 function getStatusBadge(status: string, isPaid: boolean) {
@@ -65,8 +66,9 @@ function AdminListingsContentInner() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [tabCounts, setTabCounts] = useState<Record<TabKey, number>>({
-        all: 0, pending: 0, approved: 0, rejected: 0, paid: 0, expired: 0,
+        all: 0, pending: 0, approved: 0, rejected: 0, paid: 0, expired: 0, archived: 0,
     });
+    const [selectedSaleSource, setSelectedSaleSource] = useState('');
     const [regions, setRegions] = useState<{ id: string; nameUz: string }[]>([]);
     const [selectedRegion, setSelectedRegion] = useState('');
 
@@ -86,6 +88,7 @@ function AdminListingsContentInner() {
             const response = await getAdminListings({
                 ...activeTab.filter,
                 regionId: selectedRegion || undefined,
+                saleSource: currentTab === 'archived' && selectedSaleSource ? selectedSaleSource : undefined,
                 page: currentPage,
                 limit: 20,
             });
@@ -126,7 +129,7 @@ function AdminListingsContentInner() {
 
     useEffect(() => {
         loadListings();
-    }, [currentTab, currentPage, selectedRegion]);
+    }, [currentTab, currentPage, selectedRegion, selectedSaleSource]);
 
     useEffect(() => {
         loadCounts();
@@ -179,8 +182,16 @@ function AdminListingsContentInner() {
             case 'rejected': return "Rad etilgan e'lonlar yo'q";
             case 'expired': return "Muddati tugagan e'lonlar yo'q";
             case 'paid': return "To'langan e'lonlar yo'q";
+            case 'archived': return "Nofaol e'lonlar yo'q";
             default: return "Hech qanday e'lon topilmadi";
         }
+    };
+
+    const getSaleSourceBadge = (saleSource: string | null) => {
+        if (!saleSource) return null;
+        if (saleSource === 'OTBOZOR')
+            return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">✅ Otbozor</span>;
+        return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">🔄 Boshqa joy</span>;
     };
 
     return (
@@ -217,7 +228,7 @@ function AdminListingsContentInner() {
                 ))}
             </div>
 
-            {/* Region filter */}
+            {/* Filters */}
             <div className="mb-4 flex items-center gap-3 flex-wrap">
                 <select
                     value={selectedRegion}
@@ -229,9 +240,22 @@ function AdminListingsContentInner() {
                         <option key={r.id} value={r.id}>{r.nameUz}</option>
                     ))}
                 </select>
-                {selectedRegion && (
+
+                {currentTab === 'archived' && (
+                    <select
+                        value={selectedSaleSource}
+                        onChange={e => setSelectedSaleSource(e.target.value)}
+                        className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                        <option value="">Barcha manba</option>
+                        <option value="OTBOZOR">✅ Otbozor&apos;da sotildi</option>
+                        <option value="OTHER">🔄 Boshqa joyda sotildi</option>
+                    </select>
+                )}
+
+                {(selectedRegion || selectedSaleSource) && (
                     <button
-                        onClick={() => setSelectedRegion('')}
+                        onClick={() => { setSelectedRegion(''); setSelectedSaleSource(''); }}
                         className="text-xs text-slate-500 hover:text-red-500 transition-colors"
                     >
                         × Filtrni tozalash
@@ -311,7 +335,10 @@ function AdminListingsContentInner() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
-                                                {getStatusBadge(item.status, item.isPaid)}
+                                                <div className="flex flex-col gap-1">
+                                                    {getStatusBadge(item.status, item.isPaid)}
+                                                    {item.status === 'ARCHIVED' && getSaleSourceBadge(item.saleSource)}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex items-center justify-end gap-1.5">

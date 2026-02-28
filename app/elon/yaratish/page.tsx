@@ -179,7 +179,7 @@ function CreateListingPageContent() {
     };
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 max-w-3xl pb-24 sm:pb-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 max-w-3xl">
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-slate-900 mb-2">E'lon joylash</h1>
                 <p className="text-slate-500">Otingizni sotish uchun ma'lumotlarni to'ldiring</p>
@@ -241,7 +241,7 @@ function CreateListingPageContent() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="label">Maqsad</label>
+                                <label className="label">Maqsad <span className="text-red-500">*</span></label>
                                 <CustomSelect
                                     name="purpose"
                                     value={formData.purpose}
@@ -259,7 +259,7 @@ function CreateListingPageContent() {
                             </div>
 
                             <div>
-                                <label className="label">Zoti</label>
+                                <label className="label">Zoti <span className="text-red-500">*</span></label>
                                 <CustomSelect
                                     name="breedId"
                                     value={formData.breedId}
@@ -272,7 +272,7 @@ function CreateListingPageContent() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="label">Jinsi</label>
+                                <label className="label">Jinsi <span className="text-red-500">*</span></label>
                                 <CustomSelect
                                     name="gender"
                                     value={formData.gender}
@@ -287,7 +287,7 @@ function CreateListingPageContent() {
                             </div>
 
                             <Input
-                                label="Yoshi (yil)"
+                                label="Yoshi (yil) *"
                                 type="number"
                                 name="ageYears"
                                 value={formData.ageYears}
@@ -334,7 +334,7 @@ function CreateListingPageContent() {
                         </div>
 
                         <div>
-                            <label className="label">Tuman</label>
+                            <label className="label">Tuman <span className="text-red-500">*</span></label>
                             <CustomSelect
                                 name="districtId"
                                 value={formData.districtId}
@@ -476,7 +476,7 @@ function CreateListingPageContent() {
                 )}
 
                 {/* Actions */}
-                <div className="fixed bottom-0 left-0 right-0 z-30 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 px-4 py-3 flex justify-between sm:static sm:bg-transparent sm:dark:bg-transparent sm:border-slate-200 sm:mt-8 sm:pt-6 sm:px-0 sm:py-0 sm:z-auto">
+                <div className="flex justify-between mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
                     <button
                         onClick={prevStep}
                         disabled={currentStep === 1}
@@ -490,13 +490,16 @@ function CreateListingPageContent() {
                         <button
                             onClick={async () => {
                                 // Validate current step before moving forward
-                                if (currentStep === 1 && !formData.title) {
-                                    setError('Iltimos sarlavha kiriting');
-                                    return;
+                                if (currentStep === 1) {
+                                    if (!formData.title) { setError('Iltimos sarlavha kiriting'); return; }
+                                    if (!formData.purpose) { setError('Iltimos maqsadni tanlang'); return; }
+                                    if (!formData.breedId) { setError("Iltimos zotni tanlang"); return; }
+                                    if (!formData.gender) { setError('Iltimos jinsni tanlang'); return; }
+                                    if (!formData.ageYears) { setError('Iltimos yoshini kiriting'); return; }
                                 }
-                                if (currentStep === 2 && !formData.regionId) {
-                                    setError('Iltimos viloyatni tanlang');
-                                    return;
+                                if (currentStep === 2) {
+                                    if (!formData.regionId) { setError('Iltimos viloyatni tanlang'); return; }
+                                    if (!formData.districtId) { setError('Iltimos tumanni tanlang'); return; }
                                 }
                                 if (currentStep === 3 && !formData.priceAmount) {
                                     setError('Iltimos narx kiriting');

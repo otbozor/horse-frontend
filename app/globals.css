@@ -14,14 +14,12 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: #ffffff;
   font-family: 'Inter', system-ui, sans-serif;
 }
 
 .dark body {
-  background: rgba(30, 41, 59, 0.8);
+  background: rgb(30, 41, 59);
 }
 
 /* Hero section - belgilash va nusxalashni bloklash */

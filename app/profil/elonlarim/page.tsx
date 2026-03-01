@@ -412,10 +412,10 @@ function MyListingsPageContent() {
                             <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                             <div className="flex-1">
                                 <p className="font-semibold text-amber-800 dark:text-amber-300">
-                                     faqat <span className="font-bold">{user.listingCredits} ta</span> kredit qoldi
+                                    Sizda <span className="font-bold">{user.listingCredits} ta</span> bepul e&apos;lon krediti qoldi.
                                 </p>
                                 <p className="text-sm text-amber-700 dark:text-amber-400 mt-0.5">
-                                    Kredit tugagach, yangi e&apos;lon joylash uchun paket sotib olishingiz kerak bo&apos;ladi.
+                                    Bepul e&apos;lonlaringiz tugagach, yangi e&apos;lon joylash uchun paket sotib olishingiz kerak bo&apos;ladi.
                                 </p>
                             </div>
                         </div>
@@ -423,7 +423,7 @@ function MyListingsPageContent() {
                         <div className="mb-5 p-3.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center gap-3">
                             <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                             <p className="text-sm text-blue-700 dark:text-blue-300">
-                                Siz <span className="font-semibold">3 ta</span> e&apos;lonni bepul joylashingiz mumkin. Limit tugagach, qo&apos;shimcha e&apos;lon uchun paket sotib olishingiz kerak.
+                                Siz <span className="font-semibold">{user.listingCredits} ta</span> bepul e&apos;lon joylash huquqingiz bor. Limit tugagach, qo&apos;shimcha e&apos;lon uchun paket sotib olishingiz kerak.
                             </p>
                         </div>
                     )

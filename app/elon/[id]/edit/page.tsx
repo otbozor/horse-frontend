@@ -141,7 +141,7 @@ function EditListingPageContent() {
     const nextStep = () => { setCurrentStep(prev => Math.min(prev + 1, 5)); window.scrollTo({ top: 0, behavior: 'smooth' }); };
     const prevStep = () => { setCurrentStep(prev => Math.max(prev - 1, 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
-    const canEdit = ['DRAFT', 'REJECTED', 'EXPIRED', 'ARCHIVED'].includes(listingStatus);
+    const canEdit = ['DRAFT', 'REJECTED', 'EXPIRED', 'ARCHIVED', 'PENDING', 'APPROVED'].includes(listingStatus);
 
     const saveChanges = async () => {
         setIsSubmitting(true);
@@ -248,15 +248,12 @@ function EditListingPageContent() {
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">E'lonni tahrirlash</h1>
                 <p className="text-slate-500 dark:text-slate-400">Ma'lumotlarni o'zgartiring va qayta yuboring</p>
 
-                {!canEdit && (
-                    <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                        <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                            Bu e'lon hozir <strong>{
-                                listingStatus === 'PENDING' ? 'tekshiruvda' :
-                                listingStatus === 'APPROVED' ? 'tasdiqlangan' :
-                                listingStatus.toLowerCase()
-                            }</strong> holatida.
-                            Faqat qoralama, rad etilgan, muddati o'tgan yoki arxivlangan e'lonlarni tahrirlash mumkin.
+                {(listingStatus === 'PENDING' || listingStatus === 'APPROVED') && (
+                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <p className="text-sm text-blue-800 dark:text-blue-300">
+                            {listingStatus === 'PENDING'
+                                ? "E'lon hozir tekshiruvda. O'zgartirish kiritib saqlasangiz, e'lon qayta qoralamaga o'tadi va qayta tekshiruvga yuborishingiz kerak bo'ladi."
+                                : "E'lon hozir faol. O'zgartirish kiritib saqlasangiz, e'lon qayta tekshiruvga yuboriladi."}
                         </p>
                     </div>
                 )}

@@ -146,6 +146,7 @@ export function ListingFilters({ onApply, hideTitle }: Props) {
                         { value: 'SAYR', label: 'Sayr' },
                         { value: 'ISHCHI', label: 'Ishchi' },
                         { value: 'NASLCHILIK', label: 'Naslchilik' },
+                        { value: 'GOSHT', label: "Go'sht uchun" },
                     ]}
                 />
             </div>

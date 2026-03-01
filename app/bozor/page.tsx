@@ -7,6 +7,8 @@ import { SortSelect } from '@/components/listing/SortSelect';
 import { Search } from 'lucide-react';
 import { Pagination } from '../../components/listing/Pagination';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
     title: 'Ot bozori - Barcha e\'lonlar',
     description: 'O\'zbekiston bo\'ylab sotiladigan otlar ro\'yxati. Ko\'pkari, sport va sayr otlarini qulay narxlarda toping.',

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Video, Clock, Crown } from 'lucide-react';
+import { MapPin, Video, Clock, Crown, Eye } from 'lucide-react';
 import { HorseHeadIcon } from '@/components/icons/HorseIcons';
 import { Listing } from '@/lib/api';
 import { formatPrice, formatRelativeTime } from '@/lib/utils';
@@ -100,12 +100,18 @@ export function ListingCard({ listing, priority = false }: ListingCardProps) {
                             {listing.district ? `, ${listing.district.nameUz}` : ''}
                         </span>
                     </span>
-                    {dateStr && (
-                        <span className="flex items-center gap-1 flex-shrink-0 ml-2">
-                            <Clock className="w-3 h-3" />
-                            {formatRelativeTime(dateStr)}
+                    <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                        <span className="flex items-center gap-1">
+                            <Eye className="w-3 h-3" />
+                            {listing.viewCount}
                         </span>
-                    )}
+                        {dateStr && (
+                            <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {formatRelativeTime(dateStr)}
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
         </Link>

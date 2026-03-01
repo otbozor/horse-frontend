@@ -395,9 +395,9 @@ function MyListingsPageContent() {
                         <div className="mb-5 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3">
                             <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                             <div className="flex-1">
-                                <p className="font-semibold text-red-800 dark:text-red-300">Kredit tugadi</p>
+                                <p className="font-semibold text-red-800 dark:text-red-300">Bepul e&apos;lon joylash limitingiz tugadi</p>
                                 <p className="text-sm text-red-700 dark:text-red-400 mt-0.5">
-                                    Yangi ot e&apos;loni joylashtirish uchun paket sotib olishingiz kerak (5, 10 yoki 20 ta e&apos;lon).
+                                    Yangi ot e&apos;loni joylashtirish uchun paket sotib oling.
                                 </p>
                                 <Link
                                     href="/paketlar"

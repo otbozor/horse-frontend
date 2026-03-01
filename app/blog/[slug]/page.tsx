@@ -39,6 +39,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     return {
         title: `${post.title} | Otbozor Blog`,
         description: post.excerpt || post.title,
+        keywords: post.keywords ? post.keywords.split(',').map((k: string) => k.trim()) : undefined,
         openGraph: {
             title: post.title,
             description: post.excerpt || post.title,

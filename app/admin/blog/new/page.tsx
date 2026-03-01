@@ -22,6 +22,7 @@ export default function NewBlogPostPage() {
         slug: '',
         excerpt: '',
         content: '',
+        keywords: '',
     });
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,6 +69,7 @@ export default function NewBlogPostPage() {
             submitData.append('slug', formData.slug);
             submitData.append('excerpt', formData.excerpt);
             submitData.append('content', formData.content);
+            submitData.append('keywords', formData.keywords);
             if (coverImageFile) {
                 submitData.append('coverImage', coverImageFile);
             }
@@ -248,10 +250,25 @@ export default function NewBlogPostPage() {
                                     value={formData.excerpt}
                                     onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
                                     className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none bg-white text-slate-900 text-sm leading-relaxed transition-all modal-scroll"
-                                    rows={5}
+                                    rows={4}
                                     placeholder="Maqola haqida qisqacha mazmun..."
                                     disabled={isLoading}
                                 />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                                    SEO Kalit so'zlar
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.keywords}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, keywords: e.target.value }))}
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none bg-white text-slate-900 text-sm transition-all"
+                                    placeholder="ot, qorabayir, ot bozori, ..."
+                                    disabled={isLoading}
+                                />
+                                <p className="text-xs text-slate-400 mt-1">Vergul bilan ajrating: ot, sport ot, ot sotish</p>
                             </div>
                         </div>
 

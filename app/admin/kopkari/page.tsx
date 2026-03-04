@@ -45,10 +45,20 @@ function slugify(text: string) {
 function convertToEmbedUrl(url: string): string {
     if (!url) return url;
     if (url.includes('/maps/embed') || url.includes('output=embed')) return url;
-    // Extract coordinates from @lat,lng pattern
+    // @lat,lng formatidan
     const coordMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
     if (coordMatch) {
         return `https://maps.google.com/maps?q=${coordMatch[1]},${coordMatch[2]}&output=embed`;
+    }
+    // place/?q= formatidan
+    const placeMatch = url.match(/[?&]q=([^&]+)/);
+    if (placeMatch) {
+        return `https://maps.google.com/maps?q=${placeMatch[1]}&output=embed`;
+    }
+    // /place/NAME/ formatidan
+    const placeNameMatch = url.match(/\/place\/([^/@]+)/);
+    if (placeNameMatch) {
+        return `https://maps.google.com/maps?q=${placeNameMatch[1]}&output=embed`;
     }
     return url;
 }

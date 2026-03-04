@@ -8,7 +8,7 @@ import { Pagination } from '@/components/listing/Pagination';
 
 const ITEMS_PER_PAGE = 12;
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 async function getPublicEvents(regionId?: string, status?: string) {
     try {
@@ -18,7 +18,7 @@ async function getPublicEvents(regionId?: string, status?: string) {
         if (status === 'upcoming') params.set('upcoming', 'true');
         if (status === 'past') params.set('past', 'true');
 
-        const res = await fetch(`${API_URL}/api/events?${params.toString()}`, { next: { revalidate: 300 } });
+        const res = await fetch(`${API_URL}/api/events?${params.toString()}`, { cache: 'no-store' });
         const data = await res.json();
         if (data.success) {
             return Array.isArray(data.data) ? data.data : (data.data?.data || []);

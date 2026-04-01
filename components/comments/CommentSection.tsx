@@ -166,7 +166,7 @@ export function CommentSection({ listingId, currentUserId }: { listingId: string
                 Kommentlar ({totalComments})
             </h3>
 
-            {userId && (
+            {userId ? (
                 <form onSubmit={handleSubmit} className="mb-6">
                     {replyTo && (
                         <div className="mb-2 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
@@ -200,6 +200,19 @@ export function CommentSection({ listingId, currentUserId }: { listingId: string
                         </button>
                     </div>
                 </form>
+            ) : (
+                <div className="mb-6 text-center py-8 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <MessageCircle className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+                    <p className="text-slate-600 dark:text-slate-400 mb-4">
+                        Fikr bildirish uchun tizimga kiring
+                    </p>
+                    <a
+                        href="/login"
+                        className="btn btn-primary inline-flex"
+                    >
+                        Fikr bildirish
+                    </a>
+                </div>
             )}
 
             <div className="space-y-6">

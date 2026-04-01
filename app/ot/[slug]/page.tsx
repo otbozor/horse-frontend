@@ -6,6 +6,8 @@ import { ListingInteractions } from '@/components/listing/ListingInteractions';
 import { ListingDetailActions } from '@/components/listing/ListingDetailActions';
 import { FavoriteButton } from '@/components/listing/FavoriteButton';
 import { ViewTracker } from '@/components/listing/ViewTracker';
+import { CommentSection } from '@/components/comments/CommentSection';
+import { cookies } from 'next/headers';
 import Image from 'next/image';
 import { MapPin, Shield, Calendar, Eye } from 'lucide-react';
 import { notFound } from 'next/navigation';
@@ -38,11 +40,22 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
 
     let listing;
     let similarListings = [];
+    let currentUserId: string | undefined;
 
     try {
         listing = await getListing(id).catch(() => null);
         if (!listing) notFound();
         similarListings = await getSimilarListings(id).catch(() => []);
+
+        // Get current user from cookie
+        const cookieStore = cookies();
+        const accessToken = cookieStore.get('access_token')?.value;
+        if (accessToken) {
+            try {
+                const payload = JSON.parse(Buffer.from(accessToken.split('.')[1], 'base64').toString());
+                currentUserId = payload.userId;
+            } catch { }
+        }
     } catch {
         notFound();
     }
@@ -148,6 +161,9 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
                             </p>
                         </div>
                     </div>
+
+                    {/* Comments Section */}
+                    <CommentSection listingId={listing.id} currentUserId={currentUserId} />
                 </div>
 
                 {/* Right Column: Seller & Contact */}

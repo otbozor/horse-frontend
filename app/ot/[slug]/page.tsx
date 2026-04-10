@@ -74,7 +74,7 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 
                 {/* Left Column: Gallery & Info */}
-                <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+                <div className="lg:col-span-2 space-y-6 sm:space-y-8 order-1 lg:order-1">
                     <ListingGallery media={listing.media} title={listing.title} />
 
                     <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 dark:border-slate-700">
@@ -162,13 +162,15 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
                         </div>
                     </div>
 
-                    {/* Comments Section */}
-                    <CommentSection listingId={listing.id} currentUserId={currentUserId} />
+                    {/* Comments Section - Desktop (below listing info) */}
+                    <div className="hidden lg:block bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+                        <CommentSection listingId={listing.id} currentUserId={currentUserId} />
+                    </div>
                 </div>
 
                 {/* Right Column: Seller & Contact */}
-                <div className="space-y-6">
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 sticky top-24">
+                <div className="space-y-6 order-2 lg:order-2">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 lg:sticky lg:top-24">
 
                         {/* Seller Info */}
                         <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 border border-slate-100 dark:border-slate-600 mb-6">
@@ -198,6 +200,11 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
                         />
                     </div>
                 </div>
+            </div>
+
+            {/* Comments Section - Mobile only (below everything) */}
+            <div className="lg:hidden mt-8">
+                <CommentSection listingId={listing.id} currentUserId={currentUserId} />
             </div>
 
             {/* Similar Listings */}

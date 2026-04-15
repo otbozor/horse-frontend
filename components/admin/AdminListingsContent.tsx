@@ -28,7 +28,7 @@ function invalidateCache() {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-type TabKey = 'all' | 'pending' | 'approved' | 'rejected' | 'paid' | 'expired' | 'archived';
+type TabKey = 'all' | 'pending' | 'approved' | 'rejected' | 'draft' | 'paid' | 'expired' | 'archived';
 
 interface Tab {
     key: TabKey;
@@ -41,6 +41,7 @@ const TABS: Tab[] = [
     { key: 'all', label: "Barcha e'lonlar", icon: <ListFilter className="w-4 h-4" />, filter: {} },
     { key: 'pending', label: 'Kutilayotgan', icon: <Clock className="w-4 h-4" />, filter: { status: 'PENDING' } },
     { key: 'approved', label: 'Tasdiqlangan', icon: <CheckCircle className="w-4 h-4" />, filter: { status: 'APPROVED' } },
+    { key: 'draft', label: 'Qoralama', icon: <ListFilter className="w-4 h-4" />, filter: { status: 'DRAFT' } },
     { key: 'rejected', label: 'Rad etilgan', icon: <XCircle className="w-4 h-4" />, filter: { status: 'REJECTED' } },
     { key: 'expired', label: 'Muddati tugagan', icon: <TimerOff className="w-4 h-4" />, filter: { status: 'EXPIRED' } },
     { key: 'paid', label: "To'langan", icon: <CreditCard className="w-4 h-4" />, filter: { status: 'APPROVED', isPaid: 'true' } },
@@ -81,7 +82,7 @@ function AdminListingsContentInner() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [tabCounts, setTabCounts] = useState<Record<TabKey, number>>({
-        all: 0, pending: 0, approved: 0, rejected: 0, paid: 0, expired: 0, archived: 0,
+        all: 0, pending: 0, approved: 0, draft: 0, rejected: 0, paid: 0, expired: 0, archived: 0,
     });
     const [selectedSaleSource, setSelectedSaleSource] = useState('');
     const [regions, setRegions] = useState<{ id: string; nameUz: string }[]>([]);
@@ -93,7 +94,7 @@ function AdminListingsContentInner() {
         fetch(`${API_URL}/api/regions`)
             .then(r => r.json())
             .then(data => setRegions(Array.isArray(data) ? data : (data?.data ?? [])))
-            .catch(() => {});
+            .catch(() => { });
     }, []);
 
     const loadListings = async (forceRefresh = false) => {
@@ -171,7 +172,7 @@ function AdminListingsContentInner() {
 
     useEffect(() => {
         loadCounts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const switchTab = (tab: TabKey) => {
@@ -221,6 +222,7 @@ function AdminListingsContentInner() {
         switch (currentTab) {
             case 'pending': return "Kutilayotgan e'lonlar yo'q";
             case 'approved': return "Tasdiqlangan e'lonlar yo'q";
+            case 'draft': return "Qoralama e'lonlar yo'q";
             case 'rejected': return "Rad etilgan e'lonlar yo'q";
             case 'expired': return "Muddati tugagan e'lonlar yo'q";
             case 'paid': return "To'langan e'lonlar yo'q";
@@ -251,19 +253,17 @@ function AdminListingsContentInner() {
                     <button
                         key={tab.key}
                         onClick={() => switchTab(tab.key)}
-                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                            currentTab === tab.key
-                                ? 'bg-primary-600 text-white shadow-sm'
-                                : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
-                        }`}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${currentTab === tab.key
+                            ? 'bg-primary-600 text-white shadow-sm'
+                            : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                            }`}
                     >
                         {tab.icon}
                         {tab.label}
-                        <span className={`ml-1 text-xs px-1.5 py-0.5 rounded-full ${
-                            currentTab === tab.key
-                                ? 'bg-white/20 text-white'
-                                : 'bg-slate-100 text-slate-500'
-                        }`}>
+                        <span className={`ml-1 text-xs px-1.5 py-0.5 rounded-full ${currentTab === tab.key
+                            ? 'bg-white/20 text-white'
+                            : 'bg-slate-100 text-slate-500'
+                            }`}>
                             {tabCounts[tab.key] ?? 0}
                         </span>
                     </button>

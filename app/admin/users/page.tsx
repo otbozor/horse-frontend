@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { Users, Ban, CheckCircle, Search, Shield, Loader2 } from 'lucide-react';
+import { Users, Ban, CheckCircle, Search, Shield, Loader2, Infinity, Plus } from 'lucide-react';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 
 export const dynamic = 'force-dynamic';
@@ -15,6 +15,8 @@ interface User {
     isAdmin: boolean;
     isVerified: boolean;
     status: 'ACTIVE' | 'BANNED' | 'DELETED';
+    listingCredits: number;
+    hasUnlimitedListings: boolean;
     createdAt: string;
     _count: {
         listings: number;
@@ -86,6 +88,69 @@ export default function AdminUsersPage() {
             }
         } catch (error) {
             console.error('Failed to unban user:', error);
+        }
+    };
+
+    const handleGrantUnlimited = async (userId: string) => {
+        if (!confirm('Foydalanuvchiga cheksiz e\'lon yuklash huquqini berasizmi?')) return;
+
+        try {
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users/${userId}/grant-unlimited-listings`,
+                {
+                    method: 'POST',
+                    credentials: 'include',
+                }
+            );
+            if (res.ok) {
+                alert('Cheksiz huquq berildi!');
+                fetchUsers();
+            }
+        } catch (error) {
+            console.error('Failed to grant unlimited listings:', error);
+        }
+    };
+
+    const handleRevokeUnlimited = async (userId: string) => {
+        if (!confirm('Cheksiz e\'lon yuklash huquqini bekor qilasizmi?')) return;
+
+        try {
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users/${userId}/revoke-unlimited-listings`,
+                {
+                    method: 'POST',
+                    credentials: 'include',
+                }
+            );
+            if (res.ok) {
+                alert('Cheksiz huquq bekor qilindi!');
+                fetchUsers();
+            }
+        } catch (error) {
+            console.error('Failed to revoke unlimited listings:', error);
+        }
+    };
+
+    const handleAddCredits = async (userId: string) => {
+        const amount = prompt('Nechta kredit qo\'shasiz?');
+        if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) return;
+
+        try {
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users/${userId}/add-credits`,
+                {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: Number(amount) }),
+                }
+            );
+            if (res.ok) {
+                alert(`${amount} ta kredit qo'shildi!`);
+                fetchUsers();
+            }
+        } catch (error) {
+            console.error('Failed to add credits:', error);
         }
     };
 
@@ -161,6 +226,7 @@ export default function AdminUsersPage() {
                                     <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Foydalanuvchi</th>
                                     <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Aloqa</th>
                                     <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Kredit</th>
                                     <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">E'lonlar</th>
                                     <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Sana</th>
                                     <th className="px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider text-right">Amallar</th>
@@ -202,6 +268,18 @@ export default function AdminUsersPage() {
                                             {getStatusBadge(user.status)}
                                         </td>
                                         <td className="px-6 py-4">
+                                            <div className="flex items-center gap-2">
+                                                {user.hasUnlimitedListings ? (
+                                                    <span className="flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
+                                                        <Infinity className="w-3 h-3" />
+                                                        Cheksiz
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-sm font-medium text-slate-900">{user.listingCredits}</span>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
                                             <span className="text-sm font-medium text-slate-900">{user._count.listings}</span>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-slate-600">
@@ -210,23 +288,56 @@ export default function AdminUsersPage() {
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 {!user.isAdmin && (
-                                                    user.status === 'ACTIVE' ? (
-                                                        <button
-                                                            onClick={() => handleBan(user.id)}
-                                                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                                            title="Bloklash"
-                                                        >
-                                                            <Ban className="w-4 h-4" />
-                                                        </button>
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => handleUnban(user.id)}
-                                                            className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all"
-                                                            title="Faollashtirish"
-                                                        >
-                                                            <CheckCircle className="w-4 h-4" />
-                                                        </button>
-                                                    )
+                                                    <>
+                                                        {/* Cheksiz kredit */}
+                                                        {user.hasUnlimitedListings ? (
+                                                            <button
+                                                                onClick={() => handleRevokeUnlimited(user.id)}
+                                                                className="p-1.5 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-all"
+                                                                title="Cheksiz huquqni bekor qilish"
+                                                            >
+                                                                <Infinity className="w-4 h-4" />
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => handleGrantUnlimited(user.id)}
+                                                                className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
+                                                                title="Cheksiz huquq berish"
+                                                            >
+                                                                <Infinity className="w-4 h-4" />
+                                                            </button>
+                                                        )}
+
+                                                        {/* Kredit qo'shish */}
+                                                        {!user.hasUnlimitedListings && (
+                                                            <button
+                                                                onClick={() => handleAddCredits(user.id)}
+                                                                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                                                title="Kredit qo'shish"
+                                                            >
+                                                                <Plus className="w-4 h-4" />
+                                                            </button>
+                                                        )}
+
+                                                        {/* Ban/Unban */}
+                                                        {user.status === 'ACTIVE' ? (
+                                                            <button
+                                                                onClick={() => handleBan(user.id)}
+                                                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                                                title="Bloklash"
+                                                            >
+                                                                <Ban className="w-4 h-4" />
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => handleUnban(user.id)}
+                                                                className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all"
+                                                                title="Faollashtirish"
+                                                            >
+                                                                <CheckCircle className="w-4 h-4" />
+                                                            </button>
+                                                        )}
+                                                    </>
                                                 )}
                                             </div>
                                         </td>

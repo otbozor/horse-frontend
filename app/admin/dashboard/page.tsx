@@ -105,7 +105,6 @@ export default function AdminDashboardPage() {
                         <div className="p-3 bg-blue-100 text-blue-600 rounded-lg">
                             <Users className="w-6 h-6" />
                         </div>
-                        <span className="text-green-500 text-sm font-medium">+12%</span>
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1">{stats.totalUsers}</h3>
                     <p className="text-slate-500 text-sm">Jami foydalanuvchilar</p>
@@ -116,7 +115,7 @@ export default function AdminDashboardPage() {
                         <div className="p-3 bg-amber-100 text-amber-600 rounded-lg">
                             <FileCheck className="w-6 h-6" />
                         </div>
-                        <span className="text-amber-500 text-sm font-medium">Action</span>
+                        <span className="text-amber-500 text-sm font-medium">Kutish</span>
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1">{stats.pendingListings}</h3>
                     <p className="text-slate-500 text-sm">Kutilayotgan e'lonlar</p>
@@ -127,10 +126,10 @@ export default function AdminDashboardPage() {
                         <div className="p-3 bg-green-100 text-green-600 rounded-lg">
                             <FileCheck className="w-6 h-6" />
                         </div>
-                        <span className="text-green-500 text-sm font-medium">✓</span>
+                        <span className="text-green-500 text-sm font-medium">Faol</span>
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1">{stats.approvedListings}</h3>
-                    <p className="text-slate-500 text-sm">Tasdiqlangan e'lonlar</p>
+                    <p className="text-slate-500 text-sm">Faol e'lonlar</p>
                 </div>
 
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
@@ -138,10 +137,53 @@ export default function AdminDashboardPage() {
                         <div className="p-3 bg-purple-100 text-purple-600 rounded-lg">
                             <Eye className="w-6 h-6" />
                         </div>
-                        <span className="text-blue-500 text-sm font-medium">Today</span>
+                        <span className="text-blue-500 text-sm font-medium">Bugun</span>
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1">{stats.todayViews}</h3>
                     <p className="text-slate-500 text-sm">Bugungi ko'rishlar</p>
+                </div>
+            </div>
+
+            {/* Additional stats row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="p-3 bg-slate-100 text-slate-600 rounded-lg">
+                            <FileCheck className="w-6 h-6" />
+                        </div>
+                    </div>
+                    <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1">{stats.draftListings || 0}</h3>
+                    <p className="text-slate-500 text-sm">Qoralama</p>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="p-3 bg-red-100 text-red-600 rounded-lg">
+                            <FileCheck className="w-6 h-6" />
+                        </div>
+                    </div>
+                    <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1">{stats.rejectedListings || 0}</h3>
+                    <p className="text-slate-500 text-sm">Rad etilgan</p>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="p-3 bg-indigo-100 text-indigo-600 rounded-lg">
+                            <FileCheck className="w-6 h-6" />
+                        </div>
+                    </div>
+                    <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1">{stats.soldListings || 0}</h3>
+                    <p className="text-slate-500 text-sm">Sotilgan</p>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="p-3 bg-orange-100 text-orange-600 rounded-lg">
+                            <FileCheck className="w-6 h-6" />
+                        </div>
+                    </div>
+                    <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1">{stats.archivedListings || 0}</h3>
+                    <p className="text-slate-500 text-sm">Arxivlangan</p>
                 </div>
             </div>
 

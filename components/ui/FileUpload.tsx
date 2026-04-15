@@ -117,7 +117,13 @@ export function FileUpload({
                                 className="w-full h-full object-cover"
                                 aria-label={`Yuklangan video ${index + 1}`}
                                 onError={(e) => {
-                                    console.error('Video load error:', file.url);
+                                    console.error('Video yuklashda xatolik:', file.url);
+                                    const target = e.target as HTMLVideoElement;
+                                    target.style.display = 'none';
+                                    const parent = target.parentElement;
+                                    if (parent) {
+                                        parent.innerHTML = '<div class="flex items-center justify-center h-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs p-2 text-center">Video yuklanmadi</div>';
+                                    }
                                 }}
                             />
                         ) : (
@@ -126,7 +132,13 @@ export function FileUpload({
                                 alt={`Yuklangan rasm ${index + 1}`}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
-                                    console.error('Image load error:', file.url);
+                                    console.error('Rasm yuklashda xatolik:', file.url);
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    const parent = target.parentElement;
+                                    if (parent) {
+                                        parent.innerHTML = '<div class="flex items-center justify-center h-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs p-2 text-center">Rasm yuklanmadi</div>';
+                                    }
                                 }}
                             />
                         )}
@@ -176,7 +188,7 @@ export function FileUpload({
             />
 
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
-                Maksimal {maxFiles} ta fayl. JPG, PNG va MP4 formatlar.
+                Maksimal {maxFiles} ta fayl. JPG, PNG formatlar.
             </p>
         </div>
     );

@@ -109,6 +109,10 @@ export interface Listing {
     status: string;
     publishedAt?: string;
     createdAt?: string;
+    // Contact info for this specific listing
+    contactName?: string;
+    contactPhone?: string;
+    contactTelegram?: string;
     region: { nameUz: string; slug: string };
     district?: { nameUz: string; slug: string };
     breed?: { name: string; slug: string };

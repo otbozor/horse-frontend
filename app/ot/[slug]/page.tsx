@@ -177,13 +177,13 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
                             <div className="flex items-center gap-3">
                                 <div className="relative w-11 h-11 bg-slate-200 dark:bg-slate-600 rounded-full flex items-center justify-center text-lg overflow-hidden text-slate-600 dark:text-slate-300 flex-shrink-0">
                                     {listing.user.avatarUrl ? (
-                                        <Image src={listing.user.avatarUrl} alt={listing.user.displayName} fill sizes="44px" className="object-cover" />
+                                        <Image src={listing.user.avatarUrl} alt={listing.contactName || listing.user.displayName} fill sizes="44px" className="object-cover" />
                                     ) : (
-                                        listing.user.displayName?.[0]?.toUpperCase() || 'U'
+                                        (listing.contactName || listing.user.displayName)?.[0]?.toUpperCase() || 'U'
                                     )}
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">{listing.user.displayName}</p>
+                                    <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">{listing.contactName || listing.user.displayName}</p>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">
                                         {listing.user.isVerified ? 'Tasdiqlangan sotuvchi' : 'Sotuvchi'}
                                     </p>
@@ -195,8 +195,8 @@ export default async function ListingDetailPage({ params }: { params: { slug: st
                         </div>
 
                         <ListingInteractions
-                            telegramUsername={listing.user.telegramUsername || ''}
-                            phone={listing.user.phone}
+                            telegramUsername={listing.contactTelegram || listing.user.telegramUsername || ''}
+                            phone={listing.contactPhone || listing.user.phone}
                         />
                     </div>
                 </div>

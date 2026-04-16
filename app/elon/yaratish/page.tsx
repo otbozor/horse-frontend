@@ -7,7 +7,7 @@ import { ChevronRight, ChevronLeft, Save, Loader2, AlertCircle } from 'lucide-re
 import { Input } from '@/components/ui/Input';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { FileUpload } from '@/components/ui/FileUpload';
-import { getRegionsWithDistricts, getBreeds, createListingDraft, attachMediaToListing, submitListingForReview, PaymentRequiredError, updateUserProfile, Region, Breed, District } from '@/lib/api';
+import { getRegionsWithDistricts, getBreeds, createListingDraft, updateListingDraft, attachMediaToListing, submitListingForReview, PaymentRequiredError, updateUserProfile, Region, Breed, District } from '@/lib/api';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 
 const steps = [
@@ -145,6 +145,10 @@ function CreateListingPageContent() {
                 priceCurrency: dataWithoutMedia.priceCurrency,
                 hasPassport: dataWithoutMedia.hasPassport,
                 hasVaccine: dataWithoutMedia.hasVaccine,
+                // E'lon uchun alohida kontakt ma'lumotlari
+                contactName: contactInfo.displayName || undefined,
+                contactPhone: contactInfo.phone || undefined,
+                contactTelegram: contactInfo.telegramUsername || undefined,
             };
 
             if (!draftId) {
@@ -173,16 +177,12 @@ function CreateListingPageContent() {
 
         setIsSubmitting(true);
         try {
-            // 1. Update user contact info if changed
-            if (user && (
-                contactInfo.displayName !== user.displayName ||
-                contactInfo.phone !== user.phone ||
-                contactInfo.telegramUsername !== user.telegramUsername
-            )) {
-                await updateUserProfile({
-                    displayName: contactInfo.displayName,
-                    phone: contactInfo.phone,
-                    telegramUsername: contactInfo.telegramUsername,
+            // 1. Update contact info if changed (oxirgi bosqichda o'zgartirilgan bo'lishi mumkin)
+            if (draftId) {
+                await updateListingDraft(draftId, {
+                    contactName: contactInfo.displayName || undefined,
+                    contactPhone: contactInfo.phone || undefined,
+                    contactTelegram: contactInfo.telegramUsername || undefined,
                 });
             }
 
@@ -548,7 +548,7 @@ function CreateListingPageContent() {
 
                             <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                                 <p className="text-xs text-blue-800 dark:text-blue-300">
-                                    💡 Bu ma'lumotlar Telegram'dan olingan. Agar noto'g'ri bo'lsa, o'zgartirishingiz mumkin.
+                                    💡 Bu ma'lumotlar faqat shu e'lon uchun saqlanadi. Boshqa e'lonlaringizga ta'sir qilmaydi.
                                 </p>
                             </div>
                         </div>

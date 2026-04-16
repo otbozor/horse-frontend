@@ -54,6 +54,13 @@ function EditListingPageContent() {
         media: [] as Array<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number }>,
     });
 
+    // Contact info state (separate from form data)
+    const [contactInfo, setContactInfo] = useState({
+        displayName: '',
+        phone: '',
+        telegramUsername: '',
+    });
+
     useEffect(() => {
         return () => {
             formData.media.forEach(m => {
@@ -102,6 +109,13 @@ function EditListingPageContent() {
                         type: m.type || 'IMAGE',
                         sortOrder: i,
                     })) || [],
+                });
+
+                // Load contact info from listing (not from user!)
+                setContactInfo({
+                    displayName: listing.contactName || user?.displayName || '',
+                    phone: listing.contactPhone || user?.phone || '',
+                    telegramUsername: listing.contactTelegram || user?.telegramUsername || '',
                 });
 
                 // Set districts based on region
@@ -165,6 +179,10 @@ function EditListingPageContent() {
                 priceCurrency: formData.priceCurrency,
                 hasPassport: formData.hasPassport,
                 hasVaccine: formData.hasVaccine,
+                // Contact info - save separately for this listing
+                contactName: contactInfo.displayName || undefined,
+                contactPhone: contactInfo.phone || undefined,
+                contactTelegram: contactInfo.telegramUsername || undefined,
             };
 
             await updateListingDraft(listingId, data);
@@ -572,6 +590,51 @@ function EditListingPageContent() {
                                 Moderatorlar e'lonni tekshirib chiqqandan so'ng u saytda ko'rinadi.
                             </p>
                         )}
+
+                        {/* Contact Information */}
+                        <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-6">
+                            <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100 mb-4">Aloqa ma'lumotlari</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                                Bu ma'lumotlar e'londa ko'rsatiladi. Xaridorlar siz bilan bog'lanish uchun foydalanadi.
+                            </p>
+
+                            <div className="space-y-4">
+                                <Input
+                                    label="Ism"
+                                    name="displayName"
+                                    value={contactInfo.displayName}
+                                    onChange={(e) => setContactInfo(prev => ({ ...prev, displayName: e.target.value }))}
+                                    placeholder="Ismingiz"
+                                    required
+                                    disabled={!canEdit}
+                                />
+
+                                <Input
+                                    label="Telefon raqam"
+                                    name="phone"
+                                    value={contactInfo.phone}
+                                    onChange={(e) => setContactInfo(prev => ({ ...prev, phone: e.target.value }))}
+                                    placeholder="+998 90 123 45 67"
+                                    required
+                                    disabled={!canEdit}
+                                />
+
+                                <Input
+                                    label="Telegram username (ixtiyoriy)"
+                                    name="telegramUsername"
+                                    value={contactInfo.telegramUsername}
+                                    onChange={(e) => setContactInfo(prev => ({ ...prev, telegramUsername: e.target.value }))}
+                                    placeholder="@username"
+                                    disabled={!canEdit}
+                                />
+                            </div>
+
+                            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                                <p className="text-xs text-blue-800 dark:text-blue-300">
+                                    💡 Bu ma'lumotlar faqat shu e'lon uchun saqlanadi. Boshqa e'lonlaringizga ta'sir qilmaydi.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -616,7 +679,19 @@ function EditListingPageContent() {
                                 Saqlash
                             </button>
                             <button
-                                onClick={handleSubmit}
+                                onClick={async () => {
+                                    // Validate contact info
+                                    if (!contactInfo.displayName.trim()) {
+                                        setError('Iltimos ismingizni kiriting');
+                                        return;
+                                    }
+                                    if (!contactInfo.phone.trim()) {
+                                        setError('Iltimos telefon raqamingizni kiriting');
+                                        return;
+                                    }
+
+                                    await handleSubmit();
+                                }}
                                 disabled={isSubmitting}
                                 className="btn btn-primary"
                             >

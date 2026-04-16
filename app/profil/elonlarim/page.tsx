@@ -65,9 +65,9 @@ const PRODUCT_STATUS_TABS: { key: ProductFilter; label: string; icon: any }[] = 
 function filterProducts(products: Product[], filter: ProductFilter): Product[] {
     switch (filter) {
         case 'PUBLISHED': return products.filter(p => p.status === 'PUBLISHED');
-        case 'DRAFT':     return products.filter(p => p.status === 'DRAFT' && p.isPaid);
-        case 'ARCHIVED':  return products.filter(p => p.status === 'ARCHIVED');
-        case 'UNPAID':    return products.filter(p => !p.isPaid);
+        case 'DRAFT': return products.filter(p => p.status === 'DRAFT' && p.isPaid);
+        case 'ARCHIVED': return products.filter(p => p.status === 'ARCHIVED');
+        case 'UNPAID': return products.filter(p => !p.isPaid);
         default: return products;
     }
 }
@@ -75,9 +75,9 @@ function filterProducts(products: Product[], filter: ProductFilter): Product[] {
 function getProductStatusCounts(products: Product[]) {
     return {
         PUBLISHED: products.filter(p => p.status === 'PUBLISHED').length,
-        DRAFT:     products.filter(p => p.status === 'DRAFT' && p.isPaid).length,
-        ARCHIVED:  products.filter(p => p.status === 'ARCHIVED').length,
-        UNPAID:    products.filter(p => !p.isPaid).length,
+        DRAFT: products.filter(p => p.status === 'DRAFT' && p.isPaid).length,
+        ARCHIVED: products.filter(p => p.status === 'ARCHIVED').length,
+        UNPAID: products.filter(p => !p.isPaid).length,
     };
 }
 
@@ -94,24 +94,24 @@ const ITEMS_PER_PAGE = 12;
 
 function filterListings(listings: Listing[], filter: StatusFilter): Listing[] {
     switch (filter) {
-        case 'active':   return listings.filter(l => l.status === 'APPROVED');
-        case 'pending':  return listings.filter(l => l.status === 'PENDING');
-        case 'unpaid':   return listings.filter(l => !l.isPaid && l.status === 'DRAFT');
+        case 'active': return listings.filter(l => l.status === 'APPROVED');
+        case 'pending': return listings.filter(l => l.status === 'PENDING');
+        case 'unpaid': return listings.filter(l => !l.isPaid && l.status === 'DRAFT');
         case 'inactive': return listings.filter(l => l.status === 'ARCHIVED');
         case 'rejected': return listings.filter(l => l.status === 'REJECTED');
-        case 'expired':  return listings.filter(l => l.status === 'EXPIRED');
+        case 'expired': return listings.filter(l => l.status === 'EXPIRED');
         default: return listings;
     }
 }
 
 function getStatusCounts(listings: Listing[]) {
     return {
-        active:   listings.filter(l => l.status === 'APPROVED').length,
-        pending:  listings.filter(l => l.status === 'PENDING').length,
-        unpaid:   listings.filter(l => !l.isPaid && l.status === 'DRAFT').length,
+        active: listings.filter(l => l.status === 'APPROVED').length,
+        pending: listings.filter(l => l.status === 'PENDING').length,
+        unpaid: listings.filter(l => !l.isPaid && l.status === 'DRAFT').length,
         inactive: listings.filter(l => l.status === 'ARCHIVED').length,
         rejected: listings.filter(l => l.status === 'REJECTED').length,
-        expired:  listings.filter(l => l.status === 'EXPIRED').length,
+        expired: listings.filter(l => l.status === 'EXPIRED').length,
     };
 }
 
@@ -558,56 +558,56 @@ function MyListingsPageContent() {
 
                                             {/* 3-dot menu — top right */}
                                             {listing.status !== 'PENDING' && (
-                                            <div className="absolute top-2 right-2">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setOpenMenuId(openMenuId === listing.id ? null : listing.id);
-                                                    }}
-                                                    className="w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white transition-colors"
-                                                >
-                                                    <MoreVertical className="w-4 h-4" />
-                                                </button>
-
-                                                {openMenuId === listing.id && (
-                                                    <div
-                                                        onClick={(e) => e.stopPropagation()}
-                                                        className="absolute right-0 top-10 z-50 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden py-1"
+                                                <div className="absolute top-2 right-2">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setOpenMenuId(openMenuId === listing.id ? null : listing.id);
+                                                        }}
+                                                        className="w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white transition-colors"
                                                     >
-                                                        {/* Ulashish — APPROVED */}
-                                                        {listing.status === 'APPROVED' && (
-                                                            <button
-                                                                onClick={() => handleShare(listing)}
-                                                                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                                                            >
-                                                                <Share2 className="w-4 h-4" />
-                                                                Ulashish
-                                                            </button>
-                                                        )}
-                                                        {/* Tahrirlash — DRAFT, REJECTED */}
-                                                        {(listing.status === 'DRAFT' || listing.status === 'REJECTED') && (
-                                                            <Link
-                                                                href={`/elon/${listing.id}/edit`}
-                                                                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                                                                onClick={() => setOpenMenuId(null)}
-                                                            >
-                                                                <Edit className="w-4 h-4" />
-                                                                Tahrirlash
-                                                            </Link>
-                                                        )}
-                                                        {/* Nofaol qilish — APPROVED, EXPIRED, DRAFT */}
-                                                        {(listing.status === 'APPROVED' || listing.status === 'EXPIRED' || listing.status === 'DRAFT') && (
-                                                            <button
-                                                                onClick={() => { setDeactivateListingId(listing.id); setOpenMenuId(null); }}
-                                                                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10"
-                                                            >
-                                                                <Archive className="w-4 h-4" />
-                                                                Nofaol qilish
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
+                                                        <MoreVertical className="w-4 h-4" />
+                                                    </button>
+
+                                                    {openMenuId === listing.id && (
+                                                        <div
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            className="absolute right-0 top-10 z-50 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden py-1"
+                                                        >
+                                                            {/* Ulashish — APPROVED */}
+                                                            {listing.status === 'APPROVED' && (
+                                                                <button
+                                                                    onClick={() => handleShare(listing)}
+                                                                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                                                                >
+                                                                    <Share2 className="w-4 h-4" />
+                                                                    Ulashish
+                                                                </button>
+                                                            )}
+                                                            {/* Tahrirlash — DRAFT, REJECTED, yoki Admin */}
+                                                            {((listing.status === 'DRAFT' || listing.status === 'REJECTED') || user?.isAdmin) && (
+                                                                <Link
+                                                                    href={`/elon/${listing.id}/edit`}
+                                                                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                                                                    onClick={() => setOpenMenuId(null)}
+                                                                >
+                                                                    <Edit className="w-4 h-4" />
+                                                                    Tahrirlash
+                                                                </Link>
+                                                            )}
+                                                            {/* Nofaol qilish — APPROVED, EXPIRED, DRAFT, yoki Admin */}
+                                                            {((listing.status === 'APPROVED' || listing.status === 'EXPIRED' || listing.status === 'DRAFT') || user?.isAdmin) && (
+                                                                <button
+                                                                    onClick={() => { setDeactivateListingId(listing.id); setOpenMenuId(null); }}
+                                                                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10"
+                                                                >
+                                                                    <Archive className="w-4 h-4" />
+                                                                    Nofaol qilish
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
 

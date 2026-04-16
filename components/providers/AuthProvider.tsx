@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser({
                 id: response.data.id,
                 displayName: response.data.displayName,
-                telegramUsername: response.data.username,
+                telegramUsername: response.data.telegramUsername,
                 username: response.data.username,
                 isVerified: response.data.isVerified,
                 avatarUrl: response.data.avatarUrl,

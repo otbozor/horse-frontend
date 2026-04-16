@@ -143,24 +143,6 @@ export default function AdminListingPreviewPage() {
                     <ArrowLeft className="w-5 h-5" />
                     Orqaga
                 </Link>
-                <div className="flex gap-3">
-                    <button
-                        onClick={handleApprove}
-                        disabled={!!actionLoading}
-                        className="btn btn-primary flex items-center gap-2"
-                    >
-                        {actionLoading === 'approve' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-5 h-5" />}
-                        Tasdiqlash
-                    </button>
-                    <button
-                        onClick={() => setShowRejectModal(true)}
-                        disabled={!!actionLoading}
-                        className="btn bg-red-600 hover:bg-red-700 text-white flex items-center gap-2"
-                    >
-                        <X className="w-5 h-5" />
-                        Rad etish
-                    </button>
-                </div>
             </div>
 
             {actionError && (
@@ -269,24 +251,26 @@ export default function AdminListingPreviewPage() {
                             </div>
                         </div>
 
-                        <div className="pt-4 border-t border-slate-100 dark:border-slate-700">
-                            <button
-                                onClick={handleApprove}
-                                disabled={!!actionLoading}
-                                className="w-full btn btn-primary mb-2 text-sm py-2"
-                            >
-                                {actionLoading === 'approve' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                                Tasdiqlash
-                            </button>
-                            <button
-                                onClick={() => setShowRejectModal(true)}
-                                disabled={!!actionLoading}
-                                className="w-full btn bg-red-600 hover:bg-red-700 text-white text-sm py-2"
-                            >
-                                <X className="w-4 h-4" />
-                                Rad etish
-                            </button>
-                        </div>
+                        {listing.status === 'PENDING' && (
+                            <div className="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-2">
+                                <button
+                                    onClick={handleApprove}
+                                    disabled={!!actionLoading}
+                                    className="w-full btn btn-primary text-sm py-2.5 flex items-center justify-center gap-2"
+                                >
+                                    {actionLoading === 'approve' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                                    Tasdiqlash
+                                </button>
+                                <button
+                                    onClick={() => setShowRejectModal(true)}
+                                    disabled={!!actionLoading}
+                                    className="w-full btn bg-red-600 hover:bg-red-700 text-white text-sm py-2.5 flex items-center justify-center gap-2"
+                                >
+                                    <X className="w-4 h-4" />
+                                    Rad etish
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

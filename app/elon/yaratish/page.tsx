@@ -7,7 +7,7 @@ import { ChevronRight, ChevronLeft, Save, Loader2, AlertCircle } from 'lucide-re
 import { Input } from '@/components/ui/Input';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { FileUpload } from '@/components/ui/FileUpload';
-import { getRegionsWithDistricts, getBreeds, createListingDraft, attachMediaToListing, submitListingForReview, PaymentRequiredError, Region, Breed, District } from '@/lib/api';
+import { getRegionsWithDistricts, getBreeds, createListingDraft, attachMediaToListing, submitListingForReview, PaymentRequiredError, updateUserProfile, Region, Breed, District } from '@/lib/api';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 
 const steps = [
@@ -46,6 +46,13 @@ function CreateListingPageContent() {
         media: [] as Array<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number }>,
     });
 
+    // Contact info state (initialized from user data)
+    const [contactInfo, setContactInfo] = useState({
+        displayName: '',
+        phone: '',
+        telegramUsername: '',
+    });
+
     const [draftId, setDraftId] = useState<string | null>(null);
 
     // Clean up blob URLs when component unmounts
@@ -68,6 +75,13 @@ function CreateListingPageContent() {
             ]);
             setRegions(regionsData);
             setBreeds(breedsData);
+
+            // Initialize contact info from user data
+            setContactInfo({
+                displayName: user.displayName || '',
+                phone: user.phone || '',
+                telegramUsername: user.telegramUsername || '',
+            });
         };
 
         loadData();
@@ -78,9 +92,18 @@ function CreateListingPageContent() {
         if (formData.regionId) {
             const region = regions.find(r => r.id === formData.regionId);
             setDistricts(region?.districts || []);
+            // Reset district selection when region changes
+            if (formData.districtId) {
+                const districtExists = region?.districts?.some(d => d.id === formData.districtId);
+                if (!districtExists) {
+                    setFormData(prev => ({ ...prev, districtId: '' }));
+                }
+            }
         } else {
             setDistricts([]);
+            setFormData(prev => ({ ...prev, districtId: '' }));
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formData.regionId, regions]);
 
     const handleChange = (e: { target: { name: string; value: string } }) => {
@@ -150,12 +173,25 @@ function CreateListingPageContent() {
 
         setIsSubmitting(true);
         try {
-            // 1. Attach media
+            // 1. Update user contact info if changed
+            if (user && (
+                contactInfo.displayName !== user.displayName ||
+                contactInfo.phone !== user.phone ||
+                contactInfo.telegramUsername !== user.telegramUsername
+            )) {
+                await updateUserProfile({
+                    displayName: contactInfo.displayName,
+                    phone: contactInfo.phone,
+                    telegramUsername: contactInfo.telegramUsername,
+                });
+            }
+
+            // 2. Attach media
             if (formData.media.length > 0 && draftId) {
                 await attachMediaToListing(draftId, formData.media);
             }
 
-            // 2. Submit
+            // 3. Submit
             if (draftId) {
                 await submitListingForReview(draftId);
             }
@@ -474,6 +510,48 @@ function CreateListingPageContent() {
                             </a>{' '}
                             rozilik bildirasiz. E'lon tekshiruvdan o'tgach avtomatik e'lon qilinadi.
                         </div>
+
+                        {/* Contact Information */}
+                        <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-6">
+                            <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100 mb-4">Aloqa ma'lumotlari</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                                Bu ma'lumotlar e'londa ko'rsatiladi. Xaridorlar siz bilan bog'lanish uchun foydalanadi.
+                            </p>
+
+                            <div className="space-y-4">
+                                <Input
+                                    label="Ism"
+                                    name="displayName"
+                                    value={contactInfo.displayName}
+                                    onChange={(e) => setContactInfo(prev => ({ ...prev, displayName: e.target.value }))}
+                                    placeholder="Ismingiz"
+                                    required
+                                />
+
+                                <Input
+                                    label="Telefon raqam"
+                                    name="phone"
+                                    value={contactInfo.phone}
+                                    onChange={(e) => setContactInfo(prev => ({ ...prev, phone: e.target.value }))}
+                                    placeholder="+998 90 123 45 67"
+                                    required
+                                />
+
+                                <Input
+                                    label="Telegram username (ixtiyoriy)"
+                                    name="telegramUsername"
+                                    value={contactInfo.telegramUsername}
+                                    onChange={(e) => setContactInfo(prev => ({ ...prev, telegramUsername: e.target.value }))}
+                                    placeholder="@username"
+                                />
+                            </div>
+
+                            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                                <p className="text-xs text-blue-800 dark:text-blue-300">
+                                    💡 Bu ma'lumotlar Telegram'dan olingan. Agar noto'g'ri bo'lsa, o'zgartirishingiz mumkin.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -530,7 +608,19 @@ function CreateListingPageContent() {
                         </button>
                     ) : (
                         <button
-                            onClick={handleSubmit}
+                            onClick={async () => {
+                                // Validate contact info
+                                if (!contactInfo.displayName.trim()) {
+                                    setError('Iltimos ismingizni kiriting');
+                                    return;
+                                }
+                                if (!contactInfo.phone.trim()) {
+                                    setError('Iltimos telefon raqamingizni kiriting');
+                                    return;
+                                }
+
+                                await handleSubmit();
+                            }}
                             disabled={isSubmitting}
                             className="btn btn-primary"
                         >

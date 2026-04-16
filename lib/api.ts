@@ -469,6 +469,7 @@ export interface UserMeResponse {
     avatarUrl?: string;
     isVerified: boolean;
     phone?: string;
+    telegramUsername?: string;
     isAdmin: boolean;
     listingCredits: number;
 }
@@ -508,6 +509,13 @@ export async function refreshTokens(): Promise<AuthResponse<{ tokens: { accessTo
 
 export async function getCurrentUser(): Promise<AuthResponse<UserMeResponse>> {
     return apiFetch('/api/auth/me');
+}
+
+export async function updateUserProfile(data: { displayName?: string; phone?: string; telegramUsername?: string }): Promise<AuthResponse<{ displayName: string; phone?: string; telegramUsername?: string }>> {
+    return apiFetch('/api/users/me', {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
 }
 
 export async function logout(): Promise<AuthResponse<null>> {

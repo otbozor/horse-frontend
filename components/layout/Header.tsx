@@ -94,11 +94,10 @@ export function Header() {
                             key={item.name}
                             href={item.href}
                             onClick={() => setMobileMenuOpen(false)}
-                            className={`flex items-center px-4 py-3 rounded-xl text-base font-medium transition-colors ${
-                                isActive(item.href)
+                            className={`flex items-center px-4 py-3 rounded-xl text-base font-medium transition-colors ${isActive(item.href)
                                     ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/20'
                                     : 'text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800'
-                            }`}
+                                }`}
                         >
                             {item.name}
                         </Link>
@@ -175,7 +174,7 @@ export function Header() {
 
     return (
         <>
-            <header className="sticky top-0 z-[100] glass border-b border-slate-200/50 dark:border-slate-700/50">
+            <header className="sticky top-0 z-50 glass border-b border-slate-200/50 dark:border-slate-700/50">
                 <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 items-center justify-between">
                         {/* Logo */}
@@ -192,11 +191,10 @@ export function Header() {
                                 <Link
                                     key={item.name}
                                     href={item.href}
-                                    className={`px-3 xl:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                        isActive(item.href)
+                                    className={`px-3 xl:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive(item.href)
                                             ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/20'
                                             : 'text-slate-600 hover:text-primary-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:text-primary-400 dark:hover:bg-slate-800'
-                                    }`}
+                                        }`}
                                 >
                                     {item.name}
                                 </Link>

@@ -87,6 +87,7 @@ function AdminListingsContentInner() {
     const [selectedSaleSource, setSelectedSaleSource] = useState('');
     const [regions, setRegions] = useState<{ id: string; nameUz: string }[]>([]);
     const [selectedRegion, setSelectedRegion] = useState('');
+    const [archiveListingId, setArchiveListingId] = useState<string | null>(null);
 
     const activeTab = TABS.find(t => t.key === currentTab) || TABS[0];
 
@@ -218,15 +219,11 @@ function AdminListingsContentInner() {
         }
     };
 
-    const handleArchive = async (id: string, title: string) => {
-        if (!confirm(`"${title}" e'lonini nofaol qilasizmi?`)) return;
+    const handleArchive = async (id: string, saleSource: 'OTBOZOR' | 'OTHER') => {
         try {
-            await fetch(`${API_URL}/api/my/listings/${id}`, {
-                method: 'DELETE',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({}),
-            });
+            const { archiveAdminListing } = await import('@/lib/admin-api');
+            await archiveAdminListing(id, saleSource);
+            setArchiveListingId(null);
             invalidateCache();
             await loadListings(true);
             await loadCounts(true);
@@ -437,7 +434,7 @@ function AdminListingsContentInner() {
                                                     )}
                                                     {(item.status === 'APPROVED' || item.status === 'PENDING') && (
                                                         <button
-                                                            onClick={() => handleArchive(item.id, item.title)}
+                                                            onClick={() => setArchiveListingId(item.id)}
                                                             className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
                                                             title="Nofaol qilish"
                                                         >
@@ -485,6 +482,53 @@ function AdminListingsContentInner() {
                     </>
                 )}
             </div>
+
+            {/* ── ARCHIVE MODAL ── */}
+            {archiveListingId && (
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                    onClick={() => setArchiveListingId(null)}
+                >
+                    <div
+                        className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">
+                            E&apos;lon muvaffaqiyatli bo&apos;ldimi?
+                        </h3>
+                        {(() => {
+                            const listing = listings.find(l => l.id === archiveListingId);
+                            return listing ? (
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mb-5 line-clamp-1">
+                                    {listing.title}
+                                </p>
+                            ) : null;
+                        })()}
+                        <div className="space-y-2">
+                            <button
+                                onClick={() => handleArchive(archiveListingId, 'OTBOZOR')}
+                                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 font-medium hover:border-green-400 dark:hover:border-green-600 transition-colors text-left"
+                            >
+                                <span className="text-xl leading-none">✅</span>
+                                <span>Ha, Otbozor&apos;da sotildi</span>
+                            </button>
+                            <button
+                                onClick={() => handleArchive(archiveListingId, 'OTHER')}
+                                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:border-slate-400 dark:hover:border-slate-500 transition-colors text-left"
+                            >
+                                <span className="text-xl leading-none">🔄</span>
+                                <span>Yo&apos;q, boshqa joyda sotildi</span>
+                            </button>
+                            <button
+                                onClick={() => setArchiveListingId(null)}
+                                className="w-full px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                            >
+                                Bekor qilish
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </AdminLayout>
     );
 }

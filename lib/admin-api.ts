@@ -64,6 +64,14 @@ export async function deleteAdminListing(listingId: string): Promise<AuthRespons
     });
 }
 
+// Archive Listing (admin)
+export async function archiveAdminListing(listingId: string, saleSource?: 'OTBOZOR' | 'OTHER'): Promise<AuthResponse<any>> {
+    return apiFetch(`/api/admin/listings/${listingId}/archive`, {
+        method: 'POST',
+        body: JSON.stringify({ saleSource }),
+    });
+}
+
 // Reject Listing
 export async function rejectListing(listingId: string, reason: string): Promise<AuthResponse<any>> {
     return apiFetch(`/api/admin/listings/${listingId}/reject`, {

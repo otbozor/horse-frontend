@@ -43,9 +43,13 @@ export function SocialPopup() {
             <div className="absolute top-48 left-1/2 -translate-x-1/2 w-full max-w-sm px-4">
                 <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full p-6 border border-slate-200 dark:border-slate-700">
                     {/* Close button */}
+                    
                     <button
                         onClick={close}
-                        className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                        className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full 
+               text-red-500  bg-red-100  border border-red-500 
+               hover:bg-red-500 hover:text-white 
+               transition-colors"
                         aria-label="Yopish"
                     >
                         <X className="w-4 h-4" />

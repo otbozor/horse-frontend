@@ -444,6 +444,8 @@ export async function deleteAccount(): Promise<void> {
 }
 
 // Auth
+export type PaymentPackage = 'OSON_START' | 'TEZKOR_SAVDO' | 'TURBO_SAVDO';
+
 export interface AuthResponse<T> {
     success: boolean;
     data?: T;

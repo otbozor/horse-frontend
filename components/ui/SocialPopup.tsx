@@ -43,7 +43,7 @@ export function SocialPopup() {
             <div className="absolute top-48 left-1/2 -translate-x-1/2 w-full max-w-sm px-4">
                 <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full p-6 border border-slate-200 dark:border-slate-700">
                     {/* Close button */}
-                    
+
                     <button
                         onClick={close}
                         className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full 

@@ -48,17 +48,30 @@ export function ListingInteractions({ telegramUsername, phone }: Props) {
                 </a>
 
                 {phone && (
-                    <a
-                        href={`tel:${phone}`}
-                        onClick={handlePhoneClick}
-                        className="flex items-center justify-center gap-2.5 w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold text-base transition-colors"
-                    >
-                        {phoneCopied ? (
-                            <><Check className="w-5 h-5" /> Raqam nusxalandi!</>
-                        ) : (
-                            <><Phone className="w-5 h-5" /> Telefon qilish</>
-                        )}
-                    </a>
+                    <>
+                        <a
+                            href={`tel:${phone}`}
+                            onClick={handlePhoneClick}
+                            className="flex items-center justify-center gap-2.5 w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold text-base transition-colors"
+                        >
+                            {phoneCopied ? (
+                                <><Check className="w-5 h-5" /> Raqam nusxalandi!</>
+                            ) : (
+                                <><Phone className="w-5 h-5" /> Telefon qilish</>
+                            )}
+                        </a>
+
+                        {/* Otbozor.uz dan deb ayting */}
+                        <div className="bg-yellow-200 dark:bg-yellow-900/20 border-2 border-yellow-500 dark:border-yellow-700 rounded-lg p-3 shadow-sm">
+                            <p className="text-center text-sm font-medium text-slate-700 dark:text-slate-300">
+                                💡 Aloqaga chiqqanda{' '}
+                                <span className="font-bold text-yellow-700 dark:text-yellow-400">
+                                    "Otbozor.uz dan"
+                                </span>{' '}
+                                deb ayting
+                            </p>
+                        </div>
+                    </>
                 )}
             </div>
 

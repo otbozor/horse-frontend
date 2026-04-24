@@ -16,6 +16,7 @@ function LoginContent() {
   const [botLink, setBotLink] = useState("");
   const [botUsername, setBotUsername] = useState("otbozor_bot");
   const [initLoading, setInitLoading] = useState(true);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   const searchParams = useSearchParams();
   const returnUrl = searchParams.get("returnUrl") || "/profil";
@@ -32,8 +33,33 @@ function LoginContent() {
     el?.select();
   };
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const userResponse = await getCurrentUser();
+        if (userResponse.success && userResponse.data) {
+          // User already logged in, redirect
+          if (userResponse.data.isAdmin) {
+            window.location.href = "/admin/dashboard";
+          } else {
+            window.location.href = returnUrl;
+          }
+          return;
+        }
+      } catch (err) {
+        // Not logged in, continue to login page
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+    checkAuth();
+  }, [returnUrl]);
+
   // Sahifa yuklanganda avtomatik sessiya yaratish
   useEffect(() => {
+    if (checkingAuth) return; // Wait for auth check first
+
     const initSession = async () => {
       try {
         const response = await startTelegramAuth(window.location.origin);
@@ -50,7 +76,7 @@ function LoginContent() {
       }
     };
     initSession();
-  }, []);
+  }, [checkingAuth]);
 
   const handleVerifyCode = useCallback(async () => {
     if (!isComplete || loading) return;
@@ -126,6 +152,18 @@ function LoginContent() {
     focusAt(Math.min(cleaned.length, CODE_LEN - 1));
   };
 
+  // Show loading while checking auth
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-900">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary-600 mx-auto mb-4" />
+          <p className="text-sm text-slate-500 dark:text-slate-400">Tekshirilmoqda...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-900 px-4 py-12">
       <div className="w-full max-w-[420px]">
@@ -157,11 +195,10 @@ function LoginContent() {
           href={botLink || `https://t.me/${botUsername}`}
           target="_blank"
           rel="noopener noreferrer"
-          className={`w-full h-12 flex items-center justify-center gap-2.5 rounded-xl font-semibold text-sm transition-all mb-8 ${
-            initLoading
-              ? "bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-wait pointer-events-none"
-              : "bg-[#2AABEE] hover:bg-[#229ED9] text-white"
-          }`}
+          className={`w-full h-12 flex items-center justify-center gap-2.5 rounded-xl font-semibold text-sm transition-all mb-8 ${initLoading
+            ? "bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-wait pointer-events-none"
+            : "bg-[#2AABEE] hover:bg-[#229ED9] text-white"
+            }`}
         >
           {initLoading ? (
             <>
@@ -171,7 +208,7 @@ function LoginContent() {
           ) : (
             <>
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.26 13.605l-2.979-.929c-.648-.203-.66-.648.136-.961l11.647-4.49c.538-.194 1.01.131.83.996z"/>
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.26 13.605l-2.979-.929c-.648-.203-.66-.648.136-.961l11.647-4.49c.538-.194 1.01.131.83.996z" />
               </svg>
               Parol olish
             </>

@@ -80,40 +80,42 @@ function ReklamaTanlashContent() {
                 </div>
 
                 {/* Pricing Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
                     {/* OSON START */}
                     <button
                         onClick={() => setSelectedPackage('OSON_START')}
-                        className={`p-6 rounded-2xl border-2 transition-all text-left ${selectedPackage === 'OSON_START'
+                        className={`p-4 rounded-lg border-2 transition-all text-left ${selectedPackage === 'OSON_START'
                             ? 'border-blue-500 ring-4 ring-blue-100 dark:ring-blue-900/50 bg-blue-50 dark:bg-blue-900/20 scale-105'
                             : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 bg-white dark:bg-slate-800 hover:scale-105'
                             }`}
                     >
-                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mb-2">
+                            <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                         </div>
-                        <div className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                        <div className="text-lg font-bold text-slate-900 dark:text-white mb-1.5">
                             Oson start
                         </div>
-                        <div className="text-4xl font-bold text-slate-900 dark:text-white mb-1">
-                            {packagePrices?.OSON_START
-                                ? packagePrices.OSON_START.amount.toLocaleString('uz-UZ')
-                                : '41,600'}{' '}
-                            <span className="text-lg text-slate-500">so'm</span>
+                        <div className="mb-1">
+                            <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                                {packagePrices?.OSON_START
+                                    ? packagePrices.OSON_START.amount.toLocaleString('uz-UZ')
+                                    : '41,600'}{' '}
+                                <span className="text-sm text-slate-500">so'm</span>
+                            </div>
                         </div>
-                        <div className="space-y-3 mt-6">
-                            <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                                <CheckCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                        <div className="space-y-1.5 mt-3">
+                            <div className="flex items-start gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+                                <CheckCircle className="w-3.5 h-3.5 text-blue-500 flex-shrink-0 mt-0.5" />
                                 <span>3 kun TOP'da joylashtirish</span>
                             </div>
-                            <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                                <CheckCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                            <div className="flex items-start gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+                                <CheckCircle className="w-3.5 h-3.5 text-blue-500 flex-shrink-0 mt-0.5" />
                                 <span>2x ko'proq ko'rishlar</span>
                             </div>
-                            <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                                <CheckCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                            <div className="flex items-start gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+                                <CheckCircle className="w-3.5 h-3.5 text-blue-500 flex-shrink-0 mt-0.5" />
                                 <span>Tezroq sotish imkoniyati</span>
                             </div>
                         </div>
@@ -122,39 +124,44 @@ function ReklamaTanlashContent() {
                     {/* TEZKOR SAVDO */}
                     <button
                         onClick={() => setSelectedPackage('TEZKOR_SAVDO')}
-                        className={`p-6 rounded-2xl border-2 transition-all relative text-left ${selectedPackage === 'TEZKOR_SAVDO'
+                        className={`p-4 rounded-lg border-2 transition-all relative text-left ${selectedPackage === 'TEZKOR_SAVDO'
                             ? 'border-green-500 ring-4 ring-green-100 dark:ring-green-900/50 bg-green-50 dark:bg-green-900/20 scale-105'
                             : 'border-green-400 dark:border-green-600 hover:border-green-500 bg-white dark:bg-slate-800 hover:scale-105'
                             }`}
                     >
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs px-4 py-1.5 rounded-full font-bold shadow-lg">
+                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white text-[10px] px-2.5 py-0.5 rounded-full font-bold shadow-lg">
                             ENG MASHHUR
                         </div>
-                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mb-2">
+                            <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                             </svg>
                         </div>
-                        <div className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                        <div className="text-lg font-bold text-slate-900 dark:text-white mb-1.5">
                             Tezkor savdo
                         </div>
-                        <div className="text-4xl font-bold text-slate-900 dark:text-white mb-1">
-                            {packagePrices?.TEZKOR_SAVDO
-                                ? packagePrices.TEZKOR_SAVDO.amount.toLocaleString('uz-UZ')
-                                : '85,700'}{' '}
-                            <span className="text-lg text-slate-500">so'm</span>
+                        <div className="mb-1">
+                            <div className="text-xs text-slate-400 line-through mb-0.5">
+                                85,700 so'm
+                            </div>
+                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                {packagePrices?.TEZKOR_SAVDO
+                                    ? packagePrices.TEZKOR_SAVDO.amount.toLocaleString('uz-UZ')
+                                    : '80,000'}{' '}
+                                <span className="text-sm text-slate-500">so'm</span>
+                            </div>
                         </div>
-                        <div className="space-y-3 mt-6">
-                            <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                        <div className="space-y-1.5 mt-3">
+                            <div className="flex items-start gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+                                <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" />
                                 <span>7 kun TOP'da joylashtirish</span>
                             </div>
-                            <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                            <div className="flex items-start gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+                                <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" />
                                 <span>4x ko'proq ko'rishlar</span>
                             </div>
-                            <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                            <div className="flex items-start gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+                                <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" />
                                 <span>Qidiruv natijalarida birinchi</span>
                             </div>
                         </div>
@@ -163,37 +170,38 @@ function ReklamaTanlashContent() {
                     {/* PREMIUM */}
                     <button
                         onClick={() => setSelectedPackage('TURBO_SAVDO')}
-                        className={`p-6 rounded-2xl border-2 transition-all text-left ${selectedPackage === 'TURBO_SAVDO'
+                        className={`p-4 rounded-lg border-2 transition-all text-left ${selectedPackage === 'TURBO_SAVDO'
                             ? 'border-amber-500 ring-4 ring-amber-100 dark:ring-amber-900/50 bg-amber-50 dark:bg-amber-900/20 scale-105'
                             : 'border-slate-200 dark:border-slate-700 hover:border-amber-300 bg-white dark:bg-slate-800 hover:scale-105'
                             }`}
                     >
-                        <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 24 24">
+                        <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center mb-2">
+                            <svg className="w-4 h-4 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 2L15 8L21 9L16.5 13.5L18 20L12 16.5L6 20L7.5 13.5L3 9L9 8L12 2Z" />
-                                <path d="M3 21h18v-2H3v2z" />
                             </svg>
                         </div>
-                        <div className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                        <div className="text-lg font-bold text-slate-900 dark:text-white mb-1.5">
                             Premium
                         </div>
-                        <div className="text-4xl font-bold text-slate-900 dark:text-white mb-1">
-                            {packagePrices?.TURBO_SAVDO
-                                ? packagePrices.TURBO_SAVDO.amount.toLocaleString('uz-UZ')
-                                : '249,300'}{' '}
-                            <span className="text-lg text-slate-500">so'm</span>
+                        <div className="mb-1">
+                            <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                                {packagePrices?.TURBO_SAVDO
+                                    ? packagePrices.TURBO_SAVDO.amount.toLocaleString('uz-UZ')
+                                    : '249,300'}{' '}
+                                <span className="text-sm text-slate-500">so'm</span>
+                            </div>
                         </div>
-                        <div className="space-y-3 mt-6">
-                            <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                                <CheckCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                        <div className="space-y-1.5 mt-3">
+                            <div className="flex items-start gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+                                <CheckCircle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
                                 <span>30 kun TOP'da joylashtirish</span>
                             </div>
-                            <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                                <CheckCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                            <div className="flex items-start gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+                                <CheckCircle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
                                 <span>10x ko'proq ko'rishlar</span>
                             </div>
-                            <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                                <CheckCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                            <div className="flex items-start gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+                                <CheckCircle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
                                 <span>Premium sotuvchi nishoni</span>
                             </div>
                         </div>

@@ -64,11 +64,11 @@ export function ListingInteractions({ telegramUsername, phone }: Props) {
                         {/* Otbozor.uz dan deb ayting */}
                         <div className="bg-yellow-200 dark:bg-yellow-900/20 border-2 border-yellow-500 dark:border-yellow-700 rounded-lg p-3 shadow-sm">
                             <p className="text-center text-sm font-medium text-slate-700 dark:text-slate-300">
-                                💡 Aloqaga chiqqanda{' '}
+                                Iltimos aloqaga chiqqanda{' '}
                                 <span className="font-bold text-yellow-700 dark:text-yellow-400">
-                                    "Otbozor.uz dan"
+                                    "Otbozor.uz"
                                 </span>{' '}
-                                deb ayting
+                                saytidan telefon raqamlarini topganingizni ularga aytsangiz.
                             </p>
                         </div>
                     </>

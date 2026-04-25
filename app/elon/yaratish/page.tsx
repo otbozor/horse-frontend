@@ -201,7 +201,7 @@ function CreateListingPageContent() {
 
         setIsSubmitting(true);
         try {
-            // 1. Update contact info if changed (oxirgi bosqichda o'zgartirilgan bo'lishi mumkin)
+            // 1. Update contact info
             if (draftId) {
                 await updateListingDraft(draftId, {
                     contactName: contactInfo.displayName || undefined,
@@ -215,23 +215,12 @@ function CreateListingPageContent() {
                 await attachMediaToListing(draftId, formData.media);
             }
 
-            // 3. Submit
+            // 3. Redirect to ads selection page (don't submit yet)
             if (draftId) {
-                await submitListingForReview(draftId);
+                router.push(`/elon/${draftId}/reklama-tanlash`);
             }
-
-            router.push('/profil/elonlarim?success=true');
         } catch (error: any) {
-            console.error('Failed to submit', error);
-            if (error instanceof PaymentRequiredError) {
-                // 4th+ listing — redirect to publication fee payment
-                router.push(`/elon/${error.listingId}/nashr-tolov`);
-                return;
-            }
-            if (error.message?.includes('already submitted')) {
-                router.push('/profil/elonlarim?success=true');
-                return;
-            }
+            console.error('Failed to save', error);
             setError(error.message || 'Xatolik yuz berdi');
         } finally {
             setIsSubmitting(false);
@@ -574,123 +563,6 @@ function CreateListingPageContent() {
                                 <p className="text-xs text-blue-800 dark:text-blue-300">
                                     💡 Bu ma'lumotlar faqat shu e'lon uchun saqlanadi. Boshqa e'lonlaringizga ta'sir qilmaydi.
                                 </p>
-                            </div>
-                        </div>
-
-                        {/* Reklama Paketlari Taklifi */}
-                        <div className="bg-gradient-to-br from-primary-50 to-green-50 dark:from-primary-900/20 dark:to-green-900/20 border-2 border-primary-200 dark:border-primary-700 rounded-xl p-6">
-                            <div className="flex items-start gap-4">
-                                <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                                    <Megaphone className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100 mb-2">
-                                        🚀 E'loningizni ko'proq odamlar ko'rsin!
-                                    </h3>
-                                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                                        Reklama paketlari bilan e'loningiz boshqalardan ustun turadi va tezroq sotiladi.
-                                    </p>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                                        <button
-                                            type="button"
-                                            onClick={() => setSelectedPackage('OSON_START')}
-                                            className={`bg-white dark:bg-slate-800 rounded-lg p-3 border transition-all ${selectedPackage === 'OSON_START'
-                                                ? 'border-primary-500 ring-2 ring-primary-200 dark:ring-primary-800'
-                                                : 'border-slate-200 dark:border-slate-600 hover:border-primary-300'
-                                                }`}
-                                        >
-                                            <div className="text-center">
-                                                <div className="text-lg font-bold text-primary-600 dark:text-primary-400">OSON START</div>
-                                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">3 kun</div>
-                                                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                                                    {packagePrices?.OSON_START ?
-                                                        `${(packagePrices.OSON_START.amount || 41600).toLocaleString('uz-UZ')} so'm`
-                                                        : '41,600 so\'m'
-                                                    }
-                                                </div>
-                                            </div>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setSelectedPackage('TEZKOR_SAVDO')}
-                                            className={`bg-white dark:bg-slate-800 rounded-lg p-3 border-2 relative transition-all ${selectedPackage === 'TEZKOR_SAVDO'
-                                                ? 'border-green-500 ring-2 ring-green-200 dark:ring-green-800'
-                                                : 'border-green-400 dark:border-green-600 hover:border-green-500'
-                                                }`}
-                                        >
-                                            <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
-                                                Mashhur
-                                            </div>
-                                            <div className="text-center">
-                                                <div className="text-lg font-bold text-green-600 dark:text-green-400">TEZKOR SAVDO</div>
-                                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">7 kun</div>
-                                                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                                                    {packagePrices?.TEZKOR_SAVDO ?
-                                                        `${(packagePrices.TEZKOR_SAVDO.amount || 85700).toLocaleString('uz-UZ')} so'm`
-                                                        : '85,700 so\'m'
-                                                    }
-                                                </div>
-                                            </div>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setSelectedPackage('TURBO_SAVDO')}
-                                            className={`bg-white dark:bg-slate-800 rounded-lg p-3 border transition-all ${selectedPackage === 'TURBO_SAVDO'
-                                                ? 'border-amber-500 ring-2 ring-amber-200 dark:ring-amber-800'
-                                                : 'border-slate-200 dark:border-slate-600 hover:border-amber-300'
-                                                }`}
-                                        >
-                                            <div className="text-center">
-                                                <div className="text-lg font-bold text-amber-600 dark:text-amber-400">TURBO SAVDO</div>
-                                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">30 kun</div>
-                                                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                                                    {packagePrices?.TURBO_SAVDO ?
-                                                        `${(packagePrices.TURBO_SAVDO.amount || 249300).toLocaleString('uz-UZ')} so'm`
-                                                        : '249,300 so\'m'
-                                                    }
-                                                </div>
-                                            </div>
-                                        </button>
-                                    </div>
-
-                                    <div className="flex flex-col sm:flex-row gap-3">
-                                        {selectedPackage ? (
-                                            <button
-                                                type="button"
-                                                onClick={async () => {
-                                                    if (!draftId) {
-                                                        setError('Avval e\'lonni saqlang');
-                                                        return;
-                                                    }
-                                                    // Paket bilan to'lov sahifasiga o'tish
-                                                    router.push(`/elon/${draftId}/reklama-tolov?package=${selectedPackage}`);
-                                                }}
-                                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-green-600 hover:from-primary-700 hover:to-green-700 text-white rounded-lg font-medium text-sm transition-all"
-                                            >
-                                                <Megaphone className="w-4 h-4" />
-                                                {selectedPackage === 'OSON_START' && 'OSON START bilan davom etish'}
-                                                {selectedPackage === 'TEZKOR_SAVDO' && 'TEZKOR SAVDO bilan davom etish'}
-                                                {selectedPackage === 'TURBO_SAVDO' && 'TURBO SAVDO bilan davom etish'}
-                                            </button>
-                                        ) : (
-                                            <Link
-                                                href="/profil/elonlarim"
-                                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium text-sm transition-colors"
-                                            >
-                                                <Megaphone className="w-4 h-4" />
-                                                Reklama qilish uchun ta'rif tanlang
-                                            </Link>
-                                        )}
-                                        <button
-                                            type="button"
-                                            onClick={() => router.push('/profil/elonlarim')}
-                                            className="px-4 py-2.5 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm font-medium transition-colors"
-                                        >
-                                            {selectedPackage ? 'Paket tanlamasdan davom etish' : 'Keyinroq'}
-                                        </button>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>

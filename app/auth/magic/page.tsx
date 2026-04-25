@@ -34,22 +34,8 @@ function MagicLinkContent() {
                 const data = await response.json();
 
                 if (data.success) {
-                    setStatus('success');
-                    setMessage('Muvaffaqiyatli login qildingiz! Sahifaga yo\'naltirilmoqda...');
-
-                    // Check if user is admin
-                    const meResponse = await fetch(`${apiUrl}/api/auth/me`, {
-                        credentials: 'include',
-                    });
-                    const meData = await meResponse.json();
-
-                    setTimeout(() => {
-                        if (meData.success && meData.data?.isAdmin) {
-                            router.push('/admin/dashboard');
-                        } else {
-                            router.push('/profil');
-                        }
-                    }, 1500);
+                    // Immediate redirect - no status update needed
+                    window.location.href = '/profil';
                 } else {
                     setStatus('error');
                     setMessage(data.message || 'Magic link yaroqsiz yoki muddati tugagan.');
@@ -62,7 +48,7 @@ function MagicLinkContent() {
         };
 
         verifyToken();
-    }, [token, router]);
+    }, [token]);
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-900 px-4 py-12">
@@ -101,7 +87,7 @@ function MagicLinkContent() {
 
                 {/* Title */}
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
-                    {status === 'loading' && 'Tekshirilmoqda...'}
+                    {status === 'loading' && 'Kirish...'}
                     {status === 'success' && 'Muvaffaqiyatli!'}
                     {status === 'error' && 'Xatolik'}
                 </h1>
@@ -131,7 +117,7 @@ function MagicLinkContent() {
 
                 {status === 'loading' && (
                     <p className="text-xs text-slate-400 dark:text-slate-500">
-                        Iltimos, kuting...
+                        Kutib turing...
                     </p>
                 )}
             </div>

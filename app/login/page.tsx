@@ -1,50 +1,21 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
-import { startTelegramAuth, getCurrentUser } from "@/lib/api";
+import { startTelegramAuth } from "@/lib/api";
 
 function LoginContent() {
-  const router = useRouter();
   const [botLink, setBotLink] = useState("");
   const [botUsername, setBotUsername] = useState("inbook_ru_bot");
-  const [initLoading, setInitLoading] = useState(true);
-  const [checkingAuth, setCheckingAuth] = useState(true);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const searchParams = useSearchParams();
-  const returnUrl = searchParams.get("returnUrl") || "/profil";
 
-  // Check if user is already logged in
+  // Initialize Telegram auth session immediately
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const userResponse = await getCurrentUser();
-        if (userResponse.success && userResponse.data) {
-          // User already logged in, redirect
-          if (userResponse.data.isAdmin) {
-            router.push("/admin/dashboard");
-          } else {
-            router.push(returnUrl);
-          }
-          return;
-        }
-      } catch (err) {
-        // Not logged in, continue to login page
-      } finally {
-        setCheckingAuth(false);
-      }
-    };
-    checkAuth();
-  }, [returnUrl, router]);
-
-  // Initialize Telegram auth session
-  useEffect(() => {
-    if (checkingAuth) return;
-
     const initSession = async () => {
       try {
         const response = await startTelegramAuth(window.location.origin);
@@ -55,26 +26,12 @@ function LoginContent() {
         }
       } catch (err) {
         console.error("Sessiya yaratishda xatolik:", err);
-        setError("Xatolik yuz berdi. Iltimos, sahifani yangilang.");
       } finally {
-        setInitLoading(false);
+        setLoading(false);
       }
     };
     initSession();
-  }, [checkingAuth]);
-
-  if (checkingAuth) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-900">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary-600 mx-auto mb-4" />
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Tekshirilmoqda...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-900 px-4 py-12">
@@ -102,35 +59,27 @@ function LoginContent() {
           Telegram bot orqali kirish havolasini oling
         </p>
 
-        {error && (
-          <div className="mb-6 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl">
-            <p className="text-sm text-red-600 dark:text-red-400 text-center">
-              {error}
-            </p>
-          </div>
-        )}
-
         {/* Get login link button */}
         <a
           href={botLink || `https://t.me/${botUsername}`}
           target="_blank"
           rel="noopener noreferrer"
-          className={`w-full h-14 flex items-center justify-center gap-2.5 rounded-xl font-semibold text-base transition-all mb-6 ${initLoading
-            ? "bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-wait pointer-events-none"
-            : "bg-[#2AABEE] hover:bg-[#229ED9] text-white shadow-lg shadow-blue-500/30"
+          className={`w-full h-14 flex items-center justify-center gap-2.5 rounded-xl font-semibold text-base transition-all mb-6 ${loading
+              ? "bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-wait pointer-events-none"
+              : "bg-[#2AABEE] hover:bg-[#229ED9] text-white shadow-lg shadow-blue-500/30"
             }`}
         >
-          {initLoading ? (
+          {loading ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              Tayyorlanmoqda...
+              Yuklanmoqda...
             </>
           ) : (
             <>
               <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.26 13.605l-2.979-.929c-.648-.203-.66-.648.136-.961l11.647-4.49c.538-.194 1.01.131.83.996z" />
               </svg>
-              Kirish havolasini olish
+              Telegram orqali kirish
             </>
           )}
         </a>
@@ -146,17 +95,13 @@ function LoginContent() {
                 <span className="font-bold text-primary-600 dark:text-primary-400 flex-shrink-0">
                   1.
                 </span>
-                <span>
-                  Yuqoridagi tugmani bosing va Telegram botga o'ting
-                </span>
+                <span>Yuqoridagi tugmani bosing va Telegram botga o'ting</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold text-primary-600 dark:text-primary-400 flex-shrink-0">
                   2.
                 </span>
-                <span>
-                  Botdan "Saytga kirish" tugmasini bosing
-                </span>
+                <span>Botdan "Saytga kirish" tugmasini bosing</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold text-primary-600 dark:text-primary-400 flex-shrink-0">
@@ -169,7 +114,8 @@ function LoginContent() {
 
           <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
             <p className="text-xs text-amber-800 dark:text-amber-300 text-center">
-              Yangi foydalanuvchilar uchun telefon raqamini tasdiqlash kerak bo'ladi
+              Yangi foydalanuvchilar uchun telefon raqamini tasdiqlash kerak
+              bo'ladi
             </p>
           </div>
         </div>
@@ -190,13 +136,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-900">
-          <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
-        </div>
-      }
-    >
+    <Suspense fallback={<div className="min-h-screen bg-white dark:bg-slate-900" />}>
       <LoginContent />
     </Suspense>
   );

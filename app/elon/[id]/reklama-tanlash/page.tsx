@@ -80,7 +80,7 @@ function ReklamaTanlashContent() {
                 </div>
 
                 {/* Pricing Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     {/* OSON START */}
                     <button
                         onClick={() => setSelectedPackage('OSON_START')}
@@ -98,7 +98,12 @@ function ReklamaTanlashContent() {
                             Oson start
                         </div>
                         <div className="mb-1">
-                            <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                            {packagePrices?.OSON_START?.hasDiscount && (
+                                <div className="text-xs text-slate-400 line-through mb-0.5">
+                                    {packagePrices.OSON_START.originalAmount.toLocaleString('uz-UZ')} so'm
+                                </div>
+                            )}
+                            <div className={`text-2xl font-bold ${packagePrices?.OSON_START?.hasDiscount ? 'text-blue-600 dark:text-blue-400' : 'text-slate-900 dark:text-white'}`}>
                                 {packagePrices?.OSON_START
                                     ? packagePrices.OSON_START.amount.toLocaleString('uz-UZ')
                                     : '41,600'}{' '}
@@ -141,13 +146,15 @@ function ReklamaTanlashContent() {
                             Tezkor savdo
                         </div>
                         <div className="mb-1">
-                            <div className="text-xs text-slate-400 line-through mb-0.5">
-                                85,700 so'm
-                            </div>
-                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                            {packagePrices?.TEZKOR_SAVDO?.hasDiscount && (
+                                <div className="text-xs text-slate-400 line-through mb-0.5">
+                                    {packagePrices.TEZKOR_SAVDO.originalAmount.toLocaleString('uz-UZ')} so'm
+                                </div>
+                            )}
+                            <div className={`text-2xl font-bold ${packagePrices?.TEZKOR_SAVDO?.hasDiscount ? 'text-green-600 dark:text-green-400' : 'text-slate-900 dark:text-white'}`}>
                                 {packagePrices?.TEZKOR_SAVDO
                                     ? packagePrices.TEZKOR_SAVDO.amount.toLocaleString('uz-UZ')
-                                    : '80,000'}{' '}
+                                    : '85,700'}{' '}
                                 <span className="text-sm text-slate-500">so'm</span>
                             </div>
                         </div>
@@ -184,7 +191,12 @@ function ReklamaTanlashContent() {
                             Premium
                         </div>
                         <div className="mb-1">
-                            <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                            {packagePrices?.TURBO_SAVDO?.hasDiscount && (
+                                <div className="text-xs text-slate-400 line-through mb-0.5">
+                                    {packagePrices.TURBO_SAVDO.originalAmount.toLocaleString('uz-UZ')} so'm
+                                </div>
+                            )}
+                            <div className={`text-2xl font-bold ${packagePrices?.TURBO_SAVDO?.hasDiscount ? 'text-amber-600 dark:text-amber-400' : 'text-slate-900 dark:text-white'}`}>
                                 {packagePrices?.TURBO_SAVDO
                                     ? packagePrices.TURBO_SAVDO.amount.toLocaleString('uz-UZ')
                                     : '249,300'}{' '}

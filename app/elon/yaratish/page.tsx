@@ -38,6 +38,7 @@ function CreateListingPageContent() {
         gender: '',
         ageYears: '',
         color: '',
+        country: 'UZ', // Default: O'zbekiston
         regionId: '',
         districtId: '',
         priceAmount: '',
@@ -130,6 +131,14 @@ function CreateListingPageContent() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formData.regionId, regions]);
 
+    // Reset region/district when country changes
+    useEffect(() => {
+        if (formData.country !== 'UZ') {
+            setFormData(prev => ({ ...prev, regionId: '', districtId: '' }));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [formData.country]);
+
     const handleChange = (e: { target: { name: string; value: string } }) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -147,13 +156,19 @@ function CreateListingPageContent() {
         setIsSubmitting(true);
         try {
             // Validate required fields
-            if (!formData.title || !formData.regionId || !formData.priceAmount || !formData.color || !formData.description) {
+            if (!formData.title || !formData.priceAmount || !formData.color || !formData.description) {
                 setError('Iltimos barcha majburiy maydonlarni to\'ldiring (rang va tavsif ham)');
                 return false;
             }
 
+            // O'zbekiston uchun viloyat majburiy
+            if (formData.country === 'UZ' && !formData.regionId) {
+                setError('Iltimos viloyatni tanlang');
+                return false;
+            }
+
             // Prepare data - remove media field and empty values
-            const { media, ...dataWithoutMedia } = formData;
+            const { media, country, ...dataWithoutMedia } = formData;
 
             const data = {
                 title: dataWithoutMedia.title,
@@ -163,8 +178,9 @@ function CreateListingPageContent() {
                 gender: dataWithoutMedia.gender || undefined,
                 ageYears: dataWithoutMedia.ageYears ? Number(dataWithoutMedia.ageYears) : undefined,
                 color: dataWithoutMedia.color,
-                regionId: dataWithoutMedia.regionId,
-                districtId: dataWithoutMedia.districtId || undefined,
+                // Faqat O'zbekiston uchun regionId/districtId yuborish
+                regionId: country === 'UZ' && dataWithoutMedia.regionId ? dataWithoutMedia.regionId : undefined,
+                districtId: country === 'UZ' && dataWithoutMedia.districtId ? dataWithoutMedia.districtId : undefined,
                 priceAmount: Number(dataWithoutMedia.priceAmount),
                 priceCurrency: dataWithoutMedia.priceCurrency,
                 hasPassport: dataWithoutMedia.hasPassport,
@@ -374,27 +390,49 @@ function CreateListingPageContent() {
                 {currentStep === 2 && (
                     <div className="space-y-6 animate-fade-in">
                         <div>
-                            <label className="label">Viloyat</label>
+                            <label className="label">Davlat <span className="text-red-500">*</span></label>
                             <CustomSelect
-                                name="regionId"
-                                value={formData.regionId}
+                                name="country"
+                                value={formData.country}
                                 onChange={handleChange}
                                 placeholder="Tanlang"
-                                options={regions.map(r => ({ label: r.nameUz, value: r.id }))}
+                                options={[
+                                    { label: "O'zbekiston", value: 'UZ' },
+                                    { label: 'Qozog\'iston', value: 'KZ' },
+                                    { label: 'Turkmaniston', value: 'TM' },
+                                    { label: 'Qirg\'iziston', value: 'KG' },
+                                    { label: 'Tojikiston', value: 'TJ' },
+                                    { label: 'Afg\'oniston', value: 'AF' },
+                                ]}
                             />
                         </div>
 
-                        <div>
-                            <label className="label">Tuman <span className="text-red-500">*</span></label>
-                            <CustomSelect
-                                name="districtId"
-                                value={formData.districtId}
-                                onChange={handleChange}
-                                placeholder="Tanlang"
-                                options={districts.map(d => ({ label: d.nameUz, value: d.id }))}
-                                disabled={!formData.regionId}
-                            />
-                        </div>
+                        {formData.country === 'UZ' && (
+                            <>
+                                <div>
+                                    <label className="label">Viloyat <span className="text-red-500">*</span></label>
+                                    <CustomSelect
+                                        name="regionId"
+                                        value={formData.regionId}
+                                        onChange={handleChange}
+                                        placeholder="Tanlang"
+                                        options={regions.map(r => ({ label: r.nameUz, value: r.id }))}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="label">Tuman <span className="text-red-500">*</span></label>
+                                    <CustomSelect
+                                        name="districtId"
+                                        value={formData.districtId}
+                                        onChange={handleChange}
+                                        placeholder="Tanlang"
+                                        options={districts.map(d => ({ label: d.nameUz, value: d.id }))}
+                                        disabled={!formData.regionId}
+                                    />
+                                </div>
+                            </>
+                        )}
                     </div>
                 )}
 
@@ -516,14 +554,6 @@ function CreateListingPageContent() {
                             </div>
                         </div>
 
-                        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 text-sm text-amber-800 dark:text-amber-300">
-                            E'lonni joylash orqali siz{' '}
-                            <a href="https://www.otbozor.uz/terms" target="_blank" rel="noopener noreferrer" className="underline font-medium hover:text-amber-900 dark:hover:text-amber-200">
-                                foydalanish shartlariga
-                            </a>{' '}
-                            rozilik bildirasiz. E'lon tekshiruvdan o'tgach avtomatik e'lon qilinadi.
-                        </div>
-
                         {/* Contact Information */}
                         <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-6">
                             <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100 mb-4">Aloqa ma'lumotlari</h3>
@@ -565,6 +595,14 @@ function CreateListingPageContent() {
                                 </p>
                             </div>
                         </div>
+
+                        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 text-sm text-amber-800 dark:text-amber-300">
+                            E'lonni joylash orqali siz{' '}
+                            <a href="https://www.otbozor.uz/terms" target="_blank" rel="noopener noreferrer" className="underline font-medium hover:text-amber-900 dark:hover:text-amber-200">
+                                foydalanish shartlariga
+                            </a>{' '}
+                            rozilik bildirasiz. E'lon tekshiruvdan o'tgach avtomatik e'lon qilinadi.
+                        </div>
                     </div>
                 )}
 
@@ -591,11 +629,18 @@ function CreateListingPageContent() {
                                     if (!formData.ageYears) { setError('Iltimos yoshini kiriting'); return; }
                                 }
                                 if (currentStep === 2) {
-                                    if (!formData.regionId) { setError('Iltimos viloyatni tanlang'); return; }
-                                    if (!formData.districtId) { setError('Iltimos tumanni tanlang'); return; }
+                                    if (!formData.country) { setError('Iltimos davlatni tanlang'); return; }
+                                    if (formData.country === 'UZ') {
+                                        if (!formData.regionId) { setError('Iltimos viloyatni tanlang'); return; }
+                                        if (!formData.districtId) { setError('Iltimos tumanni tanlang'); return; }
+                                    }
                                 }
                                 if (currentStep === 3 && !formData.priceAmount) {
                                     setError('Iltimos narx kiriting');
+                                    return;
+                                }
+                                if (currentStep === 4 && formData.media.length === 0) {
+                                    setError('Kamida bitta rasm yuklash shart');
                                     return;
                                 }
 

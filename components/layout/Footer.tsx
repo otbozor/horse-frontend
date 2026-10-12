@@ -60,6 +60,11 @@ export function Footer() {
                                     E'lon joylash
                                 </Link>
                             </li>
+                            <li>
+                                <Link href="/android-yuklash" className="text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                                    Android ilova
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 

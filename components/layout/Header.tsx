@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, ChevronDown, User, Plus, LogOut, Heart, FileText, Shield } from 'lucide-react';
+import { Menu, X, ChevronDown, User, Plus, LogOut, Heart, FileText, Shield, Smartphone } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { usePathname } from 'next/navigation';
@@ -102,6 +102,15 @@ export function Header() {
                             {item.name}
                         </Link>
                     ))}
+                    <Link
+                        href="/android-yuklash"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-primary-700 bg-primary-50 dark:text-primary-300 dark:bg-primary-900/20"
+                    >
+                        <Smartphone className="w-5 h-5" />
+                        Android ilova
+                        <span className="ml-auto rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-900">Yangi</span>
+                    </Link>
                 </div>
 
                 <hr className="my-4 border-slate-200 dark:border-slate-700" />
@@ -212,6 +221,14 @@ export function Header() {
                                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                             </button>
                             */}
+
+                            <Link
+                                href="/android-yuklash"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 hover:bg-slate-100 dark:hover:text-primary-400 dark:hover:bg-slate-800 transition-colors"
+                            >
+                                <Smartphone className="w-4 h-4" />
+                                Ilova
+                            </Link>
 
                             {isAuthenticated ? (
                                 <>

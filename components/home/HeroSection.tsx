@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Search, ArrowRight, CheckCircle2, Smartphone } from 'lucide-react';
 
 export function HeroSection() {
     return (
@@ -51,6 +51,14 @@ export function HeroSection() {
                                 <CheckCircle2 className="w-4 h-4 text-primary-600 dark:text-primary-400" />
                                 Xavfsiz to'lov
                             </div>
+                            <Link
+                                href="/android-yuklash"
+                                className="group flex items-center gap-2 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                            >
+                                <Smartphone className="w-4 h-4" />
+                                Android ilova
+                                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                            </Link>
                         </div>
                     </div>
 

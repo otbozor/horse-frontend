@@ -4,7 +4,8 @@ import { Bell, CheckCircle2, Download, MessageCircle, ShieldCheck, Smartphone, Z
 
 // APK va versiya yagona manbadan — app.otbozor.uz (Mini App bilan birga deploy qilinadi)
 const APP_ORIGIN = 'https://app.otbozor.uz';
-const APK_URL = `${APP_ORIGIN}/app/otbozor.apk`;
+// Backend yuklab olishni sanaydi va APK ga yo'naltiradi
+const APK_URL = 'https://api.otbozor.uz/api/app/download?src=page';
 
 export const metadata: Metadata = {
     title: 'Android ilovani yuklab olish',

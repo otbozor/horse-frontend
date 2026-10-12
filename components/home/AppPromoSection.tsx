@@ -2,8 +2,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Bell, Download, ShieldCheck, Zap } from 'lucide-react';
 
-// APK yagona manbadan — app.otbozor.uz (yangi versiya chiqsa shu yerda almashadi)
-const APK_URL = 'https://app.otbozor.uz/app/otbozor.apk';
+// Backend yuklab olishni sanaydi va APK ga (app.otbozor.uz/app/otbozor.apk) yo'naltiradi
+const APK_URL = 'https://api.otbozor.uz/api/app/download?src=home';
 
 const POINTS = [
     { icon: Zap, text: "E'lon 2 daqiqada — telefoningizdan" },

@@ -13,6 +13,7 @@ export async function generateSitemap() {
         '/mahsulotlar',
         '/aloqa',
         '/faq',
+        '/android-yuklash',
     ].map((route) => ({
         url: `${BASE_URL}${route}`,
         lastModified: new Date().toISOString(),

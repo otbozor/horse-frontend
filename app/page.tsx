@@ -5,6 +5,7 @@ import { getAllPublicEvents } from '@/lib/api';
 import { formatPrice } from '@/lib/utils';
 import { HeroSection } from '@/components/home/HeroSection';
 import { FeaturedSlider } from '@/components/home/FeaturedSlider';
+import { AppPromoSection } from '@/components/home/AppPromoSection';
 
 async function getRecentListings() {
     try {
@@ -95,6 +96,9 @@ export default async function HomePage() {
             )}
           </div>
         </section>
+
+        {/* Android ilova */}
+        <AppPromoSection />
 
         {/* Recent Products */}
         <section className="py-12 md:py-16 bg-white dark:bg-slate-800">

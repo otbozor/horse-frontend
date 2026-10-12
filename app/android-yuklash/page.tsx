@@ -84,7 +84,7 @@ export default async function AndroidDownloadPage() {
                                 </a>
                             </div>
                             <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
-                                {version ? `Versiya ${version} · ` : ''}Android 7.0 va undan yuqori · ~4,5 MB
+                                {version ? `Versiya ${version} · ` : ''}Android 7.0 va undan yuqori · ~6 MB
                             </p>
 
                             {/* Kompyuterdan kirganlar uchun: telefon bilan skanerlash */}

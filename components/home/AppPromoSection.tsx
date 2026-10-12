@@ -66,7 +66,7 @@ export function AppPromoSection() {
                                 <ArrowRight className="h-4 w-4" />
                             </Link>
                         </div>
-                        <p className="mt-3 text-xs text-white/60">Bepul · Android 7.0+ · ~4,5 MB</p>
+                        <p className="mt-3 text-xs text-white/60">Bepul · Android 7.0+ · ~6 MB</p>
 
                         {/* Kompyuterdan kirganlar uchun */}
                         <div className="mt-8 hidden lg:inline-flex items-center gap-4 rounded-2xl bg-white/10 p-3 pr-5 ring-1 ring-white/15 backdrop-blur">
